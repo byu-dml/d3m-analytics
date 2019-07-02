@@ -42,10 +42,13 @@ Using the `elasticsearch-dsl` python package, the database can be queried progra
     from client import client
     from settings import INDEXES
 
+    # Search all pipeline documents (defaults to only returning 10 at a time max)
     s = Search(using=client, index=INDEXES["PIPELINES"])
 
+    # Execute the search
     response = s.execute()
 
+    # Print each pipeline returned by the search.
     for hit in response:
         print(hit.id)
     ```
