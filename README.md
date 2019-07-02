@@ -6,6 +6,8 @@ Use this package to programmatically query the D3M meta-learning database. It us
 
 ### Installation:
 
+1.  Clone this repository
+
 1.  ```shell
     pip install -r requirements.txt
     ```
