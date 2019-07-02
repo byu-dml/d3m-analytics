@@ -1,6 +1,6 @@
-# Programmatically Query The D3M MtL Database 
+# Programmatically Interact With The D3M MtL Database 
 
-Use this package to programmatically query the D3M meta-learning database. It uses the `elasticsearch-dsl` python package to query.
+You can use this package to programmatically interact with the D3M meta-learning database. All that's required is credentials for accessing it. This package uses the `elasticsearch-dsl` python package to query.
 
 ## Getting Started
 
