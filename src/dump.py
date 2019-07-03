@@ -1,5 +1,6 @@
 import json
 import argparse
+import datetime
 
 from elasticsearch_dsl import Search
 from tqdm import tqdm
@@ -10,10 +11,28 @@ from settings import INDEXES
 
 def get_parser():
     """Configures the argument parser for dumping or counting the database."""
-    parser = argparse.ArgumentParser(description='Make a local dump of the D3M MtL Database.')
-    parser.add_argument("--out-dir", "-o", default="dump", help='The path to the folder the dump will be written to (include the folder name)')
-    parser.add_argument("--batch-size", "-b", type=int, default=100, help='The number of records to read from the database at a time')
-    parser.add_argument("--count", "-c", action='store_true', help="If present, the dump will not take place; only the number of records in each index will be written out.")
+    parser = argparse.ArgumentParser(
+        description="Make a local dump of the D3M MtL Database."
+    )
+    parser.add_argument(
+        "--out-dir",
+        "-o",
+        default="dump",
+        help="The path to the folder the dump will be written to (include the folder name)",
+    )
+    parser.add_argument(
+        "--batch-size",
+        "-b",
+        type=int,
+        default=100,
+        help="The number of records to read from the database at a time",
+    )
+    parser.add_argument(
+        "--count",
+        "-c",
+        action="store_true",
+        help="If present, the dump will not take place; only the number of records in each index will be written out.",
+    )
     return parser
 
 
@@ -25,7 +44,9 @@ def dump(out_dir, batch_size):
 
         s = Search(using=client, index=index_name)
         num_docs_in_index = s.count()
-        print(f"Now writing index '{index_name}' ({num_docs_in_index} documents) to path '{out_name}'")
+        print(
+            f"Now writing index '{index_name}' ({num_docs_in_index} documents) to path '{out_name}'"
+        )
 
         with open(out_name, "w") as f:
             for hit in tqdm(s.params(size=batch_size).scan(), total=num_docs_in_index):
@@ -38,13 +59,17 @@ def count(out_dir):
     """Count the number of documents in each index of the DB."""
     out_name = f"{out_dir}/index_counts.json"
     counts = []
+
     for name_key in INDEXES:
         index_name = INDEXES[name_key]
         num_docs_in_index = Search(using=client, index=index_name).count()
         counts.append((index_name, num_docs_in_index))
+
     with open(out_name, "w") as f:
+        f.write(f"DB queried at {datetime.datetime.now()}\n\n")
         for index, count in counts:
             f.write(f"{index}\t{count}\n")
+
     print(f"index counts written out to '{out_name}'")
 
 
