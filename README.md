@@ -52,7 +52,7 @@ Using the `elasticsearch-dsl` python package, the database can be queried progra
 To make a full JSON dump of the D3M MtL database, run this. Note: It copies all the indexes in the D3M elasticsearch instance and will take some time, depending on the number of documents that exist.
 
 ```shell
-python src/dump.py [--out-dir dump_dir_name] [--batch-size num_docs_in_batch] [--count]
+python -m src.dump [--out-dir dump_dir_name] [--batch-size num_docs_in_batch] [--count]
 ```
 
 The dump will default to being written to the `dump` directory within the current working directory.
@@ -64,7 +64,7 @@ If the `--count` arg is present, the database will not be dumped. Rather, the sy
 To extract a denormalized map of pipeline runs from a dump into a form ready for analysis, run this:
 
 ```shell
-python src/extractor.py [--dump-dir location_of_dump] [--out-dir dir_to_picle_to] [--index-name pipeline_runs_index_name] [--dont-enforce-ids]
+python -m src.extractor [--dump-dir location_of_dump] [--out-dir dir_to_picle_to] [--index-name pipeline_runs_index_name] [--dont-enforce-ids]
 ```
 
 The extraction will be pickled to `--out-dir`, and is a dictionary of pipeline run digests to pipeline runs.
