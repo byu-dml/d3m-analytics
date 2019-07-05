@@ -8,5 +8,16 @@ class Analysis(ABC):
     """
 
     @abstractmethod
-    def run(self, dataset: dict):
+    def run(self, dataset: dict, verbose: bool):
+        """
+        Parameters
+        ----------
+        dataset : Dict[str,PipelineRun]
+            A denormalized extraction of pipeline runs
+        verbose : bool
+            Whether to report the results of the analysis verbosely.
+            Generally, this means that if true, per-pipeline-run results
+            will be reported in addition to the standard summary results
+            reported at the end of the analysis. 
+        """
         pass

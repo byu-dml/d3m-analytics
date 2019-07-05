@@ -27,6 +27,12 @@ def get_parser() -> ArgumentParser:
         default="basic_stats",
         help="The name of the analysis to conduct",
     )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="If present, the results of the analysis will be reported more verbosely, if the analysis has verbose per-pipeline results to report that is",
+    )
     return parser
 
 
@@ -40,4 +46,4 @@ if __name__ == "__main__":
     analysis_class: Type[Analysis] = analysis_map[args.analysis]
     analysis = analysis_class()
     print(f"Now running {args.analysis} analysis...")
-    analysis.run(dataset)
+    analysis.run(dataset, args.verbose)

@@ -76,5 +76,7 @@ If `--dont-enforce-ids` is included, the system will not throw an error if a doc
 To analyze a denormalized extraction of pipeline runs, run this:
 
 ```shell
-python -m src.analyze [--pkl-dir dir_containing_pickle] [--analysis name_of_analysis_to_run]
+python -m src.analyze [--pkl-dir dir_containing_pickle] [--analysis name_of_analysis_to_run] [--verbose]
 ```
+
+If `--verbose` is present, the results of the analysis will be reported more verbosely, if the analysis has verbose per-pipeline results to report that is.
