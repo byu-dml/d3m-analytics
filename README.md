@@ -2,9 +2,7 @@
 
 You can use this package to programmatically interact with the D3M meta-learning database. All that's required is credentials for accessing it. This package uses the `elasticsearch-dsl` python package to query.
 
-## Getting Started
-
-### Installation:
+## Installation:
 
 1.  Clone this repository
 
@@ -20,32 +18,22 @@ You can use this package to programmatically interact with the D3M meta-learning
     API=<db_access_url>
     ```
 
-### Basic Usage
+## Usage
 
-#### Make a Full Dump
-
-To make a full JSON dump of the D3M MtL database, run this. Note: It copies all the indexes in the D3M elasticsearch instance and will take some time.
-
-```shell
-python src/dump.py [--out-dir dump_dir_name] [--batch-size num_docs_in_batch]
-```
-
-The dump will default to being written to the `dump` directory within the current working directory.
-
-#### Query the Database
+### Query the Database
 
 Using the `elasticsearch-dsl` python package, the database can be queried programmatically, with a fair amount of ease and flexibility.
 
-1.  Import `client` from the local `client` module.
-1.  Import `INDEXES` from the local `settings` module.
+1.  Import the `client` object from the local `client` module.
+1.  Import the `Indexes` enum from the local `settings` module.
 1.  Use the [`elasticsearch-dsl` documentation](https://elasticsearch-dsl.readthedocs.io/en/latest/search_dsl.html) to begin querying the elasticsearch indexes. Example:
     
     ```python
     from client import client
-    from settings import INDEXES
+    from settings import Indexes
 
     # Search all pipeline documents (defaults to only returning 10 at a time max)
-    s = Search(using=client, index=INDEXES["PIPELINES"])
+    s = Search(using=client, index=Indexes.PIPELINES)
 
     # Execute the search
     response = s.execute()
@@ -55,4 +43,28 @@ Using the `elasticsearch-dsl` python package, the database can be queried progra
         print(hit.id)
     ```
 
-    The `elasticsearch-dsl` package has support for filtering, aggregating, sorting, and querying.
+    The `elasticsearch-dsl` package has support for filtering, aggregating, sorting, and querying, but not joining. A pickled, denormalized extraction of pipeline runs can be created (see below for instructions), and is useful for analysis that involves joining.
+
+### Make a Full Dump
+
+To make a full JSON dump of the D3M MtL database, run this. Note: It copies all the indexes in the D3M elasticsearch instance and will take some time, depending on the number of documents that exist.
+
+```shell
+python src/dump.py [--out-dir dump_dir_name] [--batch-size num_docs_in_batch] [--count]
+```
+
+The dump will default to being written to the `dump` directory within the current working directory.
+
+If the `--count` arg is present, the database will not be dumped. Rather, the system will simply query the number of documents contained in each index. This is useful for finding out how big the database is.
+
+### Extract a dump
+
+To extract a denormalized map of pipeline runs from a dump into a form ready for analysis, run this:
+
+```shell
+python src/extractor.py [--dump-dir location_of_dump] [--out-dir dir_to_picle_to] [--index-name pipeline_runs_index_name] [--dont-enforce-digests]
+```
+
+The extraction will be pickled to `--out-dir`, and is a dictionary of pipeline run digests to pipeline runs.
+
+If `--dont-enforce-digests` is included, the system will not throw an error if a document does not have a digest.

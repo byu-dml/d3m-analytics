@@ -128,3 +128,8 @@ dmypy.json
 
 # Local files
 dump/
+extractions/
+
+# Pickled files
+*.pickle
+*.pkl
