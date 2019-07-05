@@ -26,14 +26,16 @@ Using the `elasticsearch-dsl` python package, the database can be queried progra
 
 1.  Import the `client` object from the local `client` module.
 1.  Import the `Indexes` enum from the local `settings` module.
+1.  Import the `Search` class from the `elasticsearch_dsl` package.
 1.  Use the [`elasticsearch-dsl` documentation](https://elasticsearch-dsl.readthedocs.io/en/latest/search_dsl.html) to begin querying the elasticsearch indexes. Example:
     
     ```python
     from client import client
     from settings import Indexes
+    from elasticsearch_dsl import Search
 
     # Search all pipeline documents (defaults to only returning 10 at a time max)
-    s = Search(using=client, index=Indexes.PIPELINES)
+    s = Search(using=client, index=Indexes.PIPELINES.value)
 
     # Execute the search
     response = s.execute()
