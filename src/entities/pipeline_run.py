@@ -2,13 +2,13 @@ import iso8601
 
 from src.entities.document_reference import DocumentReference
 from src.entities.score import Score
-from src.utils import has_path, enforce_digest
+from src.utils import has_path, enforce_field
 
 
 class PipelineRun:
-    def __init__(self, pipeline_run_dict: dict, should_enforce_digest: bool):
-        enforce_digest(should_enforce_digest, pipeline_run_dict)
-        self.digest = pipeline_run_dict.get("digest")
+    def __init__(self, pipeline_run_dict: dict, should_enforce_id: bool):
+        enforce_field(should_enforce_id, pipeline_run_dict, "id")
+        self.id = pipeline_run_dict["id"]
         self.status = pipeline_run_dict["status"]["state"]
         self.start = iso8601.parse_date(pipeline_run_dict["start"])
         self.end = iso8601.parse_date(pipeline_run_dict["end"])

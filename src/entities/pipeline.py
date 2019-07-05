@@ -1,7 +1,7 @@
 from src.entities.primitive import Primitive
 from src.entities.data_reference import DataReference
 from src.entities.document_reference import DocumentReference
-from src.utils import enforce_digest
+from src.utils import enforce_field
 
 
 class Pipeline:
@@ -10,10 +10,10 @@ class Pipeline:
     we care about for analysis.
     """
 
-    def __init__(self, pipeline_dict: dict, should_enforce_digest: bool):
+    def __init__(self, pipeline_dict: dict, should_enforce_id: bool):
         self.name = pipeline_dict.get("name")
 
-        enforce_digest(should_enforce_digest, pipeline_dict)
+        enforce_field(should_enforce_id, pipeline_dict, "digest")
         self.digest = pipeline_dict["digest"]
 
         self.inputs: list = []

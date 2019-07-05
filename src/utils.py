@@ -13,9 +13,9 @@ def has_path(dictionary: dict, keys: list) -> bool:
     return True
 
 
-def enforce_digest(should_enforce_digest: bool, d: dict):
-    if should_enforce_digest and "digest" not in d:
-        raise ValueError("document must have a digest")
+def enforce_field(should_enforce_field: bool, d: dict, field_name: str):
+    if should_enforce_field and field_name not in d:
+        raise ValueError(f"document must have a(n) {field_name}")
 
 
 def file_len(fname):

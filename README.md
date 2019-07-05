@@ -64,9 +64,9 @@ If the `--count` arg is present, the database will not be dumped. Rather, the sy
 To extract a denormalized map of pipeline runs from a dump into a form ready for analysis, run this:
 
 ```shell
-python src/extractor.py [--dump-dir location_of_dump] [--out-dir dir_to_picle_to] [--index-name pipeline_runs_index_name] [--dont-enforce-digests]
+python src/extractor.py [--dump-dir location_of_dump] [--out-dir dir_to_picle_to] [--index-name pipeline_runs_index_name] [--dont-enforce-ids]
 ```
 
 The extraction will be pickled to `--out-dir`, and is a dictionary of pipeline run digests to pipeline runs.
 
-If `--dont-enforce-digests` is included, the system will not throw an error if a document does not have a digest.
+If `--dont-enforce-ids` is included, the system will not throw an error if a document does not have a digest.

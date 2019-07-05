@@ -1,9 +1,9 @@
-from src.utils import enforce_digest
+from src.utils import enforce_field
 
 
 class Problem:
-    def __init__(self, problem_dict: dict, should_enforce_digest: bool):
-        enforce_digest(should_enforce_digest, problem_dict)
+    def __init__(self, problem_dict: dict, should_enforce_id: bool):
+        enforce_field(should_enforce_id, problem_dict, "digest")
         self.digest = problem_dict["digest"]
         self.name = problem_dict["name"]
         self.type = problem_dict["problem"]["task_type"]
