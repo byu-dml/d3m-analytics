@@ -1,6 +1,7 @@
 import json
 from argparse import ArgumentParser
 import datetime
+import os
 
 from elasticsearch_dsl import Search
 from tqdm import tqdm
