@@ -1,19 +1,17 @@
 import json
-import argparse
+from argparse import ArgumentParser
 import datetime
 
 from elasticsearch_dsl import Search
 from tqdm import tqdm
 
-from client import client
-from settings import INDEXES
+from src.client import client
+from src.settings import Indexes
 
 
-def get_parser():
+def get_parser() -> ArgumentParser:
     """Configures the argument parser for dumping or counting the database."""
-    parser = argparse.ArgumentParser(
-        description="Make a local dump of the D3M MtL Database."
-    )
+    parser = ArgumentParser(description="Make a local dump of the D3M MtL Database.")
     parser.add_argument(
         "--out-dir",
         "-o",
@@ -36,10 +34,10 @@ def get_parser():
     return parser
 
 
-def dump(out_dir, batch_size):
+def dump(out_dir: str, batch_size: int):
     """Read the DB indexes and dump them to :out_dir:."""
-    for name_key in INDEXES:
-        index_name = INDEXES[name_key]
+    for index in Indexes:
+        index_name = index.value
         out_name = f"{out_dir}/{index_name}.json"
 
         s = Search(using=client, index=index_name)
@@ -48,6 +46,8 @@ def dump(out_dir, batch_size):
             f"Now writing index '{index_name}' ({num_docs_in_index} documents) to path '{out_name}'"
         )
 
+        if not os.path.isdir(out_dir):
+            os.mkdir(out_dir)
         with open(out_name, "w") as f:
             for hit in tqdm(s.params(size=batch_size).scan(), total=num_docs_in_index):
                 # Paginate over this index
@@ -55,13 +55,13 @@ def dump(out_dir, batch_size):
                 f.write("\n")
 
 
-def count(out_dir):
+def count(out_dir: str):
     """Count the number of documents in each index of the DB."""
     out_name = f"{out_dir}/index_counts.json"
     counts = []
 
-    for name_key in INDEXES:
-        index_name = INDEXES[name_key]
+    for index in Indexes:
+        index_name = index.value
         num_docs_in_index = Search(using=client, index=index_name).count()
         counts.append((index_name, num_docs_in_index))
 

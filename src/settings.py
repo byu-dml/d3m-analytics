@@ -1,4 +1,5 @@
 from os import getenv
+from enum import Enum
 
 from dotenv import load_dotenv
 
@@ -11,10 +12,10 @@ CLIENT = getenv("CLIENT")
 SECRET = getenv("SECRET")
 API = getenv("API")
 
-INDEXES = {
-    "PIPELINES": "pipelines",
-    "BAD_PIPELINE_RUNS": "pipeline_runs_untrusted",
-    "PIPELINE_RUNS": "pipeline_runs_trusted",
-    "PROBLEMS": "problems",
-    "DATASETS": "datasets",
-}
+
+class Indexes(Enum):
+    PIPELINES = "pipelines"
+    BAD_PIPELINE_RUNS = "pipeline_runs_untrusted"
+    PIPELINE_RUNS = "pipeline_runs_trusted"
+    PROBLEMS = "problems"
+    DATASETS = "datasets"
