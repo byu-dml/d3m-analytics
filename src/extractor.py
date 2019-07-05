@@ -70,11 +70,14 @@ def extract_denormalized(
     with open(out_name, "wb") as f:
         pickle.dump(pipelines_runs, f)
 
+    file_size_mb = os.stat(out_name).st_size / 1e6
+    print(f"Extraction successful. Wrote {file_size_mb}MB to disk.")
+
 
 if __name__ == "__main__":
     parser = get_parser()
     args = parser.parse_args()
-    should_enforce_id = not args.dont_enforce_id
+    should_enforce_id = not args.dont_enforce_ids
     extract_denormalized(
         args.dump_dir, args.out_dir, args.index_name, should_enforce_id
     )
