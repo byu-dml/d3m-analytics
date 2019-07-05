@@ -5,6 +5,7 @@ import os
 from src.extraction.pipeline_runs import load_pipeline_runs
 from src.extraction.pipelines import load_pipelines
 from src.extraction.problems import load_problems
+from src.settings import DefaultDirs, DefaultFiles
 
 
 def get_parser() -> ArgumentParser:
@@ -18,13 +19,13 @@ def get_parser() -> ArgumentParser:
     parser.add_argument(
         "--dump-dir",
         "-d",
-        default="dump",
+        default=DefaultDirs.DUMP.value,
         help="The path to the dump folder where the pipeline runs will be extracted from.",
     )
     parser.add_argument(
         "--out-dir",
         "-o",
-        default="extractions",
+        default=DefaultDirs.EXTRACTION.value,
         help="The path to the folder where the extracted pipelines will be pickled to.",
     )
     parser.add_argument(
@@ -63,10 +64,12 @@ def extract_denormalized(
         dump_path, pipeline_runs_index_name, pipelines, problems, should_enforce_digest
     )
 
-    out_name = f"{out_dir}/denormalized_pipeline_runs.pkl"
+    out_name = f"{out_dir}/{DefaultFiles.EXTRACTION_PKL.value}"
     print(f"Now saving pipeline runs to '{out_name}'...")
+
     if not os.path.isdir(out_dir):
         os.mkdir(out_dir)
+
     with open(out_name, "wb") as f:
         pickle.dump(pipelines_runs, f)
 

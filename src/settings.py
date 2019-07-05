@@ -13,6 +13,15 @@ SECRET = getenv("SECRET")
 API = getenv("API")
 
 
+class DefaultDirs(Enum):
+    DUMP = "dump"
+    EXTRACTION = "extractions"
+
+
+class DefaultFiles(Enum):
+    EXTRACTION_PKL = "denormalized_pipeline_runs.pkl"
+
+
 class Indexes(Enum):
     PIPELINES = "pipelines"
     BAD_PIPELINE_RUNS = "pipeline_runs_untrusted"

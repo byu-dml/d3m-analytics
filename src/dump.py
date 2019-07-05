@@ -7,7 +7,7 @@ from elasticsearch_dsl import Search
 from tqdm import tqdm
 
 from src.client import client
-from src.settings import Indexes
+from src.settings import Indexes, DefaultDirs
 
 
 def get_parser() -> ArgumentParser:
@@ -16,7 +16,7 @@ def get_parser() -> ArgumentParser:
     parser.add_argument(
         "--out-dir",
         "-o",
-        default="dump",
+        default=DefaultDirs.DUMP.value,
         help="The path to the folder the dump will be written to (include the folder name)",
     )
     parser.add_argument(
@@ -49,6 +49,7 @@ def dump(out_dir: str, batch_size: int):
 
         if not os.path.isdir(out_dir):
             os.mkdir(out_dir)
+
         with open(out_name, "w") as f:
             for hit in tqdm(s.params(size=batch_size).scan(), total=num_docs_in_index):
                 # Paginate over this index
@@ -65,6 +66,9 @@ def count(out_dir: str):
         index_name = index.value
         num_docs_in_index = Search(using=client, index=index_name).count()
         counts.append((index_name, num_docs_in_index))
+
+    if not os.path.isdir(out_dir):
+        os.mkdir(out_dir)
 
     with open(out_name, "w") as f:
         f.write(f"DB queried at {datetime.datetime.now()}\n\n")
