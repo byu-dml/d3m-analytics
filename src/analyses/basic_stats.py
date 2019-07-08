@@ -56,6 +56,7 @@ class BasicStatsAnalysis(Analysis):
                 phase_cnts[run.run_phase] = 0
             phase_cnts[run.run_phase] += 1
 
+        # Sort the primitive counts to get the most common
         primitives_cnt_tuples = primitives_cnt.items()
         primitives_cnt_tuples = sorted(
             primitives_cnt_tuples, key=lambda toop: toop[1], reverse=True

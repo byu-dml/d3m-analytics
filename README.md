@@ -69,7 +69,7 @@ python -m src.extractor [--dump-dir dir_containing_dump] [--out-dir dir_to_pickl
 
 The extraction will be pickled to `--out-dir`, and is a dictionary of pipeline run digests to pipeline runs.
 
-If `--dont-enforce-ids` is included, the system will not throw an error if a document does not have a digest.
+If `--dont-enforce-ids` is included, the system will not throw an error if a document does not have an ID/digest (not recommended).
 
 ### Analyze an Extraction
 
