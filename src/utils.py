@@ -27,3 +27,12 @@ def file_len(fname):
         for i, l in enumerate(f):
             pass
     return i + 1
+
+
+def set_default(d: dict, key, default):
+    """
+    Assigns `default` to `d[key]` if dictionary `d` doesn't have
+    that key yet.
+    """
+    if key not in d:
+        d[key] = default

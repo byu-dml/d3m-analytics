@@ -1,10 +1,18 @@
+import matplotlib.pyplot as plt
+
 from src.analyses.analysis import Analysis
 from src.utils import has_path
 from src.entities.pipeline import Pipeline
 from src.entities.primitive import Primitive
+from src.utils import set_default
 
 
 class BasicStatsAnalysis(Analysis):
+    """
+    An analysis that considers basic statistics and features of the
+    pipeline run data. 
+    """
+
     def run(self, dataset: dict, verbose: bool):
 
         # config
@@ -12,12 +20,14 @@ class BasicStatsAnalysis(Analysis):
 
         # How many runs are there?
         num_runs = len(dataset.keys())
-        # What is the distribution of number of metrics per pipeline?
-        metrics_cnts: dict = {}
+        # What is the distribution of pipeline run scores by metric type?
+        metric_values: dict = {}
         # What is the distribution of phase types?
         phase_cnts: dict = {}
         # What is the distribution of metric types?
         metric_types_cnt: dict = {}
+        # What is the distribution of number of datasets per run?
+        dataset_cnt: dict = {}
         # How many pipeline runs include a normalized value with their metrics?
         num_normalized_metric_values = 0
         # Which primitives are most common?
@@ -29,20 +39,21 @@ class BasicStatsAnalysis(Analysis):
 
             for step in run.pipeline.steps:
                 if isinstance(step, Primitive):
-                    if step.python_path not in primitives_cnt:
-                        primitives_cnt[step.python_path] = 0
+                    set_default(primitives_cnt, step.python_path, 0)
                     primitives_cnt[step.python_path] += 1
                 elif isinstance(step, Pipeline):
                     num_subpipelines += 1
 
-            num_scores_str = str(len(run.scores))
-            if num_scores_str not in metrics_cnts:
-                metrics_cnts[num_scores_str] = 0
-            metrics_cnts[num_scores_str] += 1
+            for score in run.scores:
+                set_default(metric_values, score.metric, [])
+                metric_values[score.metric].append(score.value)
+
+            num_datasets = len(run.dataset_digests)
+            set_default(dataset_cnt, num_datasets, 0)
+            dataset_cnt[num_datasets] += 1
 
             for score in run.scores:
-                if score.metric not in metric_types_cnt:
-                    metric_types_cnt[score.metric] = 0
+                set_default(metric_types_cnt, score.metric, 0)
                 metric_types_cnt[score.metric] += 1
                 if verbose:
                     print(
@@ -52,8 +63,7 @@ class BasicStatsAnalysis(Analysis):
                 if score.normalized_value is not None:
                     num_normalized_metric_values += 1
 
-            if run.run_phase not in phase_cnts:
-                phase_cnts[run.run_phase] = 0
+            set_default(phase_cnts, run.run_phase, 0)
             phase_cnts[run.run_phase] += 1
 
         # Sort the primitive counts to get the most common
@@ -63,13 +73,23 @@ class BasicStatsAnalysis(Analysis):
         )
 
         # Report
+
         print("\n*********************")
         print("****** RESULTS ******")
         print("*********************\n")
+
+        for metric_type, metric_values in metric_values.items():
+            plt.hist(metric_values, bins=20)
+            plt.xlabel("score")
+            plt.ylabel("count")
+            plt.title(f"{metric_type} ({len(metric_values)} observations)")
+            plt.show()
+
         print(f"The dataset has {num_runs} pipeline runs with unique ids.")
-        print(f"The distribution of # of metrics per pipeline is {metrics_cnts}")
         print(f"The distribution of run phases is: {phase_cnts}")
         print(f"The distribution of metric types is: {metric_types_cnt}")
+
+        print(f"The distribution of datasets per run is: {dataset_cnt}")
         print(
             f"There are {num_normalized_metric_values} normalized metric values found among the pipelines"
         )
