@@ -2,11 +2,15 @@ from argparse import ArgumentParser
 from typing import Type, Mapping
 import pickle
 
+from src.settings import DefaultDirs, DefaultFiles
 from src.analyses.analysis import Analysis
 from src.analyses.basic_stats import BasicStatsAnalysis
-from src.settings import DefaultDirs, DefaultFiles
+from src.analyses.duplicate_pipelines import DuplicatePipelinesAnalysis
 
-analysis_map: Mapping[str, Type[Analysis]] = {"basic_stats": BasicStatsAnalysis}
+analysis_map: Mapping[str, Type[Analysis]] = {
+    "basic_stats": BasicStatsAnalysis,
+    "duplicate_pipelines": DuplicatePipelinesAnalysis,
+}
 
 
 def get_parser() -> ArgumentParser:
