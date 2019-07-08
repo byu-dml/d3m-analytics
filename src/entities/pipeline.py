@@ -38,6 +38,29 @@ class Pipeline:
             else:
                 raise Exception(f"unsupported pipeline_steps type '{step_type}'")
 
+    def has_same_steps(self, pipeline: "Pipeline") -> bool:
+        """
+        Returns `True` if `self` has same steps as `pipeline`.
+        """
+        if len(self.steps) != len(pipeline.steps):
+            return False
+
+        for i, my_step in enumerate(self.steps):
+            their_step = pipeline.steps[i]
+
+            if type(my_step) != type(their_step):
+                return False
+            if isinstance(my_step, Primitive):
+                if not my_step.is_same_kind(their_step):
+                    return False
+            elif isinstance(my_step, Pipeline):
+                if not my_step.has_same_steps(their_step):
+                    return False
+            else:
+                raise ValueError(f"unsupported step type {type(my_step)}")
+
+        return True
+
     def dereference_subpipelines(self, pipelines: dict):
         """
         Store an actual object pointer to each of this pipeline's subpipelines,
@@ -51,3 +74,12 @@ class Pipeline:
                     # Recurse down in case this pipeline has its own subpipelines
                     subpipeline.dereference_subpipelines(pipelines)
                     step = subpipeline
+
+    def print_steps(self, indent: int = 0):
+        for step in self.steps:
+            if isinstance(step, Primitive):
+                print(("\t" * indent) + step.python_path)
+            elif isinstance(step, Pipeline):
+                step.print_steps(indent + 1)
+            else:
+                raise ValueError(f"unsupported step type {type(step)}")

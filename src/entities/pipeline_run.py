@@ -28,3 +28,16 @@ class PipelineRun:
         if has_path(pipeline_run_dict, ["run", "results", "scores"]):
             for score_dict in pipeline_run_dict["run"]["results"]["scores"]:
                 self.scores.append(Score(score_dict))
+
+    def find_common_scores(self, run: "PipelineRun", tolerance: float = 0.0) -> list:
+        """
+        Returns a list of the scores `self` has that are identical to `run`'s
+        scores. `tolerance` is used when assesing equality between scores.
+        """
+        common_scores = []
+        for my_score in self.scores:
+            for their_score in run.scores:
+                if my_score.equals(their_score, tolerance):
+                    common_scores.append(my_score)
+        return common_scores
+
