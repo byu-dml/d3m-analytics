@@ -34,6 +34,8 @@ class BasicStatsAnalysis(Analysis):
         primitives_cnt: dict = {}
         # How many sub-pipelines are being used?
         num_subpipelines = 0
+        # What is the distribution of pipeline authors among pipeline runs?
+        author_values: dict = {}
 
         for run in pipeline_runs.values():
 
@@ -66,6 +68,9 @@ class BasicStatsAnalysis(Analysis):
             set_default(phase_cnts, run.run_phase, 0)
             phase_cnts[run.run_phase] += 1
 
+            set_default(author_values, run.pipeline.source_name, 0)
+            author_values[run.pipeline.source_name] += 1
+
         # Sort the primitive counts to get the most common
         primitives_cnt_tuples = primitives_cnt.items()
         primitives_cnt_tuples = sorted(
@@ -92,6 +97,7 @@ class BasicStatsAnalysis(Analysis):
         print(f"The distribution of metric types is: {metric_types_cnt}")
 
         print(f"The distribution of datasets per run is: {dataset_cnt}")
+        print(f"The distribution of pipeline authors among runs is: {author_values}")
         print(
             f"There are {num_normalized_metric_values} normalized metric values found among the pipelines"
         )

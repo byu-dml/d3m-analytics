@@ -1,7 +1,7 @@
 from src.entities.primitive import Primitive
 from src.entities.data_reference import DataReference
 from src.entities.document_reference import DocumentReference
-from src.utils import enforce_field
+from src.utils import enforce_field, has_path
 
 
 class Pipeline:
@@ -15,6 +15,9 @@ class Pipeline:
 
         enforce_field(should_enforce_id, pipeline_dict, "digest")
         self.digest = pipeline_dict["digest"]
+        self.source_name = None
+        if has_path(pipeline_dict, ["source", "name"]):
+            self.source_name = pipeline_dict["source"]["name"]
 
         self.inputs: list = []
         for input_dict in pipeline_dict["inputs"]:
