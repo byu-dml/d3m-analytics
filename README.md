@@ -80,3 +80,5 @@ python -m src.analyze [--pkl-dir dir_containing_pickle] [--analysis name_of_anal
 ```
 
 If `--verbose` is present, the results of the analysis will be reported more verbosely, if the analysis has verbose per-pipeline results to report that is.
+
+To see which analyses are currently supported, run `python -m src.analyze --help` and look at the available options for the `--analysis` arg.

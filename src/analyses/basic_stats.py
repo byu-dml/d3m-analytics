@@ -82,7 +82,9 @@ class BasicStatsAnalysis(Analysis):
             plt.hist(metric_values, bins=20)
             plt.xlabel("score")
             plt.ylabel("count")
-            plt.title(f"{metric_type} ({len(metric_values)} observations)")
+            plt.title(
+                f"Distribution of {metric_type} Scores Across Pipeline Runs ({len(metric_values)} runs)"
+            )
             plt.show()
 
         print(f"The dataset has {num_runs} pipeline runs with unique ids.")
