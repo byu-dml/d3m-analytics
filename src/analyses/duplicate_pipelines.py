@@ -20,8 +20,10 @@ class DuplicatePipelinesAnalysis(Analysis):
         run_score_comparison_tolerance = 0.001
         num_duplicate_runs_by_dataset = 10
 
-        # First, aggregate all pipeline runs by dataset.
-        # Only include pipeline runs that have scores.
+        # First, organize all pipeline runs by dataset.
+        # Only include pipeline runs that have scores
+        # and don't include runs whose pipelines have the
+        # same steps as previous pipeline runs.
 
         runs_by_dataset: dict = {}
         for run in pipeline_runs.values():
@@ -37,6 +39,7 @@ class DuplicatePipelinesAnalysis(Analysis):
                         runs_by_dataset[run_dataset].append(run)
 
         # Next, find all pairs of pipeline runs that have the same scores
+        # for a given datset.
 
         same_runs_by_dataset: dict = {}
         for dataset, dataset_runs in runs_by_dataset.items():
