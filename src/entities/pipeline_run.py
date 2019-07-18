@@ -14,20 +14,19 @@ class PipelineRun:
         self.end = iso8601.parse_date(pipeline_run_dict["end"])
         self.submitter = pipeline_run_dict["_submitter"]
 
-        self.dataset_digests: list = []
-        for dataset_dict in pipeline_run_dict["datasets"]:
-            self.dataset_digests.append(dataset_dict["digest"])
-
-        # These references will be dereferenced later by the loader
-        # once the pipelines and problems are available.
-        self.pipeline = DocumentReference(pipeline_run_dict["pipeline"])
-        self.problem = DocumentReference(pipeline_run_dict["problem"])
-
         self.run_phase = pipeline_run_dict["run"]["phase"]
         self.scores: list = []
         if has_path(pipeline_run_dict, ["run", "results", "scores"]):
             for score_dict in pipeline_run_dict["run"]["results"]["scores"]:
                 self.scores.append(Score(score_dict))
+
+        # These references will be dereferenced later by the loader
+        # once the pipelines, problems, and datasets are available.
+        self.datasets: list = []
+        for dataset_dict in pipeline_run_dict["datasets"]:
+            self.datasets.append(DocumentReference(dataset_dict))
+        self.pipeline = DocumentReference(pipeline_run_dict["pipeline"])
+        self.problem = DocumentReference(pipeline_run_dict["problem"])
 
     def find_common_scores(self, run: "PipelineRun", tolerance: float = 0.0) -> list:
         """

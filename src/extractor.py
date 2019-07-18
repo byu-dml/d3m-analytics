@@ -5,6 +5,7 @@ import os
 from src.extraction.pipeline_runs import load_pipeline_runs
 from src.extraction.pipelines import load_pipelines
 from src.extraction.problems import load_problems
+from src.extraction.datasets import load_datasets
 from src.settings import DefaultDirs, DefaultFiles
 
 
@@ -56,9 +57,16 @@ def extract_denormalized(
     pipelines = load_pipelines(dump_path, should_enforce_id)
     print("Now loading problems...")
     problems = load_problems(dump_path, should_enforce_id)
+    print("Now loading datasets...")
+    datasets = load_datasets(dump_path, should_enforce_id)
     print("Now loading pipeline runs...")
     pipelines_runs = load_pipeline_runs(
-        dump_path, pipeline_runs_index_name, pipelines, problems, should_enforce_id
+        dump_path,
+        pipeline_runs_index_name,
+        pipelines,
+        problems,
+        datasets,
+        should_enforce_id,
     )
 
     out_name = f"{out_dir}/{DefaultFiles.EXTRACTION_PKL.value}"

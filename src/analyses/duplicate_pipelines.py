@@ -27,35 +27,35 @@ class DuplicatePipelinesAnalysis(Analysis):
         for run in dataset.values():
 
             if len(run.scores) > 0:
-                for dataset_digest in run.dataset_digests:
-                    set_default(runs_by_dataset, dataset_digest, [])
+                for run_dataset in run.datasets:
+                    set_default(runs_by_dataset, run_dataset, [])
                     pipeline_run_has_same_steps_as_previous = [
                         run.pipeline.has_same_steps(prev_run.pipeline)
-                        for prev_run in runs_by_dataset[dataset_digest]
+                        for prev_run in runs_by_dataset[run_dataset]
                     ]
                     if not any(pipeline_run_has_same_steps_as_previous):
-                        runs_by_dataset[dataset_digest].append(run)
+                        runs_by_dataset[run_dataset].append(run)
 
         # Next, find all pairs of pipeline runs that have the same scores
 
         same_runs_by_dataset: dict = {}
-        for dataset_digest, dataset_runs in runs_by_dataset.items():
-            same_runs_by_dataset[dataset_digest] = []
+        for dataset, dataset_runs in runs_by_dataset.items():
+            same_runs_by_dataset[dataset] = []
 
             for run_a, run_b in itertools.combinations(dataset_runs, 2):
                 common_scores = run_a.find_common_scores(
                     run_b, run_score_comparison_tolerance
                 )
                 if len(common_scores) > 0:
-                    same_runs_by_dataset[dataset_digest].append((run_a, run_b))
+                    same_runs_by_dataset[dataset].append((run_a, run_b))
 
         same_run_counts_by_dataset = [
-            (digest, len(runs)) for digest, runs in same_runs_by_dataset.items()
+            (dataset, len(runs)) for dataset, runs in same_runs_by_dataset.items()
         ]
         same_run_counts_by_dataset = sorted(
             same_run_counts_by_dataset, key=lambda toop: toop[1], reverse=True
         )
-        digest_of_dataset_with_most_duplicate_runs = same_run_counts_by_dataset[0][0]
+        dataset_with_most_duplicate_runs = same_run_counts_by_dataset[0][0]
 
         # Report
 
@@ -66,13 +66,15 @@ class DuplicatePipelinesAnalysis(Analysis):
         print(
             f"The {num_duplicate_runs_by_dataset} dataset(s) with the most runs having the same scores (considered with a tolerance of {run_score_comparison_tolerance}) are:"
         )
-        for doop_cnt in same_run_counts_by_dataset[:num_duplicate_runs_by_dataset]:
-            print(f"\t{doop_cnt[0]}\t{doop_cnt[1]}")
+        for dataset, count in same_run_counts_by_dataset[
+            :num_duplicate_runs_by_dataset
+        ]:
+            print(f"\t{dataset.name}\t{count}")
         print(
             f"The steps of the {num_duplicate_runs_by_dataset} run pair(s) with the same score, for the dataset with the most 'duplicate' runs are:"
         )
         for i, run_pair in enumerate(
-            same_runs_by_dataset[digest_of_dataset_with_most_duplicate_runs][
+            same_runs_by_dataset[dataset_with_most_duplicate_runs][
                 :num_duplicate_runs_by_dataset
             ]
         ):
