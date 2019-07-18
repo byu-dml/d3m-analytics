@@ -16,7 +16,7 @@ class BasicStatsAnalysis(Analysis):
     def run(self, pipeline_runs: dict, verbose: bool):
 
         # config
-        num_top_primitives = 10
+        num_top_primitives = 20
 
         # How many runs are there?
         num_runs = len(pipeline_runs.keys())
@@ -41,8 +41,8 @@ class BasicStatsAnalysis(Analysis):
 
             for step in run.pipeline.steps:
                 if isinstance(step, Primitive):
-                    set_default(primitives_cnt, step.python_path, 0)
-                    primitives_cnt[step.python_path] += 1
+                    set_default(primitives_cnt, step.short_python_path, 0)
+                    primitives_cnt[step.short_python_path] += 1
                 elif isinstance(step, Pipeline):
                     num_subpipelines += 1
 
