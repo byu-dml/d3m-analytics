@@ -13,13 +13,13 @@ class BasicStatsAnalysis(Analysis):
     pipeline run data. 
     """
 
-    def run(self, dataset: dict, verbose: bool):
+    def run(self, pipeline_runs: dict, verbose: bool):
 
         # config
         num_top_primitives = 10
 
         # How many runs are there?
-        num_runs = len(dataset.keys())
+        num_runs = len(pipeline_runs.keys())
         # What is the distribution of pipeline run scores by metric type?
         metric_values: dict = {}
         # What is the distribution of phase types?
@@ -35,7 +35,7 @@ class BasicStatsAnalysis(Analysis):
         # How many sub-pipelines are being used?
         num_subpipelines = 0
 
-        for run in dataset.values():
+        for run in pipeline_runs.values():
 
             for step in run.pipeline.steps:
                 if isinstance(step, Primitive):
@@ -48,7 +48,7 @@ class BasicStatsAnalysis(Analysis):
                 set_default(metric_values, score.metric, [])
                 metric_values[score.metric].append(score.value)
 
-            num_datasets = len(run.dataset_digests)
+            num_datasets = len(run.datasets)
             set_default(dataset_cnt, num_datasets, 0)
             dataset_cnt[num_datasets] += 1
 

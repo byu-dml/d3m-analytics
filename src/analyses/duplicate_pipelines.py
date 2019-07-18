@@ -14,7 +14,7 @@ class DuplicatePipelinesAnalysis(Analysis):
     or across all datasets?"
     """
 
-    def run(self, dataset: dict, verbose: bool):
+    def run(self, pipeline_runs: dict, verbose: bool):
 
         # config
         run_score_comparison_tolerance = 0.001
@@ -24,7 +24,7 @@ class DuplicatePipelinesAnalysis(Analysis):
         # Only include pipeline runs that have scores.
 
         runs_by_dataset: dict = {}
-        for run in dataset.values():
+        for run in pipeline_runs.values():
 
             if len(run.scores) > 0:
                 for run_dataset in run.datasets:
