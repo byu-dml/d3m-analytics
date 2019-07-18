@@ -18,3 +18,15 @@ class DataReference:
         if len(parts) > 3:
             raise ValueError(f"unknown data reference string '{reference_string}'")
 
+    # Source: https://stackoverflow.com/questions/4950155/objects-as-keys-in-python-dictionaries?rq=1
+    def _members(self):
+        return (self.type, self.index, self.method_name)
+
+    def __eq__(self, obj):
+        if type(obj) is type(self):
+            return self._members() == obj._members()
+        else:
+            return False
+
+    def __hash__(self):
+        return hash(self._members())

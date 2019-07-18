@@ -43,7 +43,8 @@ class Pipeline:
 
     def has_same_steps(self, pipeline: "Pipeline") -> bool:
         """
-        Returns `True` if `self` has same steps as `pipeline`.
+        Returns `True` if `self` has same steps as `pipeline`, which includes
+        the same primitive/sub-pipeline and inputs at each step.
         """
         if len(self.steps) != len(pipeline.steps):
             return False
@@ -54,7 +55,7 @@ class Pipeline:
             if type(my_step) != type(their_step):
                 return False
             if isinstance(my_step, Primitive):
-                if not my_step.is_same_kind(their_step):
+                if not my_step.is_same_kind_and_inputs(their_step):
                     return False
             elif isinstance(my_step, Pipeline):
                 if not my_step.has_same_steps(their_step):

@@ -48,3 +48,22 @@ class Primitive:
             return True
         else:
             return False
+
+    def is_same_kind_and_inputs(self, primitive: "Primitive") -> bool:
+        """
+        Checks if two primitives are the same kind and if they have the
+        same inputs, which includes checking to make sure they have the 
+        same input type, step reference, and method reference for each input.
+        """
+        if not self.is_same_kind(primitive):
+            return False
+
+        if len(self.inputs) != len(primitive.inputs):
+            return False
+
+        for i, my_input in enumerate(self.inputs):
+            their_input = primitive.inputs[i]
+            if my_input != their_input:
+                return False
+
+        return True
