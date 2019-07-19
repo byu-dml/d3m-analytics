@@ -57,9 +57,8 @@ def dump(out_dir: str, batch_size: int):
                 f.write("\n")
 
 
-def count(out_dir: str):
+def count():
     """Count the number of documents in each index of the DB."""
-    out_name = f"{out_dir}/index_counts.json"
     counts = []
 
     for index in Indexes:
@@ -67,21 +66,15 @@ def count(out_dir: str):
         num_docs_in_index = Search(using=client, index=index_name).count()
         counts.append((index_name, num_docs_in_index))
 
-    if not os.path.isdir(out_dir):
-        os.mkdir(out_dir)
-
-    with open(out_name, "w") as f:
-        f.write(f"DB queried at {datetime.datetime.now()}\n\n")
-        for index, count in counts:
-            f.write(f"{index}\t{count}\n")
-
-    print(f"index counts written out to '{out_name}'")
+    print("DB index counts ({index_name}\t{count}):")
+    for index, count in counts:
+        print(f"{index}\t{count}")
 
 
 if __name__ == "__main__":
     parser = get_parser()
     args = parser.parse_args()
     if args.count:
-        count(args.out_dir)
+        count()
     else:
         dump(args.out_dir, args.batch_size)
