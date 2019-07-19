@@ -79,11 +79,15 @@ class Pipeline:
                     subpipeline.dereference_subpipelines(pipelines)
                     step = subpipeline
 
-    def print_steps(self, indent: int = 0):
+    def print_steps(self, *, use_short_path: bool = False, indent: int = 0):
         for step in self.steps:
             if isinstance(step, Primitive):
-                print(("\t" * indent) + step.python_path)
+                if use_short_path:
+                    path = step.short_python_path
+                else:
+                    path = step.python_path
+                print(("\t" * indent) + path)
             elif isinstance(step, Pipeline):
-                step.print_steps(indent + 1)
+                step.print_steps(use_short_path=use_short_path, indent=indent + 1)
             else:
                 raise ValueError(f"unsupported step type {type(step)}")

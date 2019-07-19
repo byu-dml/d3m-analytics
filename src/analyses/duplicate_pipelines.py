@@ -85,8 +85,8 @@ class DuplicatePipelinesAnalysis(Analysis):
             print(
                 f"run A (score {[(score.metric,score.value) for score in run_pair[0].scores]}):"
             )
-            run_pair[0].pipeline.print_steps(indent=1)
+            run_pair[0].pipeline.print_steps(use_short_path=True, indent=1)
             print(
                 f"run B (score {[(score.metric,score.value) for score in run_pair[1].scores]}):"
             )
-            run_pair[1].pipeline.print_steps(indent=1)
+            run_pair[1].pipeline.print_steps(use_short_path=True, indent=1)
