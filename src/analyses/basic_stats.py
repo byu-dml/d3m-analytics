@@ -28,6 +28,8 @@ class BasicStatsAnalysis(Analysis):
         metric_types_cnt: dict = {}
         # What is the distribution of number of datasets per run?
         dataset_cnt: dict = {}
+        # What is the distribution of number of scores per run?
+        score_cnt: dict = {}
         # How many pipeline runs include a normalized value with their metrics?
         num_normalized_metric_values = 0
         # Which primitives are most common?
@@ -45,6 +47,10 @@ class BasicStatsAnalysis(Analysis):
                     primitives_cnt[step.short_python_path] += 1
                 elif isinstance(step, Pipeline):
                     num_subpipelines += 1
+
+            num_scores = len(run.scores)
+            set_default(score_cnt, num_scores, 0)
+            score_cnt[num_scores] += 1
 
             for score in run.scores:
                 set_default(metric_values, score.metric, [])
@@ -95,6 +101,7 @@ class BasicStatsAnalysis(Analysis):
         print(f"The dataset has {num_runs} pipeline runs with unique ids.")
         print(f"The distribution of run phases is: {phase_cnts}")
         print(f"The distribution of metric types is: {metric_types_cnt}")
+        print(f"The distribution of score counts per run is: {score_cnt}")
 
         print(f"The distribution of datasets per run is: {dataset_cnt}")
         print(f"The distribution of pipeline authors among runs is: {author_values}")
