@@ -1,11 +1,12 @@
 from typing import List
 
+from src.entities.entity import Entity, EntityWithId
 from src.entities.hyperparam import Hyperparam
 from src.entities.data_reference import DataReference
 from src.utils import has_path
 
 
-class Primitive:
+class Primitive(EntityWithId):
     """
     An object representation of fields about an executed
     D3M primitive that we care about for analysis.
@@ -38,6 +39,16 @@ class Primitive:
             for name, hyperparam_dict in pipeline_step["hyperparams"].items():
                 self.hyperparams.append(Hyperparam(name, hyperparam_dict))
 
+    def get_id(self):
+        return self.digest
+
+    def is_tantamount_to(self, primitive: "Primitive") -> bool:
+        """
+        Returns `True` even if the primitives have different hyperparameters
+        or digests.
+        """
+        return self.is_same_kind(primitive) and self.has_same_inputs(primitive)
+
     def is_same_kind(self, primitive: "Primitive") -> bool:
         """
         Checks if two primitives are the same kind of primitive i.e.
@@ -49,21 +60,18 @@ class Primitive:
         else:
             return False
 
-    def is_same_kind_and_inputs(self, primitive: "Primitive") -> bool:
+    def has_same_inputs(self, primitive: "Primitive") -> bool:
         """
-        Checks if two primitives are the same kind and if they have the
-        same inputs, which includes checking to make sure they have the 
+        Checks if two primitives have the
+        same inputs, which includes checking to make sure they have the
         same input type, step reference, and method reference for each input.
         """
-        if not self.is_same_kind(primitive):
-            return False
-
         if len(self.inputs) != len(primitive.inputs):
             return False
 
         for i, my_input in enumerate(self.inputs):
             their_input = primitive.inputs[i]
-            if my_input != their_input:
+            if not my_input.equals(their_input):
                 return False
 
         return True

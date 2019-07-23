@@ -1,4 +1,7 @@
-class Score:
+from src.entities.entity import Entity
+
+
+class Score(Entity):
     def __init__(self, score_dict):
         self.metric = score_dict["metric"]["metric"]
         self.value = score_dict["value"]
@@ -6,7 +9,18 @@ class Score:
         # Falls between 0 and 1. Higher is better.
         self.normalized_value = score_dict["normalized"]
 
-    def equals(
+    def is_tantamount_to(self, score: "Score") -> bool:
+        """
+        With this class, if `is_tantamount_to` returns `True`, `self`
+        and `score` are fully equivalent.
+        """
+        return (
+            self.metric == score.metric
+            and self.value == score.value
+            and self.normalized_value == score.normalized_value
+        )
+
+    def is_tantamount_to_with_tolerance(
         self, score: "Score", tolerance: float = 0.0, use_normalized_value: bool = False
     ) -> bool:
         """

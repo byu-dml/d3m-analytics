@@ -1,10 +1,11 @@
+from src.entities.entity import Entity, EntityWithId
 from src.entities.primitive import Primitive
 from src.entities.data_reference import DataReference
 from src.entities.document_reference import DocumentReference
 from src.utils import enforce_field, has_path
 
 
-class Pipeline:
+class Pipeline(EntityWithId):
     """
     An object representation of fields from a pipeline JSON document that
     we care about for analysis.
@@ -41,7 +42,10 @@ class Pipeline:
             else:
                 raise Exception(f"unsupported pipeline_steps type '{step_type}'")
 
-    def has_same_steps(self, pipeline: "Pipeline") -> bool:
+    def get_id(self):
+        return self.digest
+
+    def is_tantamount_to(self, pipeline: "Pipeline") -> bool:
         """
         Returns `True` if `self` has same steps as `pipeline`, which includes
         the same primitive/sub-pipeline and inputs at each step.
@@ -54,11 +58,8 @@ class Pipeline:
 
             if type(my_step) != type(their_step):
                 return False
-            if isinstance(my_step, Primitive):
-                if not my_step.is_same_kind_and_inputs(their_step):
-                    return False
-            elif isinstance(my_step, Pipeline):
-                if not my_step.has_same_steps(their_step):
+            if isinstance(my_step, Primitive) or isinstance(my_step, Pipeline):
+                if not my_step.is_tantamount_to(their_step):
                     return False
             else:
                 raise ValueError(f"unsupported step type {type(my_step)}")

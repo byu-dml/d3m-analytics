@@ -1,7 +1,8 @@
+from src.entities.entity import Entity, EntityWithId
 from src.utils import enforce_field
 
 
-class Problem:
+class Problem(EntityWithId):
     def __init__(self, problem_dict: dict, should_enforce_id: bool):
         enforce_field(should_enforce_id, problem_dict, "digest")
         self.digest = problem_dict["digest"]
@@ -12,3 +13,18 @@ class Problem:
         if "performance_metrics" in problem_dict:
             for metric_dict in problem_dict["performance_metrics"]:
                 self.metrics.append(metric_dict["metric"])
+
+    def get_id(self):
+        return self.digest
+
+    def is_tantamount_to(self, problem: "Problem") -> bool:
+        """
+        Checks to make sure the problems have the same name, metrics,
+        type, and subtype. Doesn't worry about the digest.
+        """
+        for i, our_metric in enumerate(self.metrics):
+            their_metric = problem.metrics[i]
+            if our_metric != their_metric:
+                return False
+
+        return self.type == problem.type and self.subtype == problem.subtype

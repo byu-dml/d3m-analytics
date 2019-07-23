@@ -1,13 +1,14 @@
 import iso8601
 from typing import Union
 
+from src.entities.entity import Entity, EntityWithId
 from src.entities.document_reference import DocumentReference
 from src.entities.pipeline import Pipeline
 from src.entities.score import Score
 from src.utils import has_path, enforce_field
 
 
-class PipelineRun:
+class PipelineRun(EntityWithId):
     def __init__(self, pipeline_run_dict: dict, should_enforce_id: bool):
         enforce_field(should_enforce_id, pipeline_run_dict, "id")
         self.id = pipeline_run_dict["id"]
@@ -32,6 +33,12 @@ class PipelineRun:
         )  # type: Union[DocumentReference, Pipeline]
         self.problem = DocumentReference(pipeline_run_dict["problem"])
 
+    def get_id(self):
+        return self.id
+
+    def is_tantamount_to(self, run: "PipelineRun") -> bool:
+        raise NotImplementedError
+
     def find_common_scores(self, run: "PipelineRun", tolerance: float = 0.0) -> list:
         """
         Returns a list of the scores `self` has that are identical to `run`'s
@@ -40,7 +47,7 @@ class PipelineRun:
         common_scores = []
         for my_score in self.scores:
             for their_score in run.scores:
-                if my_score.equals(their_score, tolerance):
+                if my_score.is_tantamount_to_with_tolerance(their_score, tolerance):
                     common_scores.append(my_score)
         return common_scores
 

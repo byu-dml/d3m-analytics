@@ -24,7 +24,7 @@ class DataReference:
     def _members(self):
         return (self.type, self.index, self.method_name)
 
-    def __eq__(self, obj):
+    def equals(self, obj):
         if type(obj) is type(self):
             return self._members() == obj._members()
         else:

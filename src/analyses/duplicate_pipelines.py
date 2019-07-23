@@ -31,11 +31,11 @@ class DuplicatePipelinesAnalysis(Analysis):
             if len(run.scores) > 0:
                 for run_dataset in run.datasets:
                     set_default(runs_by_dataset, run_dataset, [])
-                    pipeline_run_has_same_steps_as_previous = [
-                        run.pipeline.has_same_steps(prev_run.pipeline)
+                    pipeline_run_is_tantamount_to_previous = [
+                        run.pipeline.is_tantamount_to(prev_run.pipeline)
                         for prev_run in runs_by_dataset[run_dataset]
                     ]
-                    if not any(pipeline_run_has_same_steps_as_previous):
+                    if not any(pipeline_run_is_tantamount_to_previous):
                         runs_by_dataset[run_dataset].append(run)
 
         # Next, find all pairs of pipeline runs that have the same scores
