@@ -10,7 +10,7 @@ from src.utils import set_default
 class BasicStatsAnalysis(Analysis):
     """
     An analysis that considers basic statistics and features of the
-    pipeline run data. 
+    pipeline run data.
     """
 
     def run(self, pipeline_runs: dict, verbose: bool):
