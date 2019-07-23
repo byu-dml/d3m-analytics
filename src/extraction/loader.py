@@ -24,7 +24,7 @@ def load_index(dump_path: str, index_name: str):
     with tqdm(total=num_docs) as progress_bar:
         with open(file_path, "r") as f:
             while True:
-                line: str = f.readline()
+                line = f.readline()
                 if not line:
                     break
                 yield json.loads(line)

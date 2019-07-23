@@ -18,15 +18,20 @@ def load_pipeline_runs(
     Parameters
     ----------
     index : str
-        The name of the pipeline_run index to load from. Should be a member of the settings.INDEXES enum.
+        The name of the pipeline_run index to load from. Should be a member of the
+        settings.INDEXES enum.
     pipelines : Dict[str,Pipeline]
-        The map of pipeline digests to pipelines returned by extraction.pipelines.load_pipelines
+        The map of pipeline digests to pipelines returned by
+        extraction.pipelines.load_pipelines
     problems : Dict[str,Problem]
-        The map of problem digests to problems returned by extraction.problems.load_problems
+        The map of problem digests to problems returned by
+        extraction.problems.load_problems
     datasets : Dict[str,Dataset]
-        The map of dataset digests to datasets returned by extraction.datasets.load_datasets
+        The map of dataset digests to datasets returned by
+        extraction.datasets.load_datasets
     should_enforce_id : bool
-        Whether an error should be thrown if a pipeline run doesn't contain the appropriate id field
+        Whether an error should be thrown if a pipeline run doesn't contain the
+        appropriate id field
     """
     pipeline_runs = {}
 

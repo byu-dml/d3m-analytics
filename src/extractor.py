@@ -15,13 +15,19 @@ def get_parser() -> ArgumentParser:
     pipeline runs in a form ready for analysis.
     """
     parser = ArgumentParser(
-        description="Make a denormalized extraction of all pipeline runs, ready for analysis."
+        description=(
+            "Make a denormalized extraction of all pipeline runs, "
+            "ready for analysis."
+        )
     )
     parser.add_argument(
         "--dump-dir",
         "-d",
         default=DefaultDirs.DUMP.value,
-        help="The path to the dump folder where the pipeline runs will be extracted from.",
+        help=(
+            "The path to the dump folder where the pipeline runs will be "
+            "extracted from."
+        ),
     )
     parser.add_argument(
         "--out-dir",
@@ -39,7 +45,10 @@ def get_parser() -> ArgumentParser:
         "--dont-enforce-ids",
         "-de",
         action="store_true",
-        help="If present, the system will not require that each document being loaded have its appropriate id field.",
+        help=(
+            "If present, the system will not require that each document being "
+            "loaded have its appropriate id field."
+        ),
     )
     return parser
 
@@ -48,8 +57,8 @@ def extract_denormalized(
     dump_path: str, out_dir: str, pipeline_runs_index_name: str, should_enforce_id: bool
 ):
     """
-    Extracts and persists a map of pipeline run digests to their companion pipeline runs.
-    Each pipeline run is fully denormalized, meaning it contains references
+    Extracts and persists a map of pipeline run digests to their companion pipeline
+    runs. Each pipeline run is fully denormalized, meaning it contains references
     to its dependent pipeline (each with their dependent subpipelines) and
     to its problem.
     """

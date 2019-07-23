@@ -21,23 +21,23 @@ class BasicStatsAnalysis(Analysis):
         # How many runs are there?
         num_runs = len(pipeline_runs.keys())
         # What is the distribution of pipeline run scores by metric type?
-        metric_values: dict = {}
+        metric_values = {}  # type: dict
         # What is the distribution of phase types?
-        phase_cnts: dict = {}
+        phase_cnts = {}  # type: dict
         # What is the distribution of metric types?
-        metric_types_cnt: dict = {}
+        metric_types_cnt = {}  # type: dict
         # What is the distribution of number of datasets per run?
-        dataset_cnt: dict = {}
+        dataset_cnt = {}  # type: dict
         # What is the distribution of number of scores per run?
-        score_cnt: dict = {}
+        score_cnt = {}  # type: dict
         # How many pipeline runs include a normalized value with their metrics?
         num_normalized_metric_values = 0
         # Which primitives are most common?
-        primitives_cnt: dict = {}
+        primitives_cnt = {}  # type: dict
         # How many sub-pipelines are being used?
         num_subpipelines = 0
         # What is the distribution of pipeline authors among pipeline runs?
-        author_values: dict = {}
+        author_values = {}  # type: dict
 
         for run in pipeline_runs.values():
 
@@ -65,7 +65,10 @@ class BasicStatsAnalysis(Analysis):
                 metric_types_cnt[score.metric] += 1
                 if verbose:
                     print(
-                        f"metric={score.metric}\tvalue={score.value}\tnormalized_value={score.normalized_value}"
+                        (
+                            f"metric={score.metric}\tvalue={score.value}\t"
+                            f"normalized_value={score.normalized_value}"
+                        )
                     )
 
                 if score.normalized_value is not None:
@@ -78,9 +81,13 @@ class BasicStatsAnalysis(Analysis):
             author_values[run.pipeline.source_name] += 1
 
         # Sort the primitive counts to get the most common
-        primitives_cnt_tuples = primitives_cnt.items()
+        primitives_cnt_tuples = primitives_cnt.items()  # type: iter
+
+        def get_count(toop):
+            return toop[1]
+
         primitives_cnt_tuples = sorted(
-            primitives_cnt_tuples, key=lambda toop: toop[1], reverse=True
+            primitives_cnt_tuples, key=get_count, reverse=True
         )
 
         # Report
@@ -94,7 +101,10 @@ class BasicStatsAnalysis(Analysis):
             plt.xlabel("score")
             plt.ylabel("count")
             plt.title(
-                f"Distribution of {metric_type} Scores Across Pipeline Runs ({len(metric_values)} runs)"
+                (
+                    f"Distribution of {metric_type} Scores Across Pipeline "
+                    f"Runs ({len(metric_values)} runs)"
+                )
             )
             plt.show()
 
@@ -106,7 +116,10 @@ class BasicStatsAnalysis(Analysis):
         print(f"The distribution of datasets per run is: {dataset_cnt}")
         print(f"The distribution of pipeline authors among runs is: {author_values}")
         print(
-            f"There are {num_normalized_metric_values} normalized metric values found among the pipelines"
+            (
+                f"There are {num_normalized_metric_values} normalized metric values "
+                f"found among the pipelines"
+            )
         )
         print(f"The {num_top_primitives} most commonly used primitives are:")
         for prim_cnt in primitives_cnt_tuples[:num_top_primitives]:

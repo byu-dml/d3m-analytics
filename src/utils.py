@@ -21,7 +21,8 @@ def enforce_field(should_enforce_field: bool, d: dict, field_name: str):
 def file_len(fname):
     """
     Returns the number of lines in a file.
-    Source: https://stackoverflow.com/questions/845058/how-to-get-line-count-cheaply-in-python
+    Source:
+    https://stackoverflow.com/questions/845058/how-to-get-line-count-cheaply-in-python
     """
     with open(fname) as f:
         for i, l in enumerate(f):

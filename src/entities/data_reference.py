@@ -3,7 +3,8 @@ from typing import Optional
 
 class DataReference:
     """
-    Represents a data reference (https://metadata.datadrivendiscovery.org/schemas/v0/definitions.json#/definitions/data_reference),
+    Represents a data reference
+    (https://metadata.datadrivendiscovery.org/schemas/v0/definitions.json#/definitions/data_reference),
     with the parts broken up so they can be used in code more easily.
     """
 
@@ -12,13 +13,14 @@ class DataReference:
         Example of reference_string: 'steps.0.produce' or 'inputs.1'
         """
         parts = reference_string.split(".")
-        self.type: str = parts[0]
-        self.index: int = int(parts[1])
-        self.method_name: Optional[str] = parts[2] if len(parts) > 2 else None
+        self.type = parts[0]  # type: str
+        self.index = int(parts[1])  # type: int
+        self.method_name = parts[2] if len(parts) > 2 else None  # type: Optional[str]
         if len(parts) > 3:
             raise ValueError(f"unknown data reference string '{reference_string}'")
 
-    # Source: https://stackoverflow.com/questions/4950155/objects-as-keys-in-python-dictionaries?rq=1
+    # Source:
+    # https://stackoverflow.com/questions/4950155/objects-as-keys-in-python-dictionaries?rq=1
     def _members(self):
         return (self.type, self.index, self.method_name)
 
