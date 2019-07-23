@@ -19,15 +19,15 @@ class Pipeline:
         if has_path(pipeline_dict, ["source", "name"]):
             self.source_name = pipeline_dict["source"]["name"]
 
-        self.inputs: list = []
+        self.inputs = []  # type: list
         for input_dict in pipeline_dict["inputs"]:
             self.inputs.append(input_dict["name"])
 
-        self.outputs: list = []
+        self.outputs = []  # type: list
         for output_dict in pipeline_dict["outputs"]:
             self.outputs.append(DataReference(output_dict["data"]))
 
-        self.steps: list = []
+        self.steps = []  # type: list
         self.has_subpipeline = False
         for step in pipeline_dict["steps"]:
             step_type = step["type"]

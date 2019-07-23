@@ -17,7 +17,10 @@ def get_parser() -> ArgumentParser:
         "--out-dir",
         "-o",
         default=DefaultDirs.DUMP.value,
-        help="The path to the folder the dump will be written to (include the folder name)",
+        help=(
+            "The path to the folder the dump will be "
+            "written to (include the folder name)"
+        ),
     )
     parser.add_argument(
         "--batch-size",
@@ -30,7 +33,10 @@ def get_parser() -> ArgumentParser:
         "--count",
         "-c",
         action="store_true",
-        help="If present, the dump will not take place; only the number of records in each index will be written out.",
+        help=(
+            "If present, the dump will not take place; only the number "
+            "of records in each index will be written out."
+        ),
     )
     return parser
 
@@ -44,7 +50,10 @@ def dump(out_dir: str, batch_size: int):
         s = Search(using=client, index=index_name)
         num_docs_in_index = s.count()
         print(
-            f"Now writing index '{index_name}' ({num_docs_in_index} documents) to path '{out_name}'"
+            (
+                f"Now writing index '{index_name}' ({num_docs_in_index} documents) "
+                f"to path '{out_name}'"
+            )
         )
 
         if not os.path.isdir(out_dir):

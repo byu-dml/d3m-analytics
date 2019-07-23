@@ -25,7 +25,7 @@ class DuplicatePipelinesAnalysis(Analysis):
         # and don't include runs whose pipelines have the
         # same steps as previous pipeline runs.
 
-        runs_by_dataset: dict = {}
+        runs_by_dataset = {}  # type: dict
         for run in pipeline_runs.values():
 
             if len(run.scores) > 0:
@@ -41,7 +41,7 @@ class DuplicatePipelinesAnalysis(Analysis):
         # Next, find all pairs of pipeline runs that have the same scores
         # for a given datset.
 
-        same_runs_by_dataset: dict = {}
+        same_runs_by_dataset = {}  # type: dict
         for dataset, dataset_runs in runs_by_dataset.items():
             same_runs_by_dataset[dataset] = []
 
@@ -67,14 +67,21 @@ class DuplicatePipelinesAnalysis(Analysis):
         print("*********************\n")
 
         print(
-            f"The {num_duplicate_runs_by_dataset} dataset(s) with the most runs having the same scores (considered with a tolerance of {run_score_comparison_tolerance}) are:"
+            (
+                f"The {num_duplicate_runs_by_dataset} dataset(s) with the most runs "
+                f"having the same scores (considered with a tolerance of "
+                f"{run_score_comparison_tolerance}) are:"
+            )
         )
         for dataset, count in same_run_counts_by_dataset[
             :num_duplicate_runs_by_dataset
         ]:
             print(f"\t{dataset.name}\t{count}")
         print(
-            f"The steps of the {num_duplicate_runs_by_dataset} run pair(s) with the same score, for the dataset with the most 'duplicate' runs are:"
+            (
+                f"The steps of the {num_duplicate_runs_by_dataset} run pair(s) with "
+                f"the same score, for the dataset with the most 'duplicate' runs are:"
+            )
         )
         for i, run_pair in enumerate(
             same_runs_by_dataset[dataset_with_most_duplicate_runs][
@@ -82,11 +89,7 @@ class DuplicatePipelinesAnalysis(Analysis):
             ]
         ):
             print(f"Pair {i+1}:")
-            print(
-                f"run A (score {[(score.metric,score.value) for score in run_pair[0].scores]}):"
-            )
+            print(f"run A (score {[(s.metric,s.value) for s in run_pair[0].scores]}):")
             run_pair[0].pipeline.print_steps(use_short_path=True, indent=1)
-            print(
-                f"run B (score {[(score.metric,score.value) for score in run_pair[1].scores]}):"
-            )
+            print(f"run B (score {[(s.metric,s.value) for s in run_pair[1].scores]}):")
             run_pair[1].pipeline.print_steps(use_short_path=True, indent=1)

@@ -1,6 +1,8 @@
 import iso8601
+from typing import Union
 
 from src.entities.document_reference import DocumentReference
+from src.entities.pipeline import Pipeline
 from src.entities.score import Score
 from src.utils import has_path, enforce_field
 
@@ -15,17 +17,19 @@ class PipelineRun:
         self.submitter = pipeline_run_dict["_submitter"]
 
         self.run_phase = pipeline_run_dict["run"]["phase"]
-        self.scores: list = []
+        self.scores = []  # type: list
         if has_path(pipeline_run_dict, ["run", "results", "scores"]):
             for score_dict in pipeline_run_dict["run"]["results"]["scores"]:
                 self.scores.append(Score(score_dict))
 
         # These references will be dereferenced later by the loader
         # once the pipelines, problems, and datasets are available.
-        self.datasets: list = []
+        self.datasets = []  # type: list
         for dataset_dict in pipeline_run_dict["datasets"]:
             self.datasets.append(DocumentReference(dataset_dict))
-        self.pipeline = DocumentReference(pipeline_run_dict["pipeline"])
+        self.pipeline = DocumentReference(
+            pipeline_run_dict["pipeline"]
+        )  # type: Union[DocumentReference, Pipeline]
         self.problem = DocumentReference(pipeline_run_dict["problem"])
 
     def find_common_scores(self, run: "PipelineRun", tolerance: float = 0.0) -> list:
