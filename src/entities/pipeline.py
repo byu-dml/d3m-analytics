@@ -1,3 +1,6 @@
+from typing import Tuple, List, Dict, Callable, Type, Optional
+import itertools
+
 from src.entities.entity import Entity, EntityWithId
 from src.entities.primitive import Primitive
 from src.entities.data_reference import DataReference
@@ -45,6 +48,20 @@ class Pipeline(EntityWithId):
     def get_id(self):
         return self.digest
 
+    @property
+    def num_steps(self) -> int:
+        """
+        Recursively counts the number of steps in the pipeline,
+        including any subpipelines.
+        """
+        num_steps: int = 0
+        for step in self.steps:
+            if isinstance(step, Pipeline):
+                num_steps += step.num_steps
+            else:
+                num_steps += 1
+        return num_steps
+
     def is_tantamount_to(self, pipeline: "Pipeline") -> bool:
         """
         Returns `True` if `self` has same steps as `pipeline`, which includes
@@ -73,12 +90,12 @@ class Pipeline(EntityWithId):
         accessed programmatically.
         """
         if self.has_subpipeline:
-            for step in self.steps:
+            for i, step in enumerate(self.steps):
                 if isinstance(step, DocumentReference):
                     subpipeline = pipelines[step.digest]
                     # Recurse down in case this pipeline has its own subpipelines
                     subpipeline.dereference_subpipelines(pipelines)
-                    step = subpipeline
+                    self.steps[i] = subpipeline
 
     def print_steps(self, *, use_short_path: bool = False, indent: int = 0):
         for step in self.steps:
@@ -92,3 +109,79 @@ class Pipeline(EntityWithId):
                 step.print_steps(use_short_path=use_short_path, indent=indent + 1)
             else:
                 raise ValueError(f"unsupported step type {type(step)}")
+
+    def get_num_steps_off_from(self, pipeline: "Pipeline") -> int:
+        """
+        Gets the number of steps `pipeline` and `self` have that are not identical.
+        """
+        num_off: int = abs(len(self.steps) - len(pipeline.steps))
+
+        for my_step, their_step in zip(self.steps, pipeline.steps):
+
+            if isinstance(my_step, Primitive) and isinstance(their_step, Primitive):
+                if not my_step.is_tantamount_to(their_step):
+                    num_off += 1
+
+            elif isinstance(my_step, Pipeline) and isinstance(their_step, Pipeline):
+                num_off += my_step.get_num_steps_off_from(their_step)
+
+            elif isinstance(my_step, Primitive) and isinstance(their_step, Pipeline):
+                num_off += their_step.num_steps
+
+            elif isinstance(my_step, Pipeline) and isinstance(their_step, Primitive):
+                num_off += my_step.num_steps
+
+            else:
+                raise ValueError(
+                    f"unsupported step types {type(my_step)} and {type(their_step)}"
+                )
+
+        return num_off
+
+    def _get_steps_off_from(
+        self, our_steps: List[Primitive], their_steps: List[Primitive]
+    ) -> List[Tuple[Optional[str], Optional[str]]]:
+        steps_off: List[Tuple[Optional[str], Optional[str]]] = []
+
+        for my_step, their_step in itertools.zip_longest(our_steps, their_steps):
+
+            if isinstance(my_step, Primitive) and isinstance(their_step, Primitive):
+                if not my_step.is_tantamount_to(their_step):
+                    steps_off.append((my_step.python_path, their_step.python_path))
+
+            elif isinstance(my_step, Pipeline) and isinstance(their_step, Pipeline):
+                steps_off += my_step.get_steps_off_from(their_step)
+
+            elif not isinstance(my_step, Pipeline) and isinstance(their_step, Pipeline):
+                if isinstance(my_step, Primitive):
+                    steps_off += self._get_steps_off_from([my_step], their_step.steps)
+                else:
+                    steps_off += self._get_steps_off_from([], their_step.steps)
+
+            elif isinstance(my_step, Pipeline) and not isinstance(their_step, Pipeline):
+                if isinstance(their_step, Primitive):
+                    steps_off += self._get_steps_off_from(my_step.steps, [their_step])
+                else:
+                    steps_off += self._get_steps_off_from(my_step.steps, [])
+
+            elif my_step is None and isinstance(their_step, Primitive):
+                steps_off.append((None, their_step.python_path))
+
+            elif isinstance(my_step, Primitive) and their_step is None:
+                steps_off.append((my_step.python_path, None))
+
+            else:
+                raise ValueError(
+                    f"unsupported types {type(my_step)} and {type(their_step)}"
+                )
+        return steps_off
+
+    def get_steps_off_from(
+        self, pipeline: "Pipeline"
+    ) -> List[Tuple[Optional[str], Optional[str]]]:
+        """
+        Gets the python paths of the steps `pipeline` and `self` have that are not identical.
+        Returns a list of 2-tuples. Each entry is a pair of primitives that mismatch among
+        the pipelines.
+        """
+        return self._get_steps_off_from(self.steps, pipeline.steps)

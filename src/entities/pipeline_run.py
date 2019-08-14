@@ -5,6 +5,7 @@ from src.entities.entity import Entity, EntityWithId
 from src.entities.document_reference import DocumentReference
 from src.entities.pipeline import Pipeline
 from src.entities.score import Score
+from src.entities.problem import Problem
 from src.utils import has_path, enforce_field
 
 
@@ -30,7 +31,7 @@ class PipelineRun(EntityWithId):
             self.datasets.append(DocumentReference(dataset_dict))
         self.pipeline = DocumentReference(
             pipeline_run_dict["pipeline"]
-        )  # type: Union[DocumentReference, Pipeline]
+        )  # type: Union[DocumentReference, Problem]
         self.problem = DocumentReference(pipeline_run_dict["problem"])
 
     def get_id(self):
@@ -50,4 +51,28 @@ class PipelineRun(EntityWithId):
                 if my_score.is_tantamount_to_with_tolerance(their_score, tolerance):
                     common_scores.append(my_score)
         return common_scores
+
+    def is_same_problem_and_context_as(self, run: "PipelineRun") -> bool:
+        for our_dataset, their_dataset in zip(self.datasets, run.datasets):
+            if not our_dataset.is_tantamount_to(their_dataset):
+                return False
+
+        if self.run_phase != run.run_phase:
+            return False
+
+        if self.status != run.status:
+            return False
+
+        if not self.problem.is_tantamount_to(run.problem):
+            return False
+
+        return True
+
+    def is_one_step_off_from(self, run: "PipelineRun") -> bool:
+        """
+        Checks to see if `self` is one step off from `run`.
+        They are one step off if there is only a single primitive
+        that is different between the two.
+        """
+        return self.pipeline.get_num_steps_off_from(run.pipeline) == 1
 
