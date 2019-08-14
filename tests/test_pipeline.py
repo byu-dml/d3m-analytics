@@ -1,0 +1,171 @@
+import unittest
+
+from src.entities.pipeline import Pipeline
+from tests.utils import load_test_pipelines
+
+
+class TestPipeline(unittest.TestCase):
+    """
+    The crux of each test is a call to self.assertEqual() to check for
+    an expected result; self.assertTrue() or self.assertFalse() to verify a
+    condition; or self.assertRaises() to verify that a specific exception
+    gets raised. These methods are used instead of the assert
+    statement so the test runner can accumulate all test results and
+    produce a report.
+    """
+
+    def setUp(self):
+        test_pipes = load_test_pipelines()
+        self.pipe_a = test_pipes["simple_pipeline_a"]
+        self.pipe_b = test_pipes["simple_pipeline_b"]
+        self.pipe_one_off_b = test_pipes["simple_pipeline_b_one_off"]
+        self.pipe_with_subpipelines = test_pipes["pipeline_with_subpipelines"]
+
+    def test_has_subpipelines(self):
+        self.assertTrue(self.pipe_with_subpipelines.has_subpipeline)
+        self.assertFalse(self.pipe_a.has_subpipeline)
+
+    def test_get_num_steps_off_from(self):
+
+        # Assert one off pipelines are the same offness whether its
+        # b vs. a or a vs. b
+        num_b_from_one_off = self.pipe_b.get_num_steps_off_from(self.pipe_one_off_b)
+        self.assertEqual(num_b_from_one_off, 1)
+
+        num_one_off_from_b = self.pipe_one_off_b.get_num_steps_off_from(self.pipe_b)
+        self.assertEqual(num_one_off_from_b, 1)
+
+        # Assert > 1 offsets are correct
+        num_a_from_b = self.pipe_a.get_num_steps_off_from(self.pipe_b)
+        self.assertEqual(num_a_from_b, 3)
+
+        num_b_from_a = self.pipe_b.get_num_steps_off_from(self.pipe_a)
+        self.assertEqual(num_b_from_a, 3)
+
+        # Assert offsets involving subpipelines calculate correctly
+        num_a_from_subpipelines = self.pipe_a.get_num_steps_off_from(
+            self.pipe_with_subpipelines
+        )
+        self.assertEqual(num_a_from_subpipelines, 3)
+
+        num_subpipelines_from_a = self.pipe_with_subpipelines.get_num_steps_off_from(
+            self.pipe_a
+        )
+        self.assertEqual(num_subpipelines_from_a, 3)
+
+        # Assert offset == 0 for identical pipelines
+        num_a_from_a = self.pipe_a.get_num_steps_off_from(self.pipe_a)
+        self.assertEqual(num_a_from_a, 0)
+
+    def test_get_steps_off_from(self):
+
+        # Assert one off pipelines are the same offness whether its
+        # b vs. a or a vs. b
+        steps_off_b_from_one_off = self.pipe_b.get_steps_off_from(self.pipe_one_off_b)
+        self.assertEqual(len(steps_off_b_from_one_off), 1)
+        self.assertEqual(
+            steps_off_b_from_one_off,
+            [
+                (
+                    "d3m.primitives.data_preprocessing.min_max_scaler.SKlearn",
+                    "d3m.primitives.feature_selection.select_percentile.SKlearn",
+                )
+            ],
+        )
+
+        steps_off_one_off_from_b = self.pipe_one_off_b.get_steps_off_from(self.pipe_b)
+        self.assertEqual(len(steps_off_one_off_from_b), 1)
+        self.assertEqual(
+            steps_off_one_off_from_b,
+            [
+                (
+                    "d3m.primitives.feature_selection.select_percentile.SKlearn",
+                    "d3m.primitives.data_preprocessing.min_max_scaler.SKlearn",
+                )
+            ],
+        )
+
+        # Assert > 1 offsets are correct
+        steps_off_a_from_b = self.pipe_a.get_steps_off_from(self.pipe_b)
+        self.assertEqual(len(steps_off_a_from_b), 3)
+        self.assertEqual(
+            steps_off_a_from_b,
+            [
+                (
+                    "d3m.primitives.classification.random_forest.SKlearn",
+                    "d3m.primitives.data_preprocessing.min_max_scaler.SKlearn",
+                ),
+                (
+                    "d3m.primitives.data_transformation.construct_predictions.DataFrameCommon",
+                    "d3m.primitives.classification.random_forest.SKlearn",
+                ),
+                (
+                    None,
+                    "d3m.primitives.data_transformation.construct_predictions.DataFrameCommon",
+                ),
+            ],
+        )
+
+        steps_off_b_from_a = self.pipe_b.get_steps_off_from(self.pipe_a)
+        self.assertEqual(len(steps_off_b_from_a), 3)
+        self.assertEqual(
+            steps_off_b_from_a,
+            [
+                (
+                    "d3m.primitives.data_preprocessing.min_max_scaler.SKlearn",
+                    "d3m.primitives.classification.random_forest.SKlearn",
+                ),
+                (
+                    "d3m.primitives.classification.random_forest.SKlearn",
+                    "d3m.primitives.data_transformation.construct_predictions.DataFrameCommon",
+                ),
+                (
+                    "d3m.primitives.data_transformation.construct_predictions.DataFrameCommon",
+                    None,
+                ),
+            ],
+        )
+
+        # Assert offsets involving subpipelines calculate correctly
+        steps_off_a_from_subpipelines = self.pipe_a.get_steps_off_from(
+            self.pipe_with_subpipelines
+        )
+        self.assertEqual(len(steps_off_a_from_subpipelines), 3)
+        self.assertEqual(
+            steps_off_a_from_subpipelines,
+            [
+                (
+                    "d3m.primitives.classification.random_forest.SKlearn",
+                    "d3m.primitives.data_transformation.dataset_to_dataframe.Common",
+                ),
+                (None, "d3m.primitives.classification.random_forest.SKlearn"),
+                (
+                    None,
+                    "d3m.primitives.data_transformation.construct_predictions.DataFrameCommon",
+                ),
+            ],
+        )
+
+        steps_off_subpipelines_from_a = self.pipe_with_subpipelines.get_steps_off_from(
+            self.pipe_a
+        )
+        self.assertEqual(len(steps_off_subpipelines_from_a), 3)
+        self.assertEqual(
+            steps_off_subpipelines_from_a,
+            [
+                (
+                    "d3m.primitives.data_transformation.dataset_to_dataframe.Common",
+                    "d3m.primitives.classification.random_forest.SKlearn",
+                ),
+                ("d3m.primitives.classification.random_forest.SKlearn", None),
+                (
+                    "d3m.primitives.data_transformation.construct_predictions.DataFrameCommon",
+                    None,
+                ),
+            ],
+        )
+
+        # Assert offset == 0 for identical pipelines
+        num_a_from_a = self.pipe_a.get_steps_off_from(self.pipe_a)
+        self.assertEqual(len(num_a_from_a), 0)
+
