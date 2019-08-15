@@ -129,6 +129,7 @@ dmypy.json
 # Local files
 dump/
 extractions/
+src/*/temp.*
 
 # Pickled files
 *.pickle
