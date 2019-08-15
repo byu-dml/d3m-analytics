@@ -49,17 +49,25 @@ Using the `elasticsearch-dsl` python package, the database can be queried progra
 
     The `elasticsearch-dsl` package has support for filtering, aggregating, sorting, and querying, but not joining. A pickled, denormalized extraction of pipeline runs can be created (see below for instructions), and is useful for analysis that involves joining.
 
+### Get Basic DB Stats
+
+To query the number of documents contained in each index of the DB, run:
+
+```shell
+python -m src.count
+```
+
+This is useful for finding out how big the database is.
+
 ### Make a Full Dump
 
 To make a full JSON dump of the D3M MtL database, run this. Note: It copies all the indexes in the D3M elasticsearch instance and will take some time, depending on the number of documents that exist.
 
 ```shell
-python -m src.dump [--out-dir dump_dir_name] [--batch-size num_docs_in_batch] [--count]
+python -m src.dump [--out-dir dump_dir_name] [--batch-size num_docs_in_batch]
 ```
 
 The dump will default to being written to the `dump` directory within the current working directory.
-
-If the `--count` arg is present, the database will not be dumped. Rather, the system will simply query the number of documents contained in each index. This is useful for finding out how big the database is.
 
 ### Extract a dump
 
