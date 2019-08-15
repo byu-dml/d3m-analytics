@@ -41,7 +41,7 @@ class EntityWithId(Entity):
     def post_init(self, entity_maps) -> None:
         """
         Called after all entity_maps is built up by
-        src.extractor.extract_denormalized. Gives the entity
+        src.extract.extract_denormalized. Gives the entity
         a chance to do any initialization it couldn't do
         without the full entity_maps during its constructor call.
         """
