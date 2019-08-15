@@ -1,4 +1,4 @@
-from typing import Mapping
+from typing import Mapping, Dict
 import itertools
 
 from src.analyses.analysis import Analysis
@@ -14,7 +14,8 @@ class DuplicatePipelinesAnalysis(Analysis):
     or across all datasets?"
     """
 
-    def run(self, pipeline_runs: dict, verbose: bool):
+    def run(self, entity_maps: Dict[str, dict], verbose: bool):
+        pipeline_runs = entity_maps["pipeline_runs"]
 
         # config
         run_score_comparison_tolerance = 0.001

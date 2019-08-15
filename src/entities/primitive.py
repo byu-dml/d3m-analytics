@@ -1,12 +1,12 @@
 from typing import List
 
-from src.entities.entity import Entity, EntityWithId
+from src.entities.entity import Entity, Entity
 from src.entities.hyperparam import Hyperparam
 from src.entities.data_reference import DataReference
 from src.utils import has_path
 
 
-class Primitive(EntityWithId):
+class Primitive(Entity):
     """
     An object representation of fields about an executed
     D3M primitive that we care about for analysis.

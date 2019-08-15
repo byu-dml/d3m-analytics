@@ -7,7 +7,7 @@ from elasticsearch_dsl import Search
 from tqdm import tqdm
 
 from src.client import client
-from src.settings import Indexes, DefaultDirs
+from src.settings import Index, DefaultDir
 
 
 def get_parser() -> ArgumentParser:
@@ -16,7 +16,7 @@ def get_parser() -> ArgumentParser:
     parser.add_argument(
         "--out-dir",
         "-o",
-        default=DefaultDirs.DUMP.value,
+        default=DefaultDir.DUMP.value,
         help=(
             "The path to the folder the dump will be "
             "written to (include the folder name)"
@@ -43,7 +43,7 @@ def get_parser() -> ArgumentParser:
 
 def dump(out_dir: str, batch_size: int):
     """Read the DB indexes and dump them to :out_dir:."""
-    for index in Indexes:
+    for index in Index:
         index_name = index.value
         out_name = f"{out_dir}/{index_name}.json"
 
@@ -70,7 +70,7 @@ def count():
     """Count the number of documents in each index of the DB."""
     counts = []
 
-    for index in Indexes:
+    for index in Index:
         index_name = index.value
         num_docs_in_index = Search(using=client, index=index_name).count()
         counts.append((index_name, num_docs_in_index))

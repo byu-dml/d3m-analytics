@@ -14,6 +14,9 @@ class Problem(EntityWithId):
             for metric_dict in problem_dict["performance_metrics"]:
                 self.metrics.append(metric_dict["metric"])
 
+    def post_init(self, entity_maps) -> None:
+        pass
+
     def get_id(self):
         return self.digest
 

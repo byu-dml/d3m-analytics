@@ -45,6 +45,20 @@ class Pipeline(EntityWithId):
             else:
                 raise Exception(f"unsupported pipeline_steps type '{step_type}'")
 
+    def post_init(self, entity_maps) -> None:
+        """
+        Dereference any subpipelines and flatten out all steps
+        and subpipeline steps into `self.steps`.
+        """
+        self.dereference_subpipelines(entity_maps["pipelines"])
+
+        self.flattened_steps: List[Primitive] = []
+        for step in self.steps:
+            if isinstance(step, Pipeline):
+                self.flattened_steps += step.steps
+            else:
+                self.flattened_steps.append(step)
+
     def get_id(self):
         return self.digest
 

@@ -26,9 +26,23 @@ class EntityWithId(Entity):
     """
 
     @abstractmethod
+    def __init__(self, pipeline_dict: dict, should_enforce_id: bool) -> None:
+        pass
+
+    @abstractmethod
     def get_id(self) -> str:
         """
         Returns the entity's underlying field that represents its unique ID.
         The actually underlying field name may vary.
+        """
+        pass
+
+    @abstractmethod
+    def post_init(self, entity_maps) -> None:
+        """
+        Called after all entity_maps is built up by
+        src.extractor.extract_denormalized. Gives the entity
+        a chance to do any initialization it couldn't do
+        without the full entity_maps during its constructor call.
         """
         pass

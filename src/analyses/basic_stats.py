@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from typing import Dict
 
 from src.analyses.analysis import Analysis
 from src.utils import has_path
@@ -13,7 +14,8 @@ class BasicStatsAnalysis(Analysis):
     pipeline run data.
     """
 
-    def run(self, pipeline_runs: dict, verbose: bool):
+    def run(self, entity_maps: Dict[str, dict], verbose: bool):
+        pipeline_runs = entity_maps["pipeline_runs"]
 
         # config
         num_top_primitives = 20

@@ -1,12 +1,15 @@
 import pickle
 from argparse import ArgumentParser
 import os
+from typing import Dict
 
-from src.extraction.pipeline_runs import load_pipeline_runs
-from src.extraction.pipelines import load_pipelines
-from src.extraction.problems import load_problems
-from src.extraction.datasets import load_datasets
-from src.settings import DefaultDirs, DefaultFiles
+from src.extraction.loader import load_entity_map
+from src.settings import DefaultDir, DefaultFile
+from src.entities.pipeline import Pipeline
+from src.entities.problem import Problem
+from src.entities.dataset import Dataset
+from src.entities.pipeline_run import PipelineRun
+from src.settings import Index
 
 
 def get_parser() -> ArgumentParser:
@@ -23,7 +26,7 @@ def get_parser() -> ArgumentParser:
     parser.add_argument(
         "--dump-dir",
         "-d",
-        default=DefaultDirs.DUMP.value,
+        default=DefaultDir.DUMP.value,
         help=(
             "The path to the dump folder where the pipeline runs will be "
             "extracted from."
@@ -32,13 +35,14 @@ def get_parser() -> ArgumentParser:
     parser.add_argument(
         "--out-dir",
         "-o",
-        default=DefaultDirs.EXTRACTION.value,
+        default=DefaultDir.EXTRACTION.value,
         help="The path to the folder where the extracted pipelines will be pickled to.",
     )
     parser.add_argument(
         "--index-name",
         "-i",
-        default="pipeline_runs_untrusted",
+        default=Index.BAD_PIPELINE_RUNS.value,
+        choices=[Index.BAD_PIPELINE_RUNS.value, Index.PIPELINE_RUNS.value],
         help="The name of the dumped elasticsearch index to use as pipeline runs",
     )
     parser.add_argument(
@@ -62,30 +66,44 @@ def extract_denormalized(
     to its dependent pipeline (each with their dependent subpipelines) and
     to its problem.
     """
-    print("Now loading pipelines...")
-    pipelines = load_pipelines(dump_path, should_enforce_id)
-    print("Now loading problems...")
-    problems = load_problems(dump_path, should_enforce_id)
-    print("Now loading datasets...")
-    datasets = load_datasets(dump_path, should_enforce_id)
-    print("Now loading pipeline runs...")
-    pipelines_runs = load_pipeline_runs(
-        dump_path,
-        pipeline_runs_index_name,
-        pipelines,
-        problems,
-        datasets,
-        should_enforce_id,
+    pipeline_runs_index = Index(pipeline_runs_index_name)
+    entity_maps: Dict[str, dict] = {}
+
+    # Load and construct each entity
+
+    entity_maps["pipelines"] = load_entity_map(
+        dump_path, Index.PIPELINES, Pipeline, should_enforce_id
     )
 
-    out_name = f"{out_dir}/{DefaultFiles.EXTRACTION_PKL.value}"
-    print(f"Now saving pipeline runs to '{out_name}'...")
+    entity_maps["problems"] = load_entity_map(
+        dump_path, Index.PROBLEMS, Problem, should_enforce_id
+    )
+
+    entity_maps["datasets"] = load_entity_map(
+        dump_path, Index.DATASETS, Dataset, should_enforce_id
+    )
+
+    entity_maps["pipeline_runs"] = load_entity_map(
+        dump_path, pipeline_runs_index, PipelineRun, should_enforce_id
+    )
+
+    # Next post-init each entity, now that all the entity_maps
+    # are available.
+
+    for entity_map in entity_maps.values():
+        for entity in entity_map.values():
+            entity.post_init(entity_maps)
+
+    # Finally persist the entity_maps
+
+    out_name = f"{out_dir}/{DefaultFile.EXTRACTION_PKL.value}"
+    print(f"Now saving `entity_maps` to '{out_name}'...")
 
     if not os.path.isdir(out_dir):
         os.mkdir(out_dir)
 
     with open(out_name, "wb") as f:
-        pickle.dump(pipelines_runs, f)
+        pickle.dump(entity_maps, f)
 
     file_size_mb = os.stat(out_name).st_size / 1e6
     print(f"Extraction successful. Wrote {file_size_mb}MB to disk.")

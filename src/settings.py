@@ -1,5 +1,6 @@
 from os import getenv
 from enum import Enum
+from typing import Dict, List
 
 from dotenv import load_dotenv
 
@@ -13,16 +14,16 @@ SECRET = getenv("SECRET")
 API = getenv("API")
 
 
-class DefaultDirs(Enum):
+class DefaultDir(Enum):
     DUMP = "dump"
     EXTRACTION = "extractions"
 
 
-class DefaultFiles(Enum):
-    EXTRACTION_PKL = "denormalized_pipeline_runs.pkl"
+class DefaultFile(Enum):
+    EXTRACTION_PKL = "denormalized_entity_maps.pkl"
 
 
-class Indexes(Enum):
+class Index(Enum):
     PIPELINES = "pipelines"
     BAD_PIPELINE_RUNS = "pipeline_runs_untrusted"
     PIPELINE_RUNS = "pipeline_runs_trusted"

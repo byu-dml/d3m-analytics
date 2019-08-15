@@ -10,6 +10,9 @@ class Dataset(EntityWithId):
         self.name = dataset_dict["name"]
         self.description = dataset_dict.get("description")
 
+    def post_init(self, entity_maps) -> None:
+        pass
+
     def __eq__(self, obj):
         if not type(obj) is type(self):
             return False

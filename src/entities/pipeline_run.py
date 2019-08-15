@@ -1,5 +1,6 @@
 import iso8601
-from typing import Union
+from typing import Union, Tuple, Dict
+import itertools
 
 from src.entities.entity import Entity, EntityWithId
 from src.entities.document_reference import DocumentReference
@@ -33,6 +34,13 @@ class PipelineRun(EntityWithId):
             pipeline_run_dict["pipeline"]
         )  # type: Union[DocumentReference, Problem]
         self.problem = DocumentReference(pipeline_run_dict["problem"])
+
+    def post_init(self, entity_maps) -> None:
+        """Dereference this pipeline run's pipeline, problem, and datasets."""
+        self.pipeline = entity_maps["pipelines"][self.pipeline.digest]
+        self.problem = entity_maps["problems"][self.problem.digest]
+        for i, dataset_reference in enumerate(self.datasets):
+            self.datasets[i] = entity_maps["datasets"][dataset_reference.digest]
 
     def get_id(self):
         return self.id

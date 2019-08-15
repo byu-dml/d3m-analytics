@@ -27,17 +27,17 @@ You can use this package to programmatically interact with the D3M meta-learning
 Using the `elasticsearch-dsl` python package, the database can be queried programmatically, with a fair amount of ease and flexibility.
 
 1.  Import the `client` object from the local `client` module.
-1.  Import the `Indexes` enum from the local `settings` module.
+1.  Import the `Index` enum from the local `settings` module.
 1.  Import the `Search` class from the `elasticsearch_dsl` package.
 1.  Use the [`elasticsearch-dsl` documentation](https://elasticsearch-dsl.readthedocs.io/en/latest/search_dsl.html) to begin querying the elasticsearch indexes. Example:
     
     ```python
     from src.client import client
-    from src.settings import Indexes
+    from src.settings import Index
     from elasticsearch_dsl import Search
 
     # Search all pipeline documents (defaults to only returning 10 at a time max)
-    s = Search(using=client, index=Indexes.PIPELINES.value)
+    s = Search(using=client, index=Index.PIPELINES.value)
 
     # Execute the search
     response = s.execute()
