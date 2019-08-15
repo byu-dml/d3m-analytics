@@ -1,5 +1,5 @@
 from src.entities.entity import Entity, EntityWithId
-from src.utils import enforce_field
+from src.misc.utils import enforce_field
 
 
 class Problem(EntityWithId):

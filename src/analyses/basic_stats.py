@@ -2,10 +2,10 @@ import matplotlib.pyplot as plt
 from typing import Dict
 
 from src.analyses.analysis import Analysis
-from src.utils import has_path
+from src.misc.utils import has_path
 from src.entities.pipeline import Pipeline
 from src.entities.primitive import Primitive
-from src.utils import set_default
+from src.misc.utils import set_default
 
 
 class BasicStatsAnalysis(Analysis):

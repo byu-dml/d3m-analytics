@@ -7,7 +7,7 @@ from src.entities.document_reference import DocumentReference
 from src.entities.pipeline import Pipeline
 from src.entities.score import Score
 from src.entities.problem import Problem
-from src.utils import has_path, enforce_field
+from src.misc.utils import has_path, enforce_field
 
 
 class PipelineRun(EntityWithId):
@@ -83,4 +83,20 @@ class PipelineRun(EntityWithId):
         that is different between the two.
         """
         return self.pipeline.get_num_steps_off_from(run.pipeline) == 1
+
+    def get_scores_of_common_metrics(
+        self, run: "PipelineRun"
+    ) -> Dict[str, Tuple[Score, Score]]:
+        """
+        Finds the scores for the metrics common between `self` and `run`.
+        Returns a dict mapping the metric name to the tuple of the runs'
+        scores for that metric.
+        """
+        common_metrics: Dict[str, Tuple[Score, Score]] = {}
+        for our_score in self.scores:
+            for their_score in run.scores:
+                if our_score.metric == their_score.metric:
+                    common_metrics[our_score.metric] = (our_score, their_score)
+
+        return common_metrics
 

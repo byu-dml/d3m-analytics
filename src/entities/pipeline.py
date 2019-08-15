@@ -5,7 +5,7 @@ from src.entities.entity import Entity, EntityWithId
 from src.entities.primitive import Primitive
 from src.entities.data_reference import DataReference
 from src.entities.document_reference import DocumentReference
-from src.utils import enforce_field, has_path
+from src.misc.utils import enforce_field, has_path
 
 
 class Pipeline(EntityWithId):

@@ -4,12 +4,12 @@ import os
 from typing import Dict
 
 from src.extraction.loader import load_entity_map
-from src.settings import DefaultDir, DefaultFile
+from src.misc.settings import DefaultDir, DefaultFile
 from src.entities.pipeline import Pipeline
 from src.entities.problem import Problem
 from src.entities.dataset import Dataset
 from src.entities.pipeline_run import PipelineRun
-from src.settings import Index
+from src.misc.settings import Index
 
 
 def get_parser() -> ArgumentParser:

@@ -4,7 +4,7 @@ import itertools
 from src.analyses.analysis import Analysis
 from src.entities.pipeline import Pipeline
 from src.entities.primitive import Primitive
-from src.utils import set_default
+from src.misc.utils import set_default
 
 
 class DuplicatePipelinesAnalysis(Analysis):

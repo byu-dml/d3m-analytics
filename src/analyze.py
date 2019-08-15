@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 from typing import Type, Mapping
 import pickle
 
-from src.settings import DefaultDir, DefaultFile
+from src.misc.settings import DefaultDir, DefaultFile
 from src.analyses.analysis import Analysis
 from src.analyses.basic_stats import BasicStatsAnalysis
 from src.analyses.duplicate_pipelines import DuplicatePipelinesAnalysis

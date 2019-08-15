@@ -3,8 +3,8 @@ from typing import Type, Dict
 
 from tqdm import tqdm
 
-from src.utils import file_len
-from src.settings import Index
+from src.misc.utils import file_len
+from src.misc.settings import Index
 from src.entities.entity import EntityWithId
 
 

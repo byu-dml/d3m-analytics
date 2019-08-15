@@ -3,7 +3,7 @@ from typing import List
 from src.entities.entity import Entity, Entity
 from src.entities.hyperparam import Hyperparam
 from src.entities.data_reference import DataReference
-from src.utils import has_path
+from src.misc.utils import has_path
 
 
 class Primitive(Entity):

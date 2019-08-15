@@ -1,4 +1,4 @@
-from src.utils import enforce_field
+from src.misc.utils import enforce_field
 from src.entities.entity import Entity, EntityWithId
 
 

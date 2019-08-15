@@ -7,7 +7,7 @@ from elasticsearch_dsl import Search
 from tqdm import tqdm
 
 from src.client import client
-from src.settings import Index, DefaultDir
+from src.misc.settings import Index, DefaultDir
 
 
 def get_parser() -> ArgumentParser:

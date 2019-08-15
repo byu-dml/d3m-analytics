@@ -33,7 +33,7 @@ Using the `elasticsearch-dsl` python package, the database can be queried progra
     
     ```python
     from src.client import client
-    from src.settings import Index
+    from src.misc.settings import Index
     from elasticsearch_dsl import Search
 
     # Search all pipeline documents (defaults to only returning 10 at a time max)
