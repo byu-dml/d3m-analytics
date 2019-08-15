@@ -29,3 +29,32 @@ class Index(Enum):
     PIPELINE_RUNS = "pipeline_runs_trusted"
     PROBLEMS = "problems"
     DATASETS = "datasets"
+
+
+elasticsearch_fields: Dict[Index, List[str]] = {
+    Index.PIPELINES: ["name", "digest", "source", "inputs", "outputs", "steps"],
+    Index.BAD_PIPELINE_RUNS: [
+        "id",
+        "status",
+        "start",
+        "end",
+        "_submitter",
+        "run",
+        "datasets",
+        "pipeline",
+        "problem",
+    ],
+    Index.PIPELINE_RUNS: [
+        "id",
+        "status",
+        "start",
+        "end",
+        "_submitter",
+        "run",
+        "datasets",
+        "pipeline",
+        "problem",
+    ],
+    Index.PROBLEMS: ["digest", "name", "problem", "performance_metrics"],
+    Index.DATASETS: ["digest", "id", "name", "description"],
+}

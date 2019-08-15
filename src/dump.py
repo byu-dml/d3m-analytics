@@ -7,7 +7,7 @@ from elasticsearch_dsl import Search
 from tqdm import tqdm
 
 from src.client import client
-from src.misc.settings import Index, DefaultDir
+from src.misc.settings import Index, DefaultDir, elasticsearch_fields
 
 
 def get_parser() -> ArgumentParser:
@@ -26,7 +26,7 @@ def get_parser() -> ArgumentParser:
         "--batch-size",
         "-b",
         type=int,
-        default=100,
+        default=250,
         help="The number of records to read from the database at a time",
     )
     return parser
@@ -40,6 +40,7 @@ def dump(out_dir: str, batch_size: int):
 
         s = Search(using=client, index=index_name)
         num_docs_in_index = s.count()
+        s = s.source(elasticsearch_fields[index])
         print(
             (
                 f"Now writing index '{index_name}' ({num_docs_in_index} documents) "
