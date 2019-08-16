@@ -1,4 +1,5 @@
 [![Build Status](https://api.travis-ci.org/byu-dml/d3m-mtl-db-reader.png)](https://travis-ci.org/byu-dml/d3m-mtl-db-reader)
+[![codecov](https://codecov.io/gh/byu-dml/d3m-mtl-db-reader/branch/master/graph/badge.svg)](https://codecov.io/gh/byu-dml/d3m-mtl-db-reader)
 
 # Programmatically Interact With The D3M MtL Database 
 
