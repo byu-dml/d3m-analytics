@@ -6,10 +6,12 @@ from src.misc.settings import DefaultDir, DefaultFile
 from src.analyses.analysis import Analysis
 from src.analyses.basic_stats import BasicStatsAnalysis
 from src.analyses.duplicate_pipelines import DuplicatePipelinesAnalysis
+from src.analyses.duplicate_primitives import DuplicatePrimitivesAnalysis
 
 analysis_map: Mapping[str, Type[Analysis]] = {
     "basic_stats": BasicStatsAnalysis,
     "duplicate_pipelines": DuplicatePipelinesAnalysis,
+    "duplicate_primitives": DuplicatePrimitivesAnalysis,
 }
 
 
@@ -46,6 +48,12 @@ def get_parser() -> ArgumentParser:
             "to report that is"
         ),
     )
+    parser.add_argument(
+        "--refresh",
+        "-r",
+        action="store_true",
+        help=("If present, any caches that the analysis uses will be refreshed."),
+    )
     return parser
 
 
@@ -59,4 +67,4 @@ if __name__ == "__main__":
     analysis_class: Type[Analysis] = analysis_map[args.analysis]
     analysis = analysis_class()
     print(f"Now running {args.analysis} analysis...")
-    analysis.run(entity_maps, args.verbose)
+    analysis.run(entity_maps, args.verbose, args.refresh)
