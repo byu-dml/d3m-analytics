@@ -10,6 +10,7 @@ from src.entities.problem import Problem
 from src.entities.dataset import Dataset
 from src.entities.pipeline_run import PipelineRun
 from src.misc.settings import Index
+from src.misc.utils import get_file_size_mb
 
 
 def get_parser() -> ArgumentParser:
@@ -105,7 +106,7 @@ def extract_denormalized(
     with open(out_name, "wb") as f:
         pickle.dump(entity_maps, f)
 
-    file_size_mb = os.stat(out_name).st_size / 1e6
+    file_size_mb = get_file_size_mb(out_name)
     print(f"Extraction successful. Wrote {file_size_mb}MB to disk.")
 
 
