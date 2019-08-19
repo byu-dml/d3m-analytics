@@ -19,6 +19,7 @@ class Primitive(Entity):
         primitive_dict: dict = pipeline_step["primitive"]
         self.name = primitive_dict["name"]
         self.digest = primitive_dict.get("digest")
+        self.id = primitive_dict["id"]
 
         self.python_path = primitive_dict["python_path"]
         last_two_of_path = self.python_path.split(".")[-2:]
@@ -33,6 +34,11 @@ class Primitive(Entity):
             else:
                 # data must be a string
                 self.inputs.append(DataReference(data))
+
+        self.outputs_ids: List[str] = []
+        if "outputs" in pipeline_step:
+            for output in pipeline_step["outputs"]:
+                self.outputs_ids.append(output["id"])
 
         self.hyperparams: List[Hyperparam] = []
         if "hyperparams" in pipeline_step:
