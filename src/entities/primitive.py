@@ -35,10 +35,10 @@ class Primitive(Entity):
                 # data must be a string
                 self.inputs.append(DataReference(data))
 
-        self.outputs_ids: List[str] = []
+        self.output_ids: List[str] = []
         if "outputs" in pipeline_step:
             for output in pipeline_step["outputs"]:
-                self.outputs_ids.append(output["id"])
+                self.output_ids.append(output["id"])
 
         self.hyperparams: List[Hyperparam] = []
         if "hyperparams" in pipeline_step:
@@ -85,7 +85,7 @@ class Primitive(Entity):
     def has_same_outputs(self, primitive: "Primitive") -> bool:
         # We can just use the `==` operator since `Primitive.output_ids`
         # is a list of strings, which are immutable.
-        return self.outputs_ids == primitive.outputs_ids
+        return self.output_ids == primitive.output_ids
 
     def is_same_position_different_kind(self, primitive: "Primitive") -> bool:
         """
