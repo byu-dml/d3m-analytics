@@ -1,5 +1,6 @@
-import matplotlib.pyplot as plt
 from typing import Dict
+
+import matplotlib.pyplot as plt
 
 from src.analyses.analysis import Analysis
 from src.misc.utils import has_path
@@ -98,17 +99,18 @@ class BasicStatsAnalysis(Analysis):
         print("****** RESULTS ******")
         print("*********************\n")
 
-        for metric_type, metric_values in metric_values.items():
-            plt.hist(metric_values, bins=20)
-            plt.xlabel("score")
-            plt.ylabel("count")
-            plt.title(
-                (
-                    f"Distribution of {metric_type} Scores Across Pipeline "
-                    f"Runs ({len(metric_values)} runs)"
+        if verbose:
+            for metric_type, metric_values in metric_values.items():
+                plt.hist(metric_values, bins=20)
+                plt.xlabel("score")
+                plt.ylabel("count")
+                plt.title(
+                    (
+                        f"Distribution of {metric_type} Scores Across Pipeline "
+                        f"Runs ({len(metric_values)} runs)"
+                    )
                 )
-            )
-            plt.show()
+                plt.show()
 
         print(f"The dataset has {num_runs} pipeline runs with unique ids.")
         print(f"The distribution of run phases is: {phase_cnts}")

@@ -21,9 +21,10 @@ class Analysis(ABC):
             pipelines, and datasets.
         verbose
             Whether to report the results of the analysis verbosely.
-            Generally, this means that if true, per-entity results
+            Generally, this means that if `True`, per-entity results
             will be reported in addition to the standard summary results
-            reported at the end of the analysis.
+            reported at the end of the analysis. It could also mean
+            pyplot pop-up windows will appear when `True`.
         refresh
             Whether to refresh any caches that this analysis uses.
         """
