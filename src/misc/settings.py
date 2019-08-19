@@ -17,7 +17,7 @@ API = getenv("API")
 class DefaultDir(Enum):
     DUMP = "dump"
     EXTRACTION = "extractions"
-    CACHE = "cached-function-calls"
+    CACHE = ".cached-function-calls"
 
 
 class DefaultFile(Enum):

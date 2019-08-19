@@ -105,7 +105,7 @@ def with_cache(f: Callable, refresh=False) -> Callable:
                 pickle.dump(result, wf)
                 cache_result_mb = get_file_size_mb(cache_path)
                 print(
-                    f"Cached result of {f.__name__} call to {cache_path} ({cache_result_mb}MB)"
+                    f"Cached result of '{f.__name__}' call to '{cache_path}' ({cache_result_mb}MB)"
                 )
             return result
 
