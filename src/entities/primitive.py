@@ -81,3 +81,19 @@ class Primitive(Entity):
                 return False
 
         return True
+
+    def has_same_outputs(self, primitive: "Primitive") -> bool:
+        # We can just use the `==` operator since `Primitive.output_ids`
+        # is a list of strings, which are immutable.
+        return self.outputs_ids == primitive.outputs_ids
+
+    def is_same_position_different_kind(self, primitive: "Primitive") -> bool:
+        """
+        Returns `True` if `self` and `primitive` have the same inputs and outputs
+        but are different primitives.
+        """
+        return (
+            not self.is_same_kind(primitive)
+            and self.has_same_inputs(primitive)
+            and self.has_same_outputs(primitive)
+        )
