@@ -61,7 +61,7 @@ class Primitive(Entity):
         they are instances of the same primitive but may have different inputs
         or hyperparameters.
         """
-        if self.python_path == primitive.python_path:
+        if self.id == primitive.id:
             return True
         else:
             return False
