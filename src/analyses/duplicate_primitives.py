@@ -1,10 +1,11 @@
 import itertools
 import functools
-from collections import namedtuple
+from collections import namedtuple, deque
 from typing import Dict, Tuple, List, Set, Union, Any
 from math import factorial as fac
 
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 from src.analyses.analysis import Analysis
 from src.entities.pipeline import Pipeline
@@ -89,33 +90,14 @@ def build_ppcl(pipeline_runs: Dict[str, PipelineRun]):
                 # Next get the differences between their scores
                 for metric, scores in run_a.get_scores_of_common_metrics(run_b).items():
                     run_a_score, run_b_score = scores
-                    try:
-                        ppcl[pair].append(
-                            PipelineRunPairDiffEntry(
-                                run_a,
-                                run_b,
-                                metric,
-                                abs(run_a_score.value - run_b_score.value),
-                            )
+                    ppcl[pair].append(
+                        PipelineRunPairDiffEntry(
+                            run_a,
+                            run_b,
+                            metric,
+                            abs(run_a_score.value - run_b_score.value),
                         )
-                    except KeyError as e:
-                        print("\nrun_a:")
-                        print(run_a.pipeline.print_steps())
-                        print("\nrun_b")
-                        print(run_b.pipeline.print_steps())
-                        print(
-                            f"run_a.is_one_step_off_from(run_b): {run_a.is_one_step_off_from(run_b)}"
-                        )
-                        print(
-                            f"run_b.is_one_step_off_from(run_a): {run_b.is_one_step_off_from(run_a)}"
-                        )
-                        print(
-                            f"run_a.pipeline.get_steps_off_from(run_b.pipeline): {run_a.pipeline.get_steps_off_from(run_b.pipeline)}"
-                        )
-                        print(
-                            f"run_b.pipeline.get_steps_off_from(run_a.pipeline): {run_b.pipeline.get_steps_off_from(run_a.pipeline)}"
-                        )
-                        raise e
+                    )
     return ppcl, prim_id_to_paths, primitive_ids
 
 
@@ -128,17 +110,34 @@ class DuplicatePrimitivesAnalysis(Analysis):
 
     def run(self, entity_maps: Dict[str, dict], verbose: bool, refresh: bool):
 
+        # config
+        num_top_pairs_to_show = 20
+
         pipeline_runs = entity_maps["pipeline_runs"]
         ppcl, prim_id_to_paths, primitive_ids = with_cache(build_ppcl, refresh)(
             pipeline_runs
         )
 
-        # Get number of entries in the PPCL; the number of pipeline pairs that are 1-off
-        # from each other.
+        # Get the distribution of entries in the PPCL.
+        ppcl_distribution = [len(diff_list) for diff_list in ppcl.values()]
+        num_ppcl_entries = sum(ppcl_distribution)
 
-        num_ppcl_entries = functools.reduce(
-            lambda acc, key: acc + len(ppcl[key]), ppcl, 0
-        )
+        # Get the primitive pairs that have the most diff entries (i.e. the
+        # primitive pairs that are used most interchangeably.)
+        top_pairs: deque = deque(maxlen=num_top_pairs_to_show)
+        for pair, diff_list in ppcl.items():
+            top_len = len(ppcl[top_pairs[0]]) if len(top_pairs) > 0 else 0
+            if len(diff_list) >= top_len:
+                top_pairs.appendleft(pair)
+
+        top_pairs_and_len_by_path = [
+            (
+                prim_id_to_paths[pair_ids[0]],
+                prim_id_to_paths[pair_ids[1]],
+                len(ppcl[pair_ids]),
+            )
+            for pair_ids in top_pairs
+        ]
 
         # Report
 
@@ -154,3 +153,15 @@ class DuplicatePrimitivesAnalysis(Analysis):
             f"There are {num_ppcl_entries} pipeline run pairs that are just one primitive off"
         )
 
+        print(f"The primitve pairs causing the most one-offs on pipeline runs are:")
+        for prim_a, prim_b, num_diffs in top_pairs_and_len_by_path:
+            print(f"\t({prim_a}, {prim_b})\t{num_diffs}")
+
+        if verbose:
+            plt.hist(ppcl_distribution, bins=100, log=True)
+            plt.xlabel("Number of Diffs For Primitive Pair")
+            plt.ylabel("Count")
+            plt.title(
+                f"Distribution of Diff Counts For Primitive Pairs Across Pipeline Runs"
+            )
+            plt.show()
