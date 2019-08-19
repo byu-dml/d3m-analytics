@@ -65,24 +65,14 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(len(steps_off_b_from_one_off), 1)
         self.assertEqual(
             steps_off_b_from_one_off,
-            [
-                (
-                    "d3m.primitives.data_preprocessing.min_max_scaler.SKlearn",
-                    "d3m.primitives.feature_selection.select_percentile.SKlearn",
-                )
-            ],
+            [(self.pipe_b.steps[1], self.pipe_one_off_b.steps[1])],
         )
 
         steps_off_one_off_from_b = self.pipe_one_off_b.get_steps_off_from(self.pipe_b)
         self.assertEqual(len(steps_off_one_off_from_b), 1)
         self.assertEqual(
             steps_off_one_off_from_b,
-            [
-                (
-                    "d3m.primitives.feature_selection.select_percentile.SKlearn",
-                    "d3m.primitives.data_preprocessing.min_max_scaler.SKlearn",
-                )
-            ],
+            [(self.pipe_one_off_b.steps[1], self.pipe_b.steps[1])],
         )
 
         # Assert > 1 offsets are correct
@@ -91,18 +81,9 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(
             steps_off_a_from_b,
             [
-                (
-                    "d3m.primitives.classification.random_forest.SKlearn",
-                    "d3m.primitives.data_preprocessing.min_max_scaler.SKlearn",
-                ),
-                (
-                    "d3m.primitives.data_transformation.construct_predictions.DataFrameCommon",
-                    "d3m.primitives.classification.random_forest.SKlearn",
-                ),
-                (
-                    None,
-                    "d3m.primitives.data_transformation.construct_predictions.DataFrameCommon",
-                ),
+                (self.pipe_a.steps[1], self.pipe_b.steps[1]),
+                (self.pipe_a.steps[2], self.pipe_b.steps[2]),
+                (None, self.pipe_b.steps[3]),
             ],
         )
 
@@ -111,18 +92,9 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(
             steps_off_b_from_a,
             [
-                (
-                    "d3m.primitives.data_preprocessing.min_max_scaler.SKlearn",
-                    "d3m.primitives.classification.random_forest.SKlearn",
-                ),
-                (
-                    "d3m.primitives.classification.random_forest.SKlearn",
-                    "d3m.primitives.data_transformation.construct_predictions.DataFrameCommon",
-                ),
-                (
-                    "d3m.primitives.data_transformation.construct_predictions.DataFrameCommon",
-                    None,
-                ),
+                (self.pipe_b.steps[1], self.pipe_a.steps[1]),
+                (self.pipe_b.steps[2], self.pipe_a.steps[2]),
+                (self.pipe_b.steps[3], None),
             ],
         )
 
@@ -134,15 +106,9 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(
             steps_off_a_from_subpipelines,
             [
-                (
-                    "d3m.primitives.classification.random_forest.SKlearn",
-                    "d3m.primitives.data_transformation.dataset_to_dataframe.Common",
-                ),
-                (None, "d3m.primitives.classification.random_forest.SKlearn"),
-                (
-                    None,
-                    "d3m.primitives.data_transformation.construct_predictions.DataFrameCommon",
-                ),
+                (self.pipe_a.steps[1], self.pipe_a.steps[0]),
+                (None, self.pipe_a.steps[1]),
+                (None, self.pipe_a.steps[2]),
             ],
         )
 
@@ -153,15 +119,9 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(
             steps_off_subpipelines_from_a,
             [
-                (
-                    "d3m.primitives.data_transformation.dataset_to_dataframe.Common",
-                    "d3m.primitives.classification.random_forest.SKlearn",
-                ),
-                ("d3m.primitives.classification.random_forest.SKlearn", None),
-                (
-                    "d3m.primitives.data_transformation.construct_predictions.DataFrameCommon",
-                    None,
-                ),
+                (self.pipe_a.steps[0], self.pipe_a.steps[1]),
+                (self.pipe_a.steps[1], None),
+                (self.pipe_a.steps[2], None),
             ],
         )
 
