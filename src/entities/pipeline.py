@@ -154,14 +154,14 @@ class Pipeline(EntityWithId):
 
     def _get_steps_off_from(
         self, our_steps: List[Primitive], their_steps: List[Primitive]
-    ) -> List[Tuple[Optional[str], Optional[str]]]:
-        steps_off: List[Tuple[Optional[str], Optional[str]]] = []
+    ) -> List[Tuple[Optional[Primitive], Optional[Primitive]]]:
+        steps_off: List[Tuple[Optional[Primitive], Optional[Primitive]]] = []
 
         for my_step, their_step in itertools.zip_longest(our_steps, their_steps):
 
             if isinstance(my_step, Primitive) and isinstance(their_step, Primitive):
                 if not my_step.is_tantamount_to(their_step):
-                    steps_off.append((my_step.python_path, their_step.python_path))
+                    steps_off.append((my_step, their_step))
 
             elif isinstance(my_step, Pipeline) and isinstance(their_step, Pipeline):
                 steps_off += my_step.get_steps_off_from(their_step)
@@ -179,10 +179,10 @@ class Pipeline(EntityWithId):
                     steps_off += self._get_steps_off_from(my_step.steps, [])
 
             elif my_step is None and isinstance(their_step, Primitive):
-                steps_off.append((None, their_step.python_path))
+                steps_off.append((None, their_step))
 
             elif isinstance(my_step, Primitive) and their_step is None:
-                steps_off.append((my_step.python_path, None))
+                steps_off.append((my_step, None))
 
             else:
                 raise ValueError(
@@ -192,7 +192,7 @@ class Pipeline(EntityWithId):
 
     def get_steps_off_from(
         self, pipeline: "Pipeline"
-    ) -> List[Tuple[Optional[str], Optional[str]]]:
+    ) -> List[Tuple[Optional[Primitive], Optional[Primitive]]]:
         """
         Gets the python paths of the steps `pipeline` and `self` have that are not identical.
         Returns a list of 2-tuples. Each entry is a pair of primitives that mismatch among
