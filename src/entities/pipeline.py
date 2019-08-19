@@ -1,4 +1,4 @@
-from typing import Tuple, List, Dict, Callable, Type, Optional
+from typing import Tuple, List, Dict, Callable, Type, Optional, Union
 import itertools
 
 from src.entities.entity import Entity, EntityWithId
@@ -23,15 +23,15 @@ class Pipeline(EntityWithId):
         if has_path(pipeline_dict, ["source", "name"]):
             self.source_name = pipeline_dict["source"]["name"]
 
-        self.inputs = []  # type: list
+        self.inputs: List[str] = []
         for input_dict in pipeline_dict["inputs"]:
             self.inputs.append(input_dict["name"])
 
-        self.outputs = []  # type: list
+        self.outputs: List[DataReference] = []
         for output_dict in pipeline_dict["outputs"]:
             self.outputs.append(DataReference(output_dict["data"]))
 
-        self.steps = []  # type: list
+        self.steps: List[Union[Primitive, DocumentReference, Pipeline]] = []
         self.has_subpipeline = False
         for step in pipeline_dict["steps"]:
             step_type = step["type"]

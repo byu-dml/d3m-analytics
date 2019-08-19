@@ -26,7 +26,7 @@ class DuplicatePipelinesAnalysis(Analysis):
         # and don't include runs whose pipelines have the
         # same steps as previous pipeline runs.
 
-        runs_by_dataset = {}  # type: dict
+        runs_by_dataset: dict = {}
         for run in pipeline_runs.values():
 
             if len(run.scores) > 0:
@@ -42,7 +42,7 @@ class DuplicatePipelinesAnalysis(Analysis):
         # Next, find all pairs of pipeline runs that have the same scores
         # for a given datset.
 
-        same_runs_by_dataset = {}  # type: dict
+        same_runs_by_dataset: dict = {}
         for dataset, dataset_runs in runs_by_dataset.items():
             same_runs_by_dataset[dataset] = []
 

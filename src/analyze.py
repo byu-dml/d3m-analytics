@@ -7,10 +7,10 @@ from src.analyses.analysis import Analysis
 from src.analyses.basic_stats import BasicStatsAnalysis
 from src.analyses.duplicate_pipelines import DuplicatePipelinesAnalysis
 
-analysis_map = {
+analysis_map: Mapping[str, Type[Analysis]] = {
     "basic_stats": BasicStatsAnalysis,
     "duplicate_pipelines": DuplicatePipelinesAnalysis,
-}  # type: Mapping[str, Type[Analysis]]
+}
 
 
 def get_parser() -> ArgumentParser:
@@ -55,8 +55,8 @@ if __name__ == "__main__":
     read_path = f"{args.pkl_dir}/{DefaultFile.EXTRACTION_PKL.value}"
     print(f"Now loading pickled pipeline_runs from '{read_path}'...")
     with open(read_path, "rb") as f:
-        entity_maps = pickle.load(f)  # type: dict
-    analysis_class = analysis_map[args.analysis]  # type: Type[Analysis]
+        entity_maps: dict = pickle.load(f)
+    analysis_class: Type[Analysis] = analysis_map[args.analysis]
     analysis = analysis_class()
     print(f"Now running {args.analysis} analysis...")
     analysis.run(entity_maps, args.verbose)

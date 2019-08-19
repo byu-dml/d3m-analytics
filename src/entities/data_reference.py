@@ -13,9 +13,9 @@ class DataReference:
         Example of reference_string: 'steps.0.produce' or 'inputs.1'
         """
         parts = reference_string.split(".")
-        self.type = parts[0]  # type: str
-        self.index = int(parts[1])  # type: int
-        self.method_name = parts[2] if len(parts) > 2 else None  # type: Optional[str]
+        self.type: str = parts[0]
+        self.index = int(parts[1])
+        self.method_name: Optional[str] = parts[2] if len(parts) > 2 else None
         if len(parts) > 3:
             raise ValueError(f"unknown data reference string '{reference_string}'")
 

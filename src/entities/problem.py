@@ -1,3 +1,5 @@
+from typing import List
+
 from src.entities.entity import Entity, EntityWithId
 from src.misc.utils import enforce_field
 
@@ -9,7 +11,7 @@ class Problem(EntityWithId):
         self.name = problem_dict["name"]
         self.type = problem_dict["problem"]["task_type"]
         self.subtype = problem_dict["problem"]["task_subtype"]
-        self.metrics = []  # type: list
+        self.metrics: List[str] = []
         if "performance_metrics" in problem_dict:
             for metric_dict in problem_dict["performance_metrics"]:
                 self.metrics.append(metric_dict["metric"])

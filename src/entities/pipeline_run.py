@@ -20,19 +20,19 @@ class PipelineRun(EntityWithId):
         self.submitter = pipeline_run_dict["_submitter"]
 
         self.run_phase = pipeline_run_dict["run"]["phase"]
-        self.scores = []  # type: list
+        self.scores: list = []
         if has_path(pipeline_run_dict, ["run", "results", "scores"]):
             for score_dict in pipeline_run_dict["run"]["results"]["scores"]:
                 self.scores.append(Score(score_dict))
 
         # These references will be dereferenced later by the loader
         # once the pipelines, problems, and datasets are available.
-        self.datasets = []  # type: list
+        self.datasets: list = []
         for dataset_dict in pipeline_run_dict["datasets"]:
             self.datasets.append(DocumentReference(dataset_dict))
-        self.pipeline = DocumentReference(
+        self.pipeline: Union[DocumentReference, Problem] = DocumentReference(
             pipeline_run_dict["pipeline"]
-        )  # type: Union[DocumentReference, Problem]
+        )
         self.problem = DocumentReference(pipeline_run_dict["problem"])
 
     def post_init(self, entity_maps) -> None:

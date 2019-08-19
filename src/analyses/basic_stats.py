@@ -23,23 +23,23 @@ class BasicStatsAnalysis(Analysis):
         # How many runs are there?
         num_runs = len(pipeline_runs.keys())
         # What is the distribution of pipeline run scores by metric type?
-        metric_values = {}  # type: dict
+        metric_values: dict = {}
         # What is the distribution of phase types?
-        phase_cnts = {}  # type: dict
+        phase_cnts: dict = {}
         # What is the distribution of metric types?
-        metric_types_cnt = {}  # type: dict
+        metric_types_cnt: dict = {}
         # What is the distribution of number of datasets per run?
-        dataset_cnt = {}  # type: dict
+        dataset_cnt: dict = {}
         # What is the distribution of number of scores per run?
-        score_cnt = {}  # type: dict
+        score_cnt: dict = {}
         # How many pipeline runs include a normalized value with their metrics?
         num_normalized_metric_values = 0
         # Which primitives are most common?
-        primitives_cnt = {}  # type: dict
+        primitives_cnt: dict = {}
         # How many sub-pipelines are being used?
         num_subpipelines = 0
         # What is the distribution of pipeline authors among pipeline runs?
-        author_values = {}  # type: dict
+        author_values: dict = {}
 
         for run in pipeline_runs.values():
 
@@ -83,7 +83,7 @@ class BasicStatsAnalysis(Analysis):
             author_values[run.pipeline.source_name] += 1
 
         # Sort the primitive counts to get the most common
-        primitives_cnt_tuples = primitives_cnt.items()  # type: iter
+        primitives_cnt_tuples = primitives_cnt.items()
 
         def get_count(toop):
             return toop[1]
