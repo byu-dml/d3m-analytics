@@ -29,14 +29,14 @@ def num_combinations(iterable, r):
     return fac(n) // fac(r) // fac(n - r)
 
 
-def build_ppcl(pipeline_runs: Dict[str, PipelineRun]):
+def build_ppcm(pipeline_runs: Dict[str, PipelineRun]):
     """
-    Builds the primitive pair comparison list (PPCL), a map of each possible
+    Builds the primitive pair comparison map (PPCM), a map of each possible
     unordered primitive pair to a list. Each pair's list contains all
     the pipeline run pairs that are almost identical, save the two primitives
     of the pair are swapped in a single position on the pipeline
     runs. As an example, in simplified syntax, the value at key
-    PPCL[("randomforest", "gradientboosting")] might have a list that contains the
+    PPCM[("randomforest", "gradientboosting")] might have a list that contains the
     pipeline pair: [dataset_to_dataframe, imputer, randomforest,
     construct_predictions], [dataset_to_dataframe, imputer, gradientboosting,
     construct_predictions], since these pipeline runs are only 1 primitive off
@@ -45,8 +45,8 @@ def build_ppcl(pipeline_runs: Dict[str, PipelineRun]):
 
     Returns
     -------
-    ppcl : Dict[Tuple[str, str], List[PipelineRunPairDiffEntry]]
-        The primitive pair comparison list (PPCL)
+    ppcm : Dict[Tuple[str, str], List[PipelineRunPairDiffEntry]]
+        The primitive pair comparison map (PPCM)
     prim_id_to_paths : Dict[str, Set[str]]
         A mapping of each primitive id to a set of all python paths
         associated with that id, as observed in `pipeline_runs`.
@@ -63,12 +63,12 @@ def build_ppcl(pipeline_runs: Dict[str, PipelineRun]):
     primitive_ids = list(prim_id_to_paths.keys())
     primitive_ids.sort()
 
-    ppcl: Dict[Tuple[str, ...], List[PipelineRunPairDiffEntry]] = {
+    ppcm: Dict[Tuple[str, ...], List[PipelineRunPairDiffEntry]] = {
         primitive_pair: []
         for primitive_pair in itertools.combinations(primitive_ids, 2)
     }
 
-    # Fill the PPCL with values
+    # Fill the PPCM with values
 
     for run_a, run_b in tqdm(
         itertools.combinations(pipeline_runs.values(), 2),
@@ -90,7 +90,7 @@ def build_ppcl(pipeline_runs: Dict[str, PipelineRun]):
                 # Next get the differences between their scores
                 for metric, scores in run_a.get_scores_of_common_metrics(run_b).items():
                     run_a_score, run_b_score = scores
-                    ppcl[pair].append(
+                    ppcm[pair].append(
                         PipelineRunPairDiffEntry(
                             run_a,
                             run_b,
@@ -98,7 +98,7 @@ def build_ppcl(pipeline_runs: Dict[str, PipelineRun]):
                             abs(run_a_score.value - run_b_score.value),
                         )
                     )
-    return ppcl, prim_id_to_paths, primitive_ids
+    return ppcm, prim_id_to_paths, primitive_ids
 
 
 class DuplicatePrimitivesAnalysis(Analysis):
@@ -111,54 +111,71 @@ class DuplicatePrimitivesAnalysis(Analysis):
     def run(self, entity_maps: Dict[str, dict], verbose: bool, refresh: bool):
 
         # config
-        num_top_pairs_to_show = 20
+        num_top_pairs_to_show = 10
 
         pipeline_runs = entity_maps["pipeline_runs"]
-        ppcl, prim_id_to_paths, primitive_ids = with_cache(build_ppcl, refresh)(
+        ppcm, prim_id_to_paths, primitive_ids = with_cache(build_ppcm, refresh)(
             pipeline_runs
         )
+        # A list version of the PPCM
+        ppcl: Any = [(prim_pair, diff_list) for prim_pair, diff_list in ppcm.items()]
+        ppcl.sort(key=lambda entry: len(entry[1]), reverse=True)
 
-        # Get the distribution of entries in the PPCL.
-        ppcl_distribution = [len(diff_list) for diff_list in ppcl.values()]
-        num_ppcl_entries = sum(ppcl_distribution)
+        # Get the distribution of entries in the PPCM.
+        ppcm_distribution = [len(diff_list) for _, diff_list in ppcl]
+        num_ppcm_entries = sum(ppcm_distribution)
 
-        # Get the primitive pairs that have the most diff entries (i.e. the
-        # primitive pairs that are used most interchangeably.)
-        top_pairs: deque = deque(maxlen=num_top_pairs_to_show)
-        for pair, diff_list in ppcl.items():
-            top_len = len(ppcl[top_pairs[0]]) if len(top_pairs) > 0 else 0
-            if len(diff_list) >= top_len:
-                top_pairs.appendleft(pair)
+        # Aggregate information about the primitive pairs, so we can see
+        # how many diffs each pair has, what the average score difference
+        ppcl_aggregate = []
+        for (prim_id_a, prim_id_b), diff_list in ppcl[:num_top_pairs_to_show]:
+            num_diffs = len(diff_list)
 
-        top_pairs_and_len_by_path = [
-            (
-                prim_id_to_paths[pair_ids[0]],
-                prim_id_to_paths[pair_ids[1]],
-                len(ppcl[pair_ids]),
+            score_diffs_by_metric: Dict[str, List[float]] = {}
+            for diff in diff_list:
+                set_default(score_diffs_by_metric, diff.metric, [])
+                score_diffs_by_metric[diff.metric].append(diff.abs_score_diff)
+
+            avg_score_diffs_by_metric: Dict[str, Dict[str, float]] = {}
+            for metric, score_diffs in score_diffs_by_metric.items():
+                num_score_diffs = len(score_diffs)
+                avg_score_diffs_by_metric[metric] = {
+                    "avg": sum(score_diffs) / num_score_diffs,
+                    "count": num_score_diffs,
+                }
+
+            avg_metric_diff = sum(diff.abs_score_diff for diff in diff_list) / num_diffs
+
+            ppcl_aggregate.append(
+                {
+                    "prim_a_paths": prim_id_to_paths[prim_id_a],
+                    "prim_b_paths": prim_id_to_paths[prim_id_b],
+                    "num_diffs": num_diffs,
+                    "avg_metric_diff": avg_metric_diff,
+                    "avg_score_diffs_by_metric": avg_score_diffs_by_metric,
+                }
             )
-            for pair_ids in top_pairs
-        ]
 
         # Report
 
         print("\n*********************")
         print("****** RESULTS ******")
-        print("*********************\n")
+        print("*********************")
 
         print(
-            f"There are {len(primitive_ids)} distinct primitives used in the pipeline runs"
+            f"\nThere are {len(primitive_ids)} distinct primitives used in the pipeline runs"
         )
 
         print(
-            f"There are {num_ppcl_entries} pipeline run pairs that are just one primitive off"
+            f"\nThere are {num_ppcm_entries} pipeline run pairs that are just one primitive off"
         )
-
-        print(f"The primitve pairs causing the most one-offs on pipeline runs are:")
-        for prim_a, prim_b, num_diffs in top_pairs_and_len_by_path:
-            print(f"\t({prim_a}, {prim_b})\t{num_diffs}")
+        print(
+            f"\nThe {num_top_pairs_to_show} primitve pairs causing the most one-offs on pipeline runs are:"
+        )
+        self.pp(ppcl_aggregate[:num_top_pairs_to_show])
 
         if verbose:
-            plt.hist(ppcl_distribution, bins=100, log=True)
+            plt.hist(ppcm_distribution, bins=100, log=True)
             plt.xlabel("Number of Diffs For Primitive Pair")
             plt.ylabel("Count")
             plt.title(
