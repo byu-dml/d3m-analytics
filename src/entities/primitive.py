@@ -53,7 +53,11 @@ class Primitive(Entity):
         Returns `True` even if the primitives have different hyperparameters
         or digests.
         """
-        return self.is_same_kind(primitive) and self.has_same_inputs(primitive)
+        return (
+            self.is_same_kind(primitive)
+            and self.has_same_inputs(primitive)
+            and self.has_same_outputs(primitive)
+        )
 
     def is_same_kind(self, primitive: "Primitive") -> bool:
         """

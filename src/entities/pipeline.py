@@ -84,6 +84,15 @@ class Pipeline(EntityWithId):
         Returns `True` if `self` has same steps as `pipeline`, which includes
         the same primitive/sub-pipeline and inputs at each step.
         """
+        if len(self.outputs) != len(pipeline.outputs):
+            return False
+
+        if not all(
+            my_output.equals(their_output)
+            for my_output, their_output in zip(self.outputs, pipeline.outputs)
+        ):
+            return False
+
         if len(self.steps) != len(pipeline.steps):
             return False
 
