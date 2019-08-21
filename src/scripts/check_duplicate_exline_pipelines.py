@@ -12,13 +12,9 @@ import itertools
 
 from src.entities.pipeline import Pipeline
 
-exline_glob_pattern = "dump/exlines/*.json"
 
-pipelines: List[Pipeline] = []
-for path in glob.glob(exline_glob_pattern):
-    with open(path, "r") as f:
-        pipeline = Pipeline(pipeline_dict=json.load(f), should_enforce_id=True)
-        pipelines.append(pipeline)
+exline_glob_pattern = "dump/exlines/*.json"
+pipelines = Pipeline.from_json_glob(exline_glob_pattern, True)
 
 for pipe_a, pipe_b in itertools.combinations(pipelines, 2):
     if pipe_a.is_tantamount_to(pipe_b):
