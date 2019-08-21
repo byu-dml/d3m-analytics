@@ -1,5 +1,7 @@
 from typing import Tuple, List, Dict, Callable, Type, Optional, Union
 import itertools
+import glob
+import json
 
 from src.entities.entity import Entity, EntityWithId
 from src.entities.primitive import Primitive
@@ -200,3 +202,24 @@ class Pipeline(EntityWithId):
         the pipelines.
         """
         return self._get_steps_off_from(self.steps, pipeline.steps)
+
+    @classmethod
+    def from_json(cls, path: str, should_enforce_id: bool) -> "Pipeline":
+        with open(path, "r") as f:
+            return cls(json.load(f), should_enforce_id)
+
+    @classmethod
+    def from_json_glob(
+        cls, glob_pattern: str, should_enforce_id: bool
+    ) -> Dict[str, "Pipeline"]:
+        """
+        Goes to all files matching `glob_pattern` and
+        tries to treat them like a json pipeline definition
+        and load them into a map of pipeline digests to 
+        constructed `Pipeline` objects.
+        """
+        pipelines: Dict[str, Pipeline] = {}
+        for path in glob.glob(glob_pattern):
+            pipeline = cls.from_json(path, should_enforce_id)
+            pipelines[pipeline.digest] = pipeline
+        return pipelines
