@@ -1,4 +1,4 @@
-from typing import Tuple, List, Dict, Callable, Type, Optional, Union
+from typing import Tuple, List, Dict, Callable, Type, Optional, Union, Iterator
 import itertools
 import glob
 import json
@@ -7,7 +7,13 @@ from src.entities.entity import Entity, EntityWithId
 from src.entities.primitive import Primitive
 from src.entities.data_reference import DataReference
 from src.entities.document_reference import DocumentReference
-from src.misc.utils import enforce_field, has_path
+from src.misc.utils import (
+    enforce_field,
+    has_path,
+    process_json_glob,
+    seq_to_map,
+    process_json,
+)
 
 
 class Pipeline(EntityWithId):
@@ -214,8 +220,7 @@ class Pipeline(EntityWithId):
 
     @classmethod
     def from_json(cls, path: str, should_enforce_id: bool) -> "Pipeline":
-        with open(path, "r") as f:
-            return cls(json.load(f), should_enforce_id)
+        return process_json(path, cls, should_enforce_id)
 
     @classmethod
     def from_json_glob(
@@ -227,8 +232,5 @@ class Pipeline(EntityWithId):
         and load them into a map of pipeline digests to 
         constructed `Pipeline` objects.
         """
-        pipelines: Dict[str, Pipeline] = {}
-        for path in glob.glob(glob_pattern):
-            pipeline = cls.from_json(path, should_enforce_id)
-            pipelines[pipeline.digest] = pipeline
-        return pipelines
+        pipelines: Iterator = process_json_glob(glob_pattern, cls, should_enforce_id)
+        return seq_to_map(pipelines, "digest")

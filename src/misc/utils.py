@@ -1,6 +1,8 @@
-from typing import Callable, Any
+from typing import Callable, Any, Dict, List, Iterable, Iterator
 import pickle
 import os
+import json
+import glob
 
 from src.misc.settings import DefaultDir
 
@@ -110,3 +112,35 @@ def with_cache(f: Callable, refresh=False) -> Callable:
             return result
 
     return f_with_cache
+
+
+def process_json(path: str, processor: Callable, *args, **kwargs) -> Any:
+    """
+    The loaded json will be passed to `processor` as the first arg,
+    followed by any supplied *args or **kwargs.
+    """
+    with open(path, "r") as f:
+        return processor(json.load(f), *args, **kwargs)
+
+
+def process_json_glob(
+    glob_pattern: str, processor: Callable, *args, **kwargs
+) -> Iterator:
+    """
+    Goes to all files matching `glob_pattern` and
+    tries to load them and pass them each through
+    `processor`, supplying any additional *args and
+    **kwargs supplied. Returns each processed item
+    in a generator.
+    """
+    for path in glob.glob(glob_pattern):
+        yield process_json(path, processor, *args, **kwargs)
+
+
+def seq_to_map(sequence: Iterable, attr_name) -> Dict[Any, Any]:
+    """
+    Reduces a sequence into a map of keys to sequence items,
+    where each item is indexed by the value of its attribute
+    identified by `attr_name`.
+    """
+    return {getattr(item, attr_name): item for item in sequence}
