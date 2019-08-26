@@ -1,4 +1,5 @@
-from typing import Dict
+from typing import Dict, Any
+import collections
 
 import matplotlib.pyplot as plt
 
@@ -41,6 +42,10 @@ class BasicStatsAnalysis(Analysis):
         num_subpipelines = 0
         # What is the distribution of pipeline authors among pipeline runs?
         author_values: dict = {}
+        # What is the distribution of prediction column header count among runs?
+        pred_header_cnt: dict = collections.defaultdict(int)
+        # What is the distribution of prediction column header names among runs?
+        pred_header_names_cnt: dict = collections.defaultdict(int)
 
         for run in pipeline_runs.values():
 
@@ -83,8 +88,12 @@ class BasicStatsAnalysis(Analysis):
             set_default(author_values, run.pipeline.source_name, 0)
             author_values[run.pipeline.source_name] += 1
 
+            pred_header_cnt[len(run.prediction_headers)] += 1
+            for col_name in run.prediction_headers:
+                pred_header_names_cnt[col_name] += 1
+
         # Sort the primitive counts to get the most common
-        primitives_cnt_tuples = primitives_cnt.items()
+        primitives_cnt_tuples: Any = primitives_cnt.items()
 
         def get_count(toop):
             return toop[1]
@@ -119,6 +128,12 @@ class BasicStatsAnalysis(Analysis):
 
         print(f"The distribution of datasets per run is: {dataset_cnt}")
         print(f"The distribution of pipeline authors among runs is: {author_values}")
+        print(
+            f"The distribution of prediction column header count is {pred_header_cnt}"
+        )
+        print(
+            f"The distribution of prediction column header names is {pred_header_names_cnt}"
+        )
         print(
             (
                 f"There are {num_normalized_metric_values} normalized metric values "

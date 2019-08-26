@@ -1,6 +1,8 @@
-import iso8601
-from typing import Union, Tuple, Dict
+from typing import Union, Tuple, Dict, List
 import itertools
+
+import iso8601
+import pandas as pd
 
 from src.entities.entity import Entity, EntityWithId
 from src.entities.document_reference import DocumentReference
@@ -24,6 +26,13 @@ class PipelineRun(EntityWithId):
         if has_path(pipeline_run_dict, ["run", "results", "scores"]):
             for score_dict in pipeline_run_dict["run"]["results"]["scores"]:
                 self.scores.append(Score(score_dict))
+
+        self.prediction_headers: List[str] = []
+        if has_path(pipeline_run_dict, ["run", "results", "predictions", "header"]):
+            for col_name in pipeline_run_dict["run"]["results"]["predictions"][
+                "header"
+            ]:
+                self.prediction_headers.append(col_name)
 
         # These references will be dereferenced later by the loader
         # once the pipelines, problems, and datasets are available.
