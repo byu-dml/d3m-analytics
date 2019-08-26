@@ -32,9 +32,14 @@ class Index(Enum):
     DATASETS = "datasets"
 
 
-elasticsearch_fields: Dict[Index, List[str]] = {
-    Index.PIPELINES: ["name", "digest", "source", "inputs", "outputs", "steps"],
-    Index.BAD_PIPELINE_RUNS: [
+# Other constant values
+class Const(Enum):
+    PREDICTIONS = "predictions"
+
+
+elasticsearch_fields: Dict[str, List[str]] = {
+    Index.PIPELINES.value: ["name", "digest", "source", "inputs", "outputs", "steps"],
+    Index.BAD_PIPELINE_RUNS.value: [
         "id",
         "status",
         "start",
@@ -45,7 +50,7 @@ elasticsearch_fields: Dict[Index, List[str]] = {
         "pipeline",
         "problem",
     ],
-    Index.PIPELINE_RUNS: [
+    Index.PIPELINE_RUNS.value: [
         "id",
         "status",
         "start",
@@ -56,6 +61,7 @@ elasticsearch_fields: Dict[Index, List[str]] = {
         "pipeline",
         "problem",
     ],
-    Index.PROBLEMS: ["digest", "name", "problem", "performance_metrics"],
-    Index.DATASETS: ["digest", "id", "name", "description"],
+    Index.PROBLEMS.value: ["digest", "name", "problem", "performance_metrics"],
+    Index.DATASETS.value: ["digest", "id", "name", "description"],
+    Const.PREDICTIONS.value: ["run.results.predictions", "id"],
 }
