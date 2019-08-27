@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 import os
 from typing import Dict
 
-from src.extraction.loader import load_entity_map
+from src.extraction.index_loader import load_entity_map
 from src.misc.settings import DataDir, DefaultFile
 from src.entities.pipeline import Pipeline
 from src.entities.problem import Problem
