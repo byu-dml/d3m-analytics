@@ -1,6 +1,6 @@
 import itertools
 import functools
-from collections import namedtuple, deque
+from collections import namedtuple, deque, defaultdict
 from typing import Dict, Tuple, List, Set, Union, Any
 from math import factorial as fac
 
@@ -11,7 +11,7 @@ from src.analyses.analysis import Analysis
 from src.entities.pipeline import Pipeline
 from src.entities.primitive import Primitive
 from src.entities.pipeline_run import PipelineRun
-from src.misc.utils import set_default, with_cache
+from src.misc.utils import with_cache
 
 
 PipelineRunPairDiffEntry = namedtuple(
@@ -54,10 +54,9 @@ def build_ppcm(pipeline_runs: Dict[str, PipelineRun]):
         A sorted list of the unique primitive ids found in `pipeline_runs`. 
     """
     # Get the ids and python paths of all primitives used in the pipeline runs
-    prim_id_to_paths: Dict[str, Set[str]] = {}
+    prim_id_to_paths: Dict[str, Set[str]] = defaultdict(set)
     for run in pipeline_runs.values():
         for prim_step in run.pipeline.flattened_steps:
-            set_default(prim_id_to_paths, prim_step.id, set())
             prim_id_to_paths[prim_step.id].add(prim_step.python_path)
 
     primitive_ids = list(prim_id_to_paths.keys())
@@ -131,9 +130,8 @@ class DuplicatePrimitivesAnalysis(Analysis):
         for (prim_id_a, prim_id_b), diff_list in ppcl[:num_top_pairs_to_show]:
             num_diffs = len(diff_list)
 
-            score_diffs_by_metric: Dict[str, List[float]] = {}
+            score_diffs_by_metric: Dict[str, List[float]] = defaultdict(list)
             for diff in diff_list:
-                set_default(score_diffs_by_metric, diff.metric, [])
                 score_diffs_by_metric[diff.metric].append(diff.abs_score_diff)
 
             avg_score_diffs_by_metric: Dict[str, Dict[str, float]] = {}

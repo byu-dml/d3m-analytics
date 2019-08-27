@@ -39,15 +39,6 @@ def file_len(fname):
     return i + 1
 
 
-def set_default(d: dict, key, default):
-    """
-    Assigns `default` to `d[key]` if dictionary `d` doesn't have
-    that key yet.
-    """
-    if key not in d:
-        d[key] = default
-
-
 def get_file_size_mb(fname):
     return os.stat(fname).st_size / 1e6
 

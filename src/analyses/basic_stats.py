@@ -1,5 +1,5 @@
 from typing import Dict, Any
-import collections
+from collections import defaultdict
 
 import matplotlib.pyplot as plt
 
@@ -7,7 +7,6 @@ from src.analyses.analysis import Analysis
 from src.misc.utils import has_path
 from src.entities.pipeline import Pipeline
 from src.entities.primitive import Primitive
-from src.misc.utils import set_default
 
 
 class BasicStatsAnalysis(Analysis):
@@ -25,51 +24,46 @@ class BasicStatsAnalysis(Analysis):
         # How many runs are there?
         num_runs = len(pipeline_runs.keys())
         # What is the distribution of pipeline run scores by metric type?
-        metric_values: dict = {}
+        metric_values: dict = defaultdict(list)
         # What is the distribution of phase types?
-        phase_cnts: dict = {}
+        phase_cnts: dict = defaultdict(int)
         # What is the distribution of metric types?
-        metric_types_cnt: dict = {}
+        metric_types_cnt: dict = defaultdict(int)
         # What is the distribution of number of datasets per run?
-        dataset_cnt: dict = {}
+        dataset_cnt: dict = defaultdict(int)
         # What is the distribution of number of scores per run?
-        score_cnt: dict = {}
+        score_cnt: dict = defaultdict(int)
         # How many pipeline runs include a normalized value with their metrics?
         num_normalized_metric_values = 0
         # Which primitives are most common?
-        primitives_cnt: dict = {}
+        primitives_cnt: dict = defaultdict(int)
         # How many sub-pipelines are being used?
         num_subpipelines = 0
         # What is the distribution of pipeline authors among pipeline runs?
-        author_values: dict = {}
+        author_values: dict = defaultdict(int)
         # What is the distribution of prediction column header count among runs?
-        pred_header_cnt: dict = collections.defaultdict(int)
+        pred_header_cnt: dict = defaultdict(int)
         # What is the distribution of prediction column header names among runs?
-        pred_header_names_cnt: dict = collections.defaultdict(int)
+        pred_header_names_cnt: dict = defaultdict(int)
 
         for run in pipeline_runs.values():
 
             for step in run.pipeline.steps:
                 if isinstance(step, Primitive):
-                    set_default(primitives_cnt, step.short_python_path, 0)
                     primitives_cnt[step.short_python_path] += 1
                 elif isinstance(step, Pipeline):
                     num_subpipelines += 1
 
             num_scores = len(run.scores)
-            set_default(score_cnt, num_scores, 0)
             score_cnt[num_scores] += 1
 
             for score in run.scores:
-                set_default(metric_values, score.metric, [])
                 metric_values[score.metric].append(score.value)
 
             num_datasets = len(run.datasets)
-            set_default(dataset_cnt, num_datasets, 0)
             dataset_cnt[num_datasets] += 1
 
             for score in run.scores:
-                set_default(metric_types_cnt, score.metric, 0)
                 metric_types_cnt[score.metric] += 1
                 if verbose:
                     print(
@@ -82,10 +76,8 @@ class BasicStatsAnalysis(Analysis):
                 if score.normalized_value is not None:
                     num_normalized_metric_values += 1
 
-            set_default(phase_cnts, run.run_phase, 0)
             phase_cnts[run.run_phase] += 1
 
-            set_default(author_values, run.pipeline.source_name, 0)
             author_values[run.pipeline.source_name] += 1
 
             pred_header_cnt[len(run.prediction_headers)] += 1

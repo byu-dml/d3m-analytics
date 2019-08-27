@@ -1,10 +1,10 @@
 from typing import Mapping, Dict
 import itertools
+from collections import defaultdict
 
 from src.analyses.analysis import Analysis
 from src.entities.pipeline import Pipeline
 from src.entities.primitive import Primitive
-from src.misc.utils import set_default
 
 
 class DuplicatePipelinesAnalysis(Analysis):
@@ -26,12 +26,11 @@ class DuplicatePipelinesAnalysis(Analysis):
         # and don't include runs whose pipelines have the
         # same steps as previous pipeline runs.
 
-        runs_by_dataset: dict = {}
+        runs_by_dataset: dict = defaultdict(list)
         for run in pipeline_runs.values():
 
             if len(run.scores) > 0:
                 for run_dataset in run.datasets:
-                    set_default(runs_by_dataset, run_dataset, [])
                     pipeline_run_is_tantamount_to_previous = [
                         run.pipeline.is_tantamount_to(prev_run.pipeline)
                         for prev_run in runs_by_dataset[run_dataset]
