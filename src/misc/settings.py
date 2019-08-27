@@ -42,30 +42,28 @@ class Const(Enum):
     PREDICTIONS = "predictions"
 
 
+_pipeline_run_es_fields = [
+    "id",
+    "status",
+    "start",
+    "end",
+    "_submitter",
+    # We drill in on "run" because it has several large
+    # fields we don't need, but some we do.
+    "run.phase",
+    "run.results.scores",
+    "run.results.predictions.header",
+    "datasets",
+    "pipeline",
+    "problem",
+]
+
+# The fields to dump for each collection
+# from the elasticsearch instance.
 elasticsearch_fields: Dict[str, List[str]] = {
     Index.PIPELINES.value: ["name", "digest", "source", "inputs", "outputs", "steps"],
-    Index.BAD_PIPELINE_RUNS.value: [
-        "id",
-        "status",
-        "start",
-        "end",
-        "_submitter",
-        "run",
-        "datasets",
-        "pipeline",
-        "problem",
-    ],
-    Index.PIPELINE_RUNS.value: [
-        "id",
-        "status",
-        "start",
-        "end",
-        "_submitter",
-        "run",
-        "datasets",
-        "pipeline",
-        "problem",
-    ],
+    Index.BAD_PIPELINE_RUNS.value: _pipeline_run_es_fields,
+    Index.PIPELINE_RUNS.value: _pipeline_run_es_fields,
     Index.PROBLEMS.value: ["digest", "name", "problem", "performance_metrics"],
     Index.DATASETS.value: ["digest", "id", "name", "description"],
     Const.PREDICTIONS.value: ["run.results.predictions", "id"],

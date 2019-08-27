@@ -27,8 +27,8 @@ def get_parser() -> ArgumentParser:
         "-p",
         action="store_true",
         help=(
-            "If present, the system will also dump the predictions for all pipeline runs, "
-            "which takes up considerabley more disk space."
+            "If present, the system will dump the predictions for all pipeline runs, "
+            "which take up a lot of disk space."
         ),
     )
     return parser
