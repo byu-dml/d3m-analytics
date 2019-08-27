@@ -30,7 +30,9 @@ class BasicStatsAnalysis(Analysis):
         # What is the distribution of metric types?
         metric_types_cnt: dict = defaultdict(int)
         # What is the distribution of number of datasets per run?
-        dataset_cnt: dict = defaultdict(int)
+        num_datasets_cnt: dict = defaultdict(int)
+        # What is the distribution of dataset digests used among runs?
+        dataset_digests_cnt: dict = defaultdict(int)
         # What is the distribution of number of scores per run?
         score_cnt: dict = defaultdict(int)
         # How many pipeline runs include a normalized value with their metrics?
@@ -60,8 +62,10 @@ class BasicStatsAnalysis(Analysis):
             for score in run.scores:
                 metric_values[score.metric].append(score.value)
 
-            num_datasets = len(run.datasets)
-            dataset_cnt[num_datasets] += 1
+            num_datasets_cnt[len(run.datasets)] += 1
+
+            for dataset in run.datasets:
+                dataset_digests_cnt[dataset.digest] += 1
 
             for score in run.scores:
                 metric_types_cnt[score.metric] += 1
@@ -113,26 +117,39 @@ class BasicStatsAnalysis(Analysis):
                 )
                 plt.show()
 
-        print(f"The dataset has {num_runs} pipeline runs with unique ids.")
-        print(f"The distribution of run phases is: {phase_cnts}")
-        print(f"The distribution of metric types is: {metric_types_cnt}")
-        print(f"The distribution of score counts per run is: {score_cnt}")
+        print(f"\nThe dataset has {num_runs} pipeline runs with unique ids.")
+        print(f"\nThe distribution of run phases is: {phase_cnts}")
+        print(f"\nThe distribution of metric types is: {metric_types_cnt}")
+        print(f"\nThe distribution of score counts per run is: {score_cnt}")
 
-        print(f"The distribution of datasets per run is: {dataset_cnt}")
-        print(f"The distribution of pipeline authors among runs is: {author_values}")
         print(
-            f"The distribution of prediction column header count is {pred_header_cnt}"
+            f"\nThe distribution of number of datasets per run is: {num_datasets_cnt}"
         )
         print(
-            f"The distribution of prediction column header names is {pred_header_names_cnt}"
+            f"\nThe number of distinct dataset found among runs is {len(dataset_digests_cnt)}"
+        )
+
+        if verbose:
+            plt.hist(dataset_digests_cnt.values())
+            plt.xlabel("dataset frequency")
+            plt.ylabel("count")
+            plt.title("Distribution of dataset frequency among runs")
+            plt.show()
+
+        print(f"\nThe distribution of pipeline authors among runs is: {author_values}")
+        print(
+            f"\nThe distribution of prediction column header count is {pred_header_cnt}"
+        )
+        print(
+            f"\nThe distribution of prediction column header names is {pred_header_names_cnt}"
         )
         print(
             (
-                f"There are {num_normalized_metric_values} normalized metric values "
-                f"found among the pipelines"
+                f"\nThere are {num_normalized_metric_values} normalized metric values "
+                f"\nfound among the pipelines"
             )
         )
-        print(f"The {num_top_primitives} most commonly used primitives are:")
+        print(f"\nThere are {num_subpipelines} sub-pipelines found among the runs")
+        print(f"\nThe {num_top_primitives} most commonly used primitives are:")
         for prim_cnt in primitives_cnt_tuples[:num_top_primitives]:
             print(f"\t{prim_cnt[0]}\t{prim_cnt[1]}")
-        print(f"There are {num_subpipelines} sub-pipelines found among the runs")
