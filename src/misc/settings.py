@@ -1,4 +1,4 @@
-from os import getenv
+import os
 from enum import Enum
 from typing import Dict, List
 
@@ -9,15 +9,20 @@ load_dotenv()
 
 # Pull environment variables from environment
 # for use in the code
-CLIENT = getenv("CLIENT")
-SECRET = getenv("SECRET")
-API = getenv("API")
+CLIENT = os.getenv("CLIENT")
+SECRET = os.getenv("SECRET")
+API = os.getenv("API")
+DATA_ROOT = os.getenv("DATA_ROOT", ".")
+
+DATA_ROOT = os.path.abspath(DATA_ROOT)
+print(f"using '{DATA_ROOT}' as DATA_ROOT")
 
 
-class DefaultDir(Enum):
-    DUMP = "dump"
-    EXTRACTION = "extractions"
-    CACHE = ".cached-function-calls"
+class DataDir(Enum):
+    INDEXES_DUMP = os.path.join(DATA_ROOT, "dump/indexes")
+    PREDICTIONS_DUMP = os.path.join(DATA_ROOT, "dump/predictions")
+    EXTRACTION = os.path.join(DATA_ROOT, "extractions")
+    CACHE = os.path.join(DATA_ROOT, "cached-function-calls")
 
 
 class DefaultFile(Enum):

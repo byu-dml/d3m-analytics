@@ -1,8 +1,9 @@
 from argparse import ArgumentParser
 from typing import Type, Mapping, Dict
 import pickle
+import os
 
-from src.misc.settings import DefaultDir, DefaultFile
+from src.misc.settings import DataDir, DefaultFile
 from src.analyses.analysis import Analysis
 from src.analyses.basic_stats import BasicStatsAnalysis
 from src.analyses.duplicate_pipelines import DuplicatePipelinesAnalysis
@@ -21,15 +22,6 @@ def get_parser() -> ArgumentParser:
     """
     parser = ArgumentParser(
         description="Load and analyze a pickled extraction of pipeline runs"
-    )
-    parser.add_argument(
-        "--pkl-dir",
-        "-d",
-        default=DefaultDir.EXTRACTION.value,
-        help=(
-            "The path to the folder that contains the pickled pipeline runs "
-            "to analyze (include the folder name)"
-        ),
     )
     parser.add_argument(
         "--analysis",
@@ -57,8 +49,8 @@ def get_parser() -> ArgumentParser:
     return parser
 
 
-def load_entity_maps_pkl(pkl_dir: str = DefaultDir.EXTRACTION.value) -> Dict[str, dict]:
-    read_path = f"{pkl_dir}/{DefaultFile.EXTRACTION_PKL.value}"
+def load_entity_maps_pkl() -> Dict[str, dict]:
+    read_path = os.path.join(DataDir.EXTRACTION.value, DefaultFile.EXTRACTION_PKL.value)
     print(f"Now loading pickled entity maps from '{read_path}'...")
     with open(read_path, "rb") as f:
         return pickle.load(f)
@@ -67,7 +59,7 @@ def load_entity_maps_pkl(pkl_dir: str = DefaultDir.EXTRACTION.value) -> Dict[str
 if __name__ == "__main__":
     parser = get_parser()
     args = parser.parse_args()
-    entity_maps = load_entity_maps_pkl(args.pkl_dir)
+    entity_maps = load_entity_maps_pkl()
     analysis_class: Type[Analysis] = analysis_map[args.analysis]
     analysis = analysis_class()
     print(f"Now running {args.analysis} analysis...")

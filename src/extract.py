@@ -4,7 +4,7 @@ import os
 from typing import Dict
 
 from src.extraction.loader import load_entity_map
-from src.misc.settings import DefaultDir, DefaultFile
+from src.misc.settings import DataDir, DefaultFile
 from src.entities.pipeline import Pipeline
 from src.entities.problem import Problem
 from src.entities.dataset import Dataset
@@ -25,21 +25,6 @@ def get_parser() -> ArgumentParser:
         )
     )
     parser.add_argument(
-        "--dump-dir",
-        "-d",
-        default=DefaultDir.DUMP.value,
-        help=(
-            "The path to the dump folder where the pipeline runs will be "
-            "extracted from."
-        ),
-    )
-    parser.add_argument(
-        "--out-dir",
-        "-o",
-        default=DefaultDir.EXTRACTION.value,
-        help="The path to the folder where the extracted pipelines will be pickled to.",
-    )
-    parser.add_argument(
         "--index-name",
         "-i",
         default=Index.BAD_PIPELINE_RUNS.value,
@@ -49,7 +34,7 @@ def get_parser() -> ArgumentParser:
     return parser
 
 
-def extract_denormalized(dump_path: str, out_dir: str, pipeline_runs_index_name: str):
+def extract_denormalized(pipeline_runs_index_name: str):
     """
     Extracts and persists a map of pipeline run digests to their companion pipeline
     runs. Each pipeline run is fully denormalized, meaning it contains references
@@ -61,15 +46,13 @@ def extract_denormalized(dump_path: str, out_dir: str, pipeline_runs_index_name:
 
     # Load and construct each entity
 
-    entity_maps["pipelines"] = load_entity_map(dump_path, Index.PIPELINES, Pipeline)
+    entity_maps["pipelines"] = load_entity_map(Index.PIPELINES, Pipeline)
 
-    entity_maps["problems"] = load_entity_map(dump_path, Index.PROBLEMS, Problem)
+    entity_maps["problems"] = load_entity_map(Index.PROBLEMS, Problem)
 
-    entity_maps["datasets"] = load_entity_map(dump_path, Index.DATASETS, Dataset)
+    entity_maps["datasets"] = load_entity_map(Index.DATASETS, Dataset)
 
-    entity_maps["pipeline_runs"] = load_entity_map(
-        dump_path, pipeline_runs_index, PipelineRun
-    )
+    entity_maps["pipeline_runs"] = load_entity_map(pipeline_runs_index, PipelineRun)
 
     # Next post-init each entity, now that all the entity_maps
     # are available.
@@ -80,11 +63,11 @@ def extract_denormalized(dump_path: str, out_dir: str, pipeline_runs_index_name:
 
     # Finally persist the entity_maps
 
-    out_name = f"{out_dir}/{DefaultFile.EXTRACTION_PKL.value}"
+    out_name = os.path.join(DataDir.EXTRACTION.value, DefaultFile.EXTRACTION_PKL.value)
     print(f"Now saving `entity_maps` to '{out_name}'...")
 
-    if not os.path.isdir(out_dir):
-        os.mkdir(out_dir)
+    if not os.path.isdir(DataDir.EXTRACTION.value):
+        os.makedirs(DataDir.EXTRACTION.value)
 
     with open(out_name, "wb") as f:
         pickle.dump(entity_maps, f)
@@ -96,4 +79,4 @@ def extract_denormalized(dump_path: str, out_dir: str, pipeline_runs_index_name:
 if __name__ == "__main__":
     parser = get_parser()
     args = parser.parse_args()
-    extract_denormalized(args.dump_dir, args.out_dir, args.index_name)
+    extract_denormalized(args.index_name)

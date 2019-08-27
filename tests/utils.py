@@ -23,7 +23,7 @@ def load_test_pipelines() -> Dict[str, Pipeline]:
     for name in test_pipeline_names:
         with open(f"{_test_pipelines_path}/{name}{_test_pipelines_ext}", "r") as f:
             pipeline_dict: dict = json.load(f)
-            pipeline = Pipeline(pipeline_dict, True)
+            pipeline = Pipeline(pipeline_dict)
             pipelines[pipeline.digest] = pipeline
 
     for pipeline in pipelines.values():

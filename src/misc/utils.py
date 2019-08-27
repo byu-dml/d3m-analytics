@@ -4,7 +4,7 @@ import os
 import json
 import glob
 
-from src.misc.settings import DefaultDir
+from src.misc.settings import DataDir
 
 
 def has_path(dictionary: dict, keys: list) -> bool:
@@ -87,8 +87,8 @@ def with_cache(f: Callable, refresh=False) -> Callable:
     """
 
     def f_with_cache(*args, **kwargs) -> Any:
-        cache_dir = f"{DefaultDir.CACHE.value}/{f.__module__}"
-        cache_path = f"{cache_dir}/{f.__name__}.pkl"
+        cache_dir = os.path.join(DataDir.CACHE.value, f.__module__)
+        cache_path = os.path.join(cache_dir, f"{f.__name__}.pkl")
         if not refresh and os.path.exists(cache_path):
             # There is already a cached result for this function.
             # Return that.
@@ -100,7 +100,7 @@ def with_cache(f: Callable, refresh=False) -> Callable:
             # return it.
             result = f(*args, **kwargs)
             # cached results are persisted in binary at location
-            # "<DefaultDir.CACHE.value>/<module_of_f>/<name_of_f>.pkl"
+            # "<DataDir.CACHE.value>/<module_of_f>/<name_of_f>.pkl"
             if not os.path.isdir(cache_dir):
                 os.makedirs(cache_dir)
             with open(cache_path, "wb") as wf:
