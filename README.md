@@ -75,12 +75,10 @@ The dump will default to being written to the `dump` directory within the curren
 To extract a denormalized map of pipeline runs from a dump into a form ready for analysis, run this:
 
 ```shell
-python -m src.extract [--dump-dir dir_containing_dump] [--out-dir dir_to_pickle_to] [--index-name pipeline_runs_index_name] [--dont-enforce-ids]
+python -m src.extract [--dump-dir dir_containing_dump] [--out-dir dir_to_pickle_to] [--index-name pipeline_runs_index_name]
 ```
 
 The extraction will be pickled to `--out-dir`, and is a dictionary of pipeline run digests to pipeline runs.
-
-If `--dont-enforce-ids` is included, the system will not throw an error if a document does not have an ID/digest (not recommended).
 
 ### Analyze an Extraction
 

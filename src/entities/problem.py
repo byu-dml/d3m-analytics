@@ -5,8 +5,8 @@ from src.misc.utils import enforce_field
 
 
 class Problem(EntityWithId):
-    def __init__(self, problem_dict: dict, should_enforce_id: bool):
-        enforce_field(should_enforce_id, problem_dict, "digest")
+    def __init__(self, problem_dict: dict):
+        enforce_field(problem_dict, "digest")
         self.digest = problem_dict["digest"]
         self.name = problem_dict["name"]
         self.type = problem_dict["problem"]["task_type"]

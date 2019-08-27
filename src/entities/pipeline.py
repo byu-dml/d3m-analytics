@@ -22,10 +22,10 @@ class Pipeline(EntityWithId):
     we care about for analysis.
     """
 
-    def __init__(self, pipeline_dict: dict, should_enforce_id: bool):
+    def __init__(self, pipeline_dict: dict):
         self.name = pipeline_dict.get("name")
 
-        enforce_field(should_enforce_id, pipeline_dict, "digest")
+        enforce_field(pipeline_dict, "digest")
         self.digest = pipeline_dict["digest"]
         self.id = pipeline_dict.get("id")
         self.source_name = None
@@ -219,18 +219,16 @@ class Pipeline(EntityWithId):
         return self._get_steps_off_from(self.steps, pipeline.steps)
 
     @classmethod
-    def from_json(cls, path: str, should_enforce_id: bool) -> "Pipeline":
-        return process_json(path, cls, should_enforce_id)
+    def from_json(cls, path: str) -> "Pipeline":
+        return process_json(path, cls)
 
     @classmethod
-    def from_json_glob(
-        cls, glob_pattern: str, should_enforce_id: bool
-    ) -> Dict[str, "Pipeline"]:
+    def from_json_glob(cls, glob_pattern: str) -> Dict[str, "Pipeline"]:
         """
         Goes to all files matching `glob_pattern` and
         tries to treat them like a json pipeline definition
         and load them into a map of pipeline digests to 
         constructed `Pipeline` objects.
         """
-        pipelines: Iterator = process_json_glob(glob_pattern, cls, should_enforce_id)
+        pipelines: Iterator = process_json_glob(glob_pattern, cls)
         return seq_to_map(pipelines, "digest")

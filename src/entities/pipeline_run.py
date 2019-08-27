@@ -13,8 +13,8 @@ from src.misc.utils import has_path, enforce_field
 
 
 class PipelineRun(EntityWithId):
-    def __init__(self, pipeline_run_dict: dict, should_enforce_id: bool):
-        enforce_field(should_enforce_id, pipeline_run_dict, "id")
+    def __init__(self, pipeline_run_dict: dict):
+        enforce_field(pipeline_run_dict, "id")
         self.id = pipeline_run_dict["id"]
         self.status = pipeline_run_dict["status"]["state"]
         self.start = iso8601.parse_date(pipeline_run_dict["start"])

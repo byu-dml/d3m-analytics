@@ -46,21 +46,10 @@ def get_parser() -> ArgumentParser:
         choices=[Index.BAD_PIPELINE_RUNS.value, Index.PIPELINE_RUNS.value],
         help="The name of the dumped elasticsearch index to use as pipeline runs",
     )
-    parser.add_argument(
-        "--dont-enforce-ids",
-        "-de",
-        action="store_true",
-        help=(
-            "If present, the system will not require that each document being "
-            "loaded have its appropriate id field."
-        ),
-    )
     return parser
 
 
-def extract_denormalized(
-    dump_path: str, out_dir: str, pipeline_runs_index_name: str, should_enforce_id: bool
-):
+def extract_denormalized(dump_path: str, out_dir: str, pipeline_runs_index_name: str):
     """
     Extracts and persists a map of pipeline run digests to their companion pipeline
     runs. Each pipeline run is fully denormalized, meaning it contains references
@@ -72,20 +61,14 @@ def extract_denormalized(
 
     # Load and construct each entity
 
-    entity_maps["pipelines"] = load_entity_map(
-        dump_path, Index.PIPELINES, Pipeline, should_enforce_id
-    )
+    entity_maps["pipelines"] = load_entity_map(dump_path, Index.PIPELINES, Pipeline)
 
-    entity_maps["problems"] = load_entity_map(
-        dump_path, Index.PROBLEMS, Problem, should_enforce_id
-    )
+    entity_maps["problems"] = load_entity_map(dump_path, Index.PROBLEMS, Problem)
 
-    entity_maps["datasets"] = load_entity_map(
-        dump_path, Index.DATASETS, Dataset, should_enforce_id
-    )
+    entity_maps["datasets"] = load_entity_map(dump_path, Index.DATASETS, Dataset)
 
     entity_maps["pipeline_runs"] = load_entity_map(
-        dump_path, pipeline_runs_index, PipelineRun, should_enforce_id
+        dump_path, pipeline_runs_index, PipelineRun
     )
 
     # Next post-init each entity, now that all the entity_maps
@@ -113,7 +96,4 @@ def extract_denormalized(
 if __name__ == "__main__":
     parser = get_parser()
     args = parser.parse_args()
-    should_enforce_id = not args.dont_enforce_ids
-    extract_denormalized(
-        args.dump_dir, args.out_dir, args.index_name, should_enforce_id
-    )
+    extract_denormalized(args.dump_dir, args.out_dir, args.index_name)

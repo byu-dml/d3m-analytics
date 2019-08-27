@@ -64,17 +64,10 @@ def load_index_map(
     return index_map
 
 
-def load_entity_map(
-    dump_path: str,
-    index: Index,
-    entity_sub_class: Type[EntityWithId],
-    should_enforce_id: bool,
-):
+def load_entity_map(dump_path: str, index: Index, entity_sub_class: Type[EntityWithId]):
     """
     Convenience loader for loading objects inheriting
     from `EntityWithId`.
     """
     key_getter = lambda entity: entity.get_id()
-    return load_index_map(
-        dump_path, index, entity_sub_class, key_getter, should_enforce_id
-    )
+    return load_index_map(dump_path, index, entity_sub_class, key_getter)

@@ -7,8 +7,8 @@ from src.entities.entity import EntityWithId
 
 
 class PipelineRunPredictions(EntityWithId):
-    def __init__(self, pipeline_run_dict: dict, should_enforce_id: bool) -> None:
-        enforce_field(should_enforce_id, pipeline_run_dict, "id")
+    def __init__(self, pipeline_run_dict: dict) -> None:
+        enforce_field(pipeline_run_dict, "id")
 
         # Initialize
         self.id = pipeline_run_dict["id"]

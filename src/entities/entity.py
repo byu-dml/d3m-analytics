@@ -26,7 +26,7 @@ class EntityWithId(Entity):
     """
 
     @abstractmethod
-    def __init__(self, pipeline_dict: dict, should_enforce_id: bool) -> None:
+    def __init__(self, entity_dict: dict) -> None:
         pass
 
     @abstractmethod
