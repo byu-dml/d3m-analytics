@@ -1,5 +1,7 @@
-from typing import Union, Tuple, Dict, List
+from typing import Union, Tuple, Dict, List, Optional
 import itertools
+import json
+import os
 
 import iso8601
 import pandas as pd
@@ -10,6 +12,7 @@ from src.entities.pipeline import Pipeline
 from src.entities.score import Score
 from src.entities.problem import Problem
 from src.misc.utils import has_path, enforce_field
+from src.misc.settings import DataDir, PredsLoadStatus
 
 
 class PipelineRun(EntityWithId):
@@ -27,13 +30,6 @@ class PipelineRun(EntityWithId):
             for score_dict in pipeline_run_dict["run"]["results"]["scores"]:
                 self.scores.append(Score(score_dict))
 
-        self.prediction_headers: List[str] = []
-        if has_path(pipeline_run_dict, ["run", "results", "predictions", "header"]):
-            for col_name in pipeline_run_dict["run"]["results"]["predictions"][
-                "header"
-            ]:
-                self.prediction_headers.append(col_name)
-
         # These references will be dereferenced later by the loader
         # once the pipelines, problems, and datasets are available.
         self.datasets: list = []
@@ -44,12 +40,87 @@ class PipelineRun(EntityWithId):
         )
         self.problem = DocumentReference(pipeline_run_dict["problem"])
 
+    def init_predictions(self, pipeline_run_dict) -> None:
+        self.predictions_status: PredsLoadStatus = PredsLoadStatus.NOT_TRIED
+
+        # These attributes can be added later by self.load_predictions
+        # if requested
+        self.prediction_indices: Optional[pd.Series[int]] = None
+        self.predictions: Optional[
+            Union[pd.Series[float], pd.Series[int], pd.Series[str]]
+        ] = None
+
+        # Initialize the prediction headers.
+        self.prediction_headers: List[str] = []
+        if not has_path(pipeline_run_dict, ["run", "results", "predictions", "header"]):
+            # Without prediction column headers, we won't know which
+            # column of predictions is which.
+            self.predictions_status = PredsLoadStatus.NOT_USEABLE
+            return
+
+        for col_name in pipeline_run_dict["run"]["results"]["predictions"]["header"]:
+            self.prediction_headers.append(col_name)
+
+        if "d3mIndex" not in self.prediction_headers:
+            # Without the `d3mIndex` column we won't know which
+            # prediction goes with which instanct of a dataset.
+            self.predictions_status = PredsLoadStatus.NOT_USEABLE
+
     def post_init(self, entity_maps) -> None:
         """Dereference this pipeline run's pipeline, problem, and datasets."""
         self.pipeline = entity_maps["pipelines"][self.pipeline.digest]
         self.problem = entity_maps["problems"][self.problem.digest]
         for i, dataset_reference in enumerate(self.datasets):
             self.datasets[i] = entity_maps["datasets"][dataset_reference.digest]
+
+    def load_predictions(self) -> None:
+        """
+        Loads the predictions for this pipeline run identified by
+        its id. Loads them from the DB dump.
+        """
+        # First, pass all the checks required to determine if this run
+        # has predictions we can use. There is some irregularity in the
+        # predictions reported in the pipeline runs. We check here for
+        # the most popular formatting, and just use predictions for runs
+        # that follow that formating scheme i.e. two columns, with one
+        # of them being called "d3mIndex", holding the row numbers of the
+        # dataset instances predicted on.
+
+        if self.predictions_status != PredsLoadStatus.NOT_TRIED:
+            # Either the predictions have already been loaded, or
+            # they've been determined not useable.
+            return
+
+        path_to_preds = os.path.join(DataDir.PREDICTIONS_DUMP.value, f"{self.id}.json")
+        with open(path_to_preds, "r") as f:
+            pipeline_run_preds_dict = json.load(f)
+
+        if not has_path(pipeline_run_preds_dict, ["run", "results", "predictions"]):
+            self.predictions_status = PredsLoadStatus.NOT_USEABLE
+            return
+
+        predictions_dict = pipeline_run_preds_dict["run"]["results"]["predictions"]
+
+        if "values" not in predictions_dict:
+            self.predictions_status = PredsLoadStatus.NOT_USEABLE
+            return
+
+        if len(predictions_dict["values"]) != 2:
+            self.predictions_status = PredsLoadStatus.NOT_USEABLE
+            return
+
+        # All checks passed. This run has predictions we can use.
+
+        i_of_prediction_indices = self.prediction_headers.index("d3mIndex")
+        self.prediction_indices = pd.Series(
+            predictions_dict["values"][i_of_prediction_indices]
+        )
+
+        # The predictions are just in the column that the prediction indices aren't,
+        i_of_predictions = 0 if i_of_prediction_indices == 1 else 1
+        self.predictions = pd.Series(predictions_dict["values"][i_of_predictions])
+
+        self.predictions_status = PredsLoadStatus.USEABLE
 
     def get_id(self):
         return self.id

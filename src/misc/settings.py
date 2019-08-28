@@ -37,6 +37,22 @@ class Index(Enum):
     DATASETS = "datasets"
 
 
+class PredsLoadStatus(Enum):
+    """
+    The possible statuses of a pipeline
+    run object regarding whether its predictions
+    have loaded.
+    """
+
+    # We haven't tried loading them
+    NOT_TRIED = 0
+    # We loaded them and they're useable
+    USEABLE = 1
+    # We tried loading them but they're either not
+    # useable or they don't exist
+    NOT_USEABLE = 2
+
+
 # Other constant values
 class Const(Enum):
     PREDICTIONS = "predictions"
