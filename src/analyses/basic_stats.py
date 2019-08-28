@@ -27,6 +27,10 @@ class BasicStatsAnalysis(Analysis):
         metric_values: dict = defaultdict(list)
         # What is the distribution of phase types?
         phase_cnts: dict = defaultdict(int)
+        # What is the distribution of problem types?
+        problem_type_cnts: dict = defaultdict(int)
+        # What is the distribution of problem subtypes?
+        problem_subtype_cnts: dict = defaultdict(int)
         # What is the distribution of metric types?
         metric_types_cnt: dict = defaultdict(int)
         # What is the distribution of number of datasets per run?
@@ -82,6 +86,10 @@ class BasicStatsAnalysis(Analysis):
 
             phase_cnts[run.run_phase] += 1
 
+            problem_type_cnts[run.problem.type] += 1
+
+            problem_subtype_cnts[run.problem.subtype] += 1
+
             author_values[run.pipeline.source_name] += 1
 
             pred_header_cnt[len(run.prediction_headers)] += 1
@@ -117,8 +125,10 @@ class BasicStatsAnalysis(Analysis):
                 )
                 plt.show()
 
-        print(f"\nThe dataset has {num_runs} pipeline runs with unique ids.")
+        print(f"\nThe number of pipeline runs with unique ids is: {num_runs}")
         print(f"\nThe distribution of run phases is: {phase_cnts}")
+        print(f"\nThe distribution of problem types is: {problem_type_cnts}")
+        print(f"\nThe distribution of problem subtypes is: {problem_subtype_cnts}")
         print(f"\nThe distribution of metric types is: {metric_types_cnt}")
         print(f"\nThe distribution of score counts per run is: {score_cnt}")
 
@@ -126,7 +136,7 @@ class BasicStatsAnalysis(Analysis):
             f"\nThe distribution of number of datasets per run is: {num_datasets_cnt}"
         )
         print(
-            f"\nThe number of distinct dataset found among runs is {len(dataset_digests_cnt)}"
+            f"\nThe number of distinct dataset found among runs is: {len(dataset_digests_cnt)}"
         )
 
         if verbose:
@@ -138,18 +148,15 @@ class BasicStatsAnalysis(Analysis):
 
         print(f"\nThe distribution of pipeline authors among runs is: {author_values}")
         print(
-            f"\nThe distribution of prediction column header count is {pred_header_cnt}"
+            f"\nThe distribution of prediction column header count is: {pred_header_cnt}"
         )
         print(
-            f"\nThe distribution of prediction column header names is {pred_header_names_cnt}"
+            f"\nThe distribution of prediction column header names is: {pred_header_names_cnt}"
         )
         print(
-            (
-                f"\nThere are {num_normalized_metric_values} normalized metric values "
-                f"\nfound among the pipelines"
-            )
+            f"\nThe number of normalized metric values found among pipelines is: {num_normalized_metric_values}"
         )
-        print(f"\nThere are {num_subpipelines} sub-pipelines found among the runs")
+        print(f"\nThe number of sub-pipelines found among runs is: {num_subpipelines}")
         print(f"\nThe {num_top_primitives} most commonly used primitives are:")
         for prim_cnt in primitives_cnt_tuples[:num_top_primitives]:
             print(f"\t{prim_cnt[0]}\t{prim_cnt[1]}")
