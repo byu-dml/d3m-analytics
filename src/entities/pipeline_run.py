@@ -182,3 +182,10 @@ class PipelineRun(EntityWithId):
 
         return common_metrics
 
+    def get_distance_from(self, run: "PipelineRun") -> float:
+        assert self.is_same_problem_and_context_as(run)
+        assert self.predictions_status == PredsLoadStatus.USEABLE
+        assert run.predictions_status == PredsLoadStatus.USEABLE
+        preds_a, preds_b = Predictions.find_common(self.predictions, run.predictions)
+        return calculate_distance(self.problem.type, preds_a, preds_b)
+
