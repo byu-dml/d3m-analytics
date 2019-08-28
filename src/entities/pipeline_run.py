@@ -11,8 +11,11 @@ from src.entities.document_reference import DocumentReference
 from src.entities.pipeline import Pipeline
 from src.entities.score import Score
 from src.entities.problem import Problem
+from src.entities.dataset import Dataset
+from src.entities.predictions import Predictions
 from src.misc.utils import has_path, enforce_field
 from src.misc.settings import DataDir, PredsLoadStatus
+from src.misc.metrics import calculate_distance
 
 
 class PipelineRun(EntityWithId):
@@ -32,23 +35,22 @@ class PipelineRun(EntityWithId):
 
         # These references will be dereferenced later by the loader
         # once the pipelines, problems, and datasets are available.
-        self.datasets: list = []
+        self.datasets: List[Union[DocumentReference, Dataset]] = []
         for dataset_dict in pipeline_run_dict["datasets"]:
             self.datasets.append(DocumentReference(dataset_dict))
         self.pipeline: Union[DocumentReference, Problem] = DocumentReference(
             pipeline_run_dict["pipeline"]
         )
-        self.problem = DocumentReference(pipeline_run_dict["problem"])
+        self.problem: Union[DocumentReference, Problem] = DocumentReference(
+            pipeline_run_dict["problem"]
+        )
 
     def init_predictions(self, pipeline_run_dict) -> None:
         self.predictions_status: PredsLoadStatus = PredsLoadStatus.NOT_TRIED
 
-        # These attributes can be added later by self.load_predictions
+        # This attribute can be added later by self.load_predictions
         # if requested
-        self.prediction_indices: Optional[pd.Series[int]] = None
-        self.predictions: Optional[
-            Union[pd.Series[float], pd.Series[int], pd.Series[str]]
-        ] = None
+        self.predictions: Optional[Predictions] = None
 
         # Initialize the prediction headers.
         self.prediction_headers: List[str] = []
@@ -112,13 +114,13 @@ class PipelineRun(EntityWithId):
         # All checks passed. This run has predictions we can use.
 
         i_of_prediction_indices = self.prediction_headers.index("d3mIndex")
-        self.prediction_indices = pd.Series(
-            predictions_dict["values"][i_of_prediction_indices]
-        )
+        prediction_indices = predictions_dict["values"][i_of_prediction_indices]
 
-        # The predictions are just in the column that the prediction indices aren't,
+        # The prediction values are just in the column that the prediction indices aren't,
         i_of_predictions = 0 if i_of_prediction_indices == 1 else 1
-        self.predictions = pd.Series(predictions_dict["values"][i_of_predictions])
+        prediction_values = predictions_dict["values"][i_of_predictions]
+
+        self.predictions = Predictions(prediction_indices, prediction_values)
 
         self.predictions_status = PredsLoadStatus.USEABLE
 
