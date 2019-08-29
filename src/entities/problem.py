@@ -2,15 +2,16 @@ from typing import List
 
 from src.entities.entity import Entity, EntityWithId
 from src.misc.utils import enforce_field
+from src.misc.settings import ProblemType
 
 
 class Problem(EntityWithId):
     def __init__(self, problem_dict: dict):
         enforce_field(problem_dict, "digest")
-        self.digest = problem_dict["digest"]
-        self.name = problem_dict["name"]
-        self.type = problem_dict["problem"]["task_type"]
-        self.subtype = problem_dict["problem"]["task_subtype"]
+        self.digest: str = problem_dict["digest"]
+        self.name: str = problem_dict["name"]
+        self.type: ProblemType = ProblemType(problem_dict["problem"]["task_type"])
+        self.subtype: str = problem_dict["problem"]["task_subtype"]
         self.metrics: List[str] = []
         if "performance_metrics" in problem_dict:
             for metric_dict in problem_dict["performance_metrics"]:
