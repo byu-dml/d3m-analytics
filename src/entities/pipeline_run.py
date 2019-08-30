@@ -16,6 +16,7 @@ from src.entities.dataset import Dataset
 from src.entities.predictions import Predictions
 from src.misc.utils import has_path, enforce_field
 from src.misc.settings import DataDir, PredsLoadStatus
+from src.misc.metrics import calculate_output_difference, MetricProblemType
 
 
 @unique
@@ -144,7 +145,11 @@ class PipelineRun(EntityWithId):
         i_of_predictions = 0 if i_of_prediction_indices == 1 else 1
         prediction_values = predictions_dict["values"][i_of_predictions]
 
-        self.predictions = Predictions(prediction_indices, prediction_values)
+        try:
+            self.predictions = Predictions(prediction_indices, prediction_values)
+        except Exception as e:
+            print(f"offending pipeline run id={self.id}")
+            raise e
 
         self.predictions_status = PredsLoadStatus.USEABLE
 
@@ -174,7 +179,7 @@ class PipelineRun(EntityWithId):
 
     def is_same_problem_and_context_as(self, run: "PipelineRun") -> bool:
         if not Entity.are_lists_tantamount(self.datasets, run.datasets):
-                return False
+            return False
 
         if self.run_phase != run.run_phase:
             return False
@@ -211,10 +216,31 @@ class PipelineRun(EntityWithId):
 
         return common_metrics
 
-    def get_distance_from(self, run: "PipelineRun") -> float:
-        assert self.is_same_problem_and_context_as(run)
-        assert self.predictions_status == PredsLoadStatus.USEABLE
-        assert run.predictions_status == PredsLoadStatus.USEABLE
+    def get_output_difference_from(
+        self, run: "PipelineRun"
+    ) -> Tuple[float, MetricProblemType]:
+        assert self.is_same_problem_and_context_as(
+            run
+        ), f"{self.id} is different problem and context as {run.id}"
+        assert (
+            self.predictions_status == PredsLoadStatus.USEABLE
+        ), f"predictions of {self.id} are not useable"
+        assert (
+            run.predictions_status == PredsLoadStatus.USEABLE
+        ), f"predictions of {run.id} are not useable"
+
         preds_a, preds_b = Predictions.find_common(self.predictions, run.predictions)
-        return calculate_distance(self.problem.type, preds_a, preds_b)
+
+        try:
+            return calculate_output_difference(self.problem.type, preds_a, preds_b)
+        except Exception as e:
+            print(
+                f"output difference for problem type {self.problem.type} failed.\n"
+                f"run_a.id={self.id}\n"
+                f"run_b.id={run.id}\n"
+                f"preds_a type: {preds_a.dtype}, preds_b type: {preds_b.dtype}\n"
+                f"preds_a data:\n{preds_a.head()}\n"
+                f"preds_b data:\n{preds_b.head()}"
+            )
+            raise e
 
