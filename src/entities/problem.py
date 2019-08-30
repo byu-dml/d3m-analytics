@@ -16,6 +16,7 @@ class Problem(EntityWithId):
         if "performance_metrics" in problem_dict:
             for metric_dict in problem_dict["performance_metrics"]:
                 self.metrics.append(metric_dict["metric"])
+        self.metrics.sort()
 
     def post_init(self, entity_maps) -> None:
         pass
@@ -28,6 +29,9 @@ class Problem(EntityWithId):
         Checks to make sure the problems have the same name, metrics,
         type, and subtype. Doesn't worry about the digest.
         """
+        if len(self.metrics) != len(problem.metrics):
+            return False
+
         for i, our_metric in enumerate(self.metrics):
             their_metric = problem.metrics[i]
             if our_metric != their_metric:
