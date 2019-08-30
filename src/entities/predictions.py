@@ -18,5 +18,7 @@ class Predictions:
         row index. So `common.values_a[i]` is a prediction for
         the same dataset row as `common.values_b[i]`.
         """
-        common = pd.merge(preds_a, preds_b, on="indices", suffixes=("_a", "_b"))
+        common = pd.merge(
+            preds_a.data, preds_b.data, on="indices", suffixes=("_a", "_b")
+        )
         return common.values_a, common.values_b
