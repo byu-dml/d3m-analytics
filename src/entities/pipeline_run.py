@@ -33,6 +33,8 @@ class PipelineRun(EntityWithId):
             for score_dict in pipeline_run_dict["run"]["results"]["scores"]:
                 self.scores.append(Score(score_dict))
 
+        self.init_predictions(pipeline_run_dict)
+
         # These references will be dereferenced later by the loader
         # once the pipelines, problems, and datasets are available.
         self.datasets: List[Union[DocumentReference, Dataset]] = []
