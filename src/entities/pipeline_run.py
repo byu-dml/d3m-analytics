@@ -2,6 +2,7 @@ from typing import Union, Tuple, Dict, List, Optional
 import itertools
 import json
 import os
+from enum import Enum, unique
 
 import iso8601
 import pandas as pd
@@ -15,19 +16,34 @@ from src.entities.dataset import Dataset
 from src.entities.predictions import Predictions
 from src.misc.utils import has_path, enforce_field
 from src.misc.settings import DataDir, PredsLoadStatus
-from src.misc.metrics import calculate_distance
+
+
+@unique
+class PipelineRunStatus(Enum):
+    SUCCESS = "SUCCESS"
+    FAILURE = "FAILURE"
+
+
+# A run phase of FIT means the pipeline ras run on the training
+# set. PRODUCE means it was run on the test set.
+@unique
+class PipelineRunPhase(Enum):
+    FIT = "FIT"
+    PRODUCE = "PRODUCE"
 
 
 class PipelineRun(EntityWithId):
     def __init__(self, pipeline_run_dict: dict):
         enforce_field(pipeline_run_dict, "id")
         self.id = pipeline_run_dict["id"]
-        self.status = pipeline_run_dict["status"]["state"]
+        self.status: PipelineRunStatus = PipelineRunStatus(
+            pipeline_run_dict["status"]["state"]
+        )
         self.start = iso8601.parse_date(pipeline_run_dict["start"])
         self.end = iso8601.parse_date(pipeline_run_dict["end"])
         self.submitter = pipeline_run_dict["_submitter"]
 
-        self.run_phase = pipeline_run_dict["run"]["phase"]
+        self.run_phase = PipelineRunPhase(pipeline_run_dict["run"]["phase"])
         self.scores: list = []
         if has_path(pipeline_run_dict, ["run", "results", "scores"]):
             for score_dict in pipeline_run_dict["run"]["results"]["scores"]:
