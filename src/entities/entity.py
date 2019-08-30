@@ -10,7 +10,7 @@ class Entity(ABC):
     """
 
     @abstractmethod
-    def is_tantamount_to(self, entity: Entity) -> bool:
+    def is_tantamount_to(self, entity: "Entity") -> bool:
         """
         Return `True` if `self` is functionally the same, although maybe
         not exactly identical, to `entity`, i.e. if `self` is tantamount
@@ -20,7 +20,7 @@ class Entity(ABC):
 
     @staticmethod
     def are_lists_tantamount(
-        entities_a: Sequence[Entity], entities_b: Sequence[Entity]
+        entities_a: Sequence["Entity"], entities_b: Sequence["Entity"]
     ):
         if len(entities_a) != len(entities_b):
             return False
