@@ -81,6 +81,12 @@ class PipelineRun(EntityWithId):
         for col_name in pipeline_run_dict["run"]["results"]["predictions"]["header"]:
             self.prediction_headers.append(col_name)
 
+        if len(self.prediction_headers) != 2:
+            # We only support the most common case where the predictions
+            # field has two columns: one for the index and one for the values.
+            self.predictions_status = PredsLoadStatus.NOT_USEABLE
+            return
+
         if "d3mIndex" not in self.prediction_headers:
             # Without the `d3mIndex` column we won't know which
             # prediction goes with which instanct of a dataset.
