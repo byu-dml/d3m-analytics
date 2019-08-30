@@ -145,6 +145,12 @@ class PipelineRun(EntityWithId):
     def get_id(self):
         return self.id
 
+    def was_run_on_test_set(self):
+        return self.run_phase == PipelineRunPhase.PRODUCE
+
+    def was_successful(self):
+        return self.status == PipelineRunStatus.SUCCESS
+
     def is_tantamount_to(self, run: "PipelineRun") -> bool:
         raise NotImplementedError
 
