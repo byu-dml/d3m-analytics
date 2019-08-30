@@ -1,5 +1,5 @@
 import os
-from enum import Enum
+from enum import Enum, unique
 from typing import Dict, List
 
 from dotenv import load_dotenv
@@ -18,6 +18,7 @@ DATA_ROOT = os.path.abspath(DATA_ROOT)
 print(f"using '{DATA_ROOT}' as DATA_ROOT")
 
 
+@unique
 class DataDir(Enum):
     INDEXES_DUMP = os.path.join(DATA_ROOT, "dump/indexes")
     PREDICTIONS_DUMP = os.path.join(DATA_ROOT, "dump/predictions")
@@ -25,10 +26,12 @@ class DataDir(Enum):
     CACHE = os.path.join(DATA_ROOT, "cached-function-calls")
 
 
+@unique
 class DefaultFile(Enum):
     EXTRACTION_PKL = "denormalized_entity_maps.pkl"
 
 
+@unique
 class Index(Enum):
     PIPELINES = "pipelines"
     BAD_PIPELINE_RUNS = "pipeline_runs_untrusted"
@@ -37,6 +40,7 @@ class Index(Enum):
     DATASETS = "datasets"
 
 
+@unique
 class PredsLoadStatus(Enum):
     """
     The possible statuses of a pipeline
@@ -53,6 +57,7 @@ class PredsLoadStatus(Enum):
     NOT_USEABLE = 2
 
 
+@unique
 class ProblemType(Enum):
     CLASSIFICATION = "CLASSIFICATION"
     SEMISUPERVISED_CLASSIFICATION = "SEMISUPERVISED_CLASSIFICATION"
@@ -65,9 +70,12 @@ class ProblemType(Enum):
     CLUSTERING = "CLUSTERING"
     COLLABORATIVE_FILTERING = "COLLABORATIVE_FILTERING"
     OBJECT_DETECTION = "OBJECT_DETECTION"
+
+
+@unique
 # Other constant values
 class Const(Enum):
-    PREDICTIONS = "predictions"
+    PREDICTIONS = "PREDICTIONS"
 
 
 _pipeline_run_es_fields = [
