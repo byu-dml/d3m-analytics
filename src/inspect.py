@@ -14,8 +14,10 @@ def get_parser() -> ArgumentParser:
         "--entity-id",
         "-id",
         type=str,
-        required=True,
-        help="The id of the entity to inspect",
+        help=(
+            "The id of the entity to inspect. If left out, the first entity in "
+            "`--index` will be looked up."
+        ),
     )
     parser.add_argument(
         "--index",
@@ -41,15 +43,23 @@ def get_parser() -> ArgumentParser:
 if __name__ == "__main__":
     parser = get_parser()
     args = parser.parse_args()
+
+    if args.predictions and not args.entity_id:
+        parser.error("choosing --predictions requires an --entity-id to be supplied")
+
     chosen_index = Index(args.index)
     index_path = os.path.join(DataDir.INDEXES_DUMP.value, f"{chosen_index.value}.json")
 
-    print(
-        "****\n"
-        f"Searching for document in '{DataDir.INDEXES_DUMP.value}' with id='{args.entity_id}'...\n"
-        "****"
-    )
-    subprocess.run(["grep", args.entity_id, index_path])
+    if args.entity_id:
+        print(
+            "****\n"
+            f"Searching for document in '{DataDir.INDEXES_DUMP.value}' with id='{args.entity_id}'...\n"
+            "****"
+        )
+        subprocess.run(["grep", args.entity_id, index_path])
+    else:
+        print("****\n" f"First document of '{DataDir.INDEXES_DUMP.value}':\n" "****")
+        subprocess.run(["head", "-1", index_path])
 
     if args.predictions:
         predictions_path = os.path.join(
