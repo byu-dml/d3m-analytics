@@ -65,13 +65,6 @@ class BasicStatsAnalysis(Analysis):
 
             for score in run.scores:
                 metric_values[score.metric].append(score.value)
-
-            num_datasets_cnt[len(run.datasets)] += 1
-
-            for dataset in run.datasets:
-                dataset_digests_cnt[dataset.digest] += 1
-
-            for score in run.scores:
                 metric_types_cnt[score.metric] += 1
                 if verbose:
                     print(
@@ -83,6 +76,11 @@ class BasicStatsAnalysis(Analysis):
 
                 if score.normalized_value is not None:
                     num_normalized_metric_values += 1
+
+            num_datasets_cnt[len(run.datasets)] += 1
+
+            for dataset in run.datasets:
+                dataset_digests_cnt[dataset.digest] += 1
 
             phase_cnts[run.run_phase] += 1
 
