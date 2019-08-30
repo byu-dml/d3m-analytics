@@ -100,7 +100,13 @@ elasticsearch_fields: Dict[str, List[str]] = {
     Index.PIPELINES.value: ["name", "digest", "source", "inputs", "outputs", "steps"],
     Index.BAD_PIPELINE_RUNS.value: _pipeline_run_es_fields,
     Index.PIPELINE_RUNS.value: _pipeline_run_es_fields,
-    Index.PROBLEMS.value: ["digest", "name", "problem", "performance_metrics"],
+    Index.PROBLEMS.value: [
+        "digest",
+        "name",
+        "problem",
+        "performance_metrics",
+        "inputs",
+    ],
     Index.DATASETS.value: ["digest", "id", "name", "description"],
     Const.PREDICTIONS.value: ["run.results.predictions", "id"],
 }
