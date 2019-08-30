@@ -1,7 +1,7 @@
 from typing import List
 
 from src.entities.entity import Entity
-from src.entities.target import Target
+from src.entities.problem.target import Target
 
 
 class ProblemInput(Entity):

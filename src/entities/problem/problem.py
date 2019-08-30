@@ -2,7 +2,7 @@ from typing import List
 
 from src.entities.entity import Entity, EntityWithId
 from src.misc.utils import enforce_field
-from src.entities.problem_input import ProblemInput
+from src.entities.problem.input import ProblemInput
 from src.misc.settings import ProblemType
 
 
