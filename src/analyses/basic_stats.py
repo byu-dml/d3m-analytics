@@ -51,6 +51,11 @@ class BasicStatsAnalysis(Analysis):
         pred_header_cnt: dict = defaultdict(int)
         # What is the distribution of prediction column header names among runs?
         pred_header_names_cnt: dict = defaultdict(int)
+        # What is the distribution of number of inputs pipeline run
+        # problems are taking?
+        problem_input_cnt: dict = defaultdict(int)
+        # What is the distribution of number of targets each run is predicting?
+        targets_cnt: dict = defaultdict(int)
 
         for run in pipeline_runs.values():
 
@@ -94,6 +99,12 @@ class BasicStatsAnalysis(Analysis):
             for col_name in run.prediction_headers:
                 pred_header_names_cnt[col_name] += 1
 
+            problem_input_cnt[len(run.problem.inputs)] += 1
+
+            targets_cnt[
+                sum(len(problem_input.targets) for problem_input in run.problem.inputs)
+            ] += 1
+
         # Sort the primitive counts to get the most common
         primitives_cnt_tuples: Any = primitives_cnt.items()
 
@@ -129,6 +140,10 @@ class BasicStatsAnalysis(Analysis):
         print(f"\nThe distribution of problem subtypes is: {problem_subtype_cnts}")
         print(f"\nThe distribution of metric types is: {metric_types_cnt}")
         print(f"\nThe distribution of score counts per run is: {score_cnt}")
+        print(
+            f"\nThe distributino of problem inputs across runs is: {problem_input_cnt}"
+        )
+        print(f"\nThe distribution of target counts across runs is: {targets_cnt}")
 
         print(
             f"\nThe distribution of number of datasets per run is: {num_datasets_cnt}"
