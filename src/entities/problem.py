@@ -35,12 +35,9 @@ class Problem(EntityWithId):
         Checks to make sure the problems have the same name, metrics,
         type, subtype, and inputs. Doesn't worry about the digest.
         """
-        if len(self.metrics) != len(problem.metrics):
+        # metrics here are just strings so we can use == directly.
+        if self.metrics != problem.metrics:
             return False
-
-        for our_metric, their_metric in zip(self.metrics, problem.metrics):
-            if our_metric != their_metric:
-                return False
 
         if not Entity.are_lists_tantamount(self.inputs, problem.inputs):
             return False
