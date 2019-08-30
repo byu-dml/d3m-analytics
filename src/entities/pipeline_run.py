@@ -8,7 +8,7 @@ import iso8601
 import pandas as pd
 
 from src.entities.entity import Entity, EntityWithId
-from src.entities.document_reference import DocumentReference
+from src.entities.references.document import DocumentReference
 from src.entities.pipeline import Pipeline
 from src.entities.score import Score
 from src.entities.problem import Problem
