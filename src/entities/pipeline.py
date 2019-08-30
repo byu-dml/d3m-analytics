@@ -93,10 +93,7 @@ class Pipeline(EntityWithId):
         if len(self.outputs) != len(pipeline.outputs):
             return False
 
-        if not all(
-            my_output.equals(their_output)
-            for my_output, their_output in zip(self.outputs, pipeline.outputs)
-        ):
+        if not Entity.are_lists_tantamount(self.outputs, pipeline.outputs):
             return False
 
         if len(self.steps) != len(pipeline.steps):

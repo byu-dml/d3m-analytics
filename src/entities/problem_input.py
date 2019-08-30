@@ -15,11 +15,7 @@ class ProblemInput(Entity):
         if self.dataset_id != problem_input.dataset_id:
             return False
 
-        if len(self.targets) != len(problem_input.targets):
+        if not Entity.are_lists_tantamount(self.targets, problem_input.targets):
             return False
-
-        for my_target, their_target in zip(self.targets, problem_input.targets):
-            if not my_target.is_tantamount_to(their_target):
-                return False
 
         return True

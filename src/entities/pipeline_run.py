@@ -167,8 +167,7 @@ class PipelineRun(EntityWithId):
         return common_scores
 
     def is_same_problem_and_context_as(self, run: "PipelineRun") -> bool:
-        for our_dataset, their_dataset in zip(self.datasets, run.datasets):
-            if not our_dataset.is_tantamount_to(their_dataset):
+        if not Entity.are_lists_tantamount(self.datasets, run.datasets):
                 return False
 
         if self.run_phase != run.run_phase:

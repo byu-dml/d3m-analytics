@@ -1,7 +1,9 @@
 from typing import Optional
 
+from src.entities.entity import Entity
 
-class DataReference:
+
+class DataReference(Entity):
     """
     Represents a data reference
     (https://metadata.datadrivendiscovery.org/schemas/v0/definitions.json#/definitions/data_reference),
@@ -24,11 +26,8 @@ class DataReference:
     def _members(self):
         return (self.type, self.index, self.method_name)
 
-    def equals(self, obj):
-        if type(obj) is type(self):
-            return self._members() == obj._members()
-        else:
-            return False
+    def is_tantamount_to(self, reference: "DataReference") -> bool:
+        return self._members() == reference._members()
 
     def __hash__(self):
         return hash(self._members())

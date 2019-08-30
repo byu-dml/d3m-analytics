@@ -76,15 +76,7 @@ class Primitive(Entity):
         same inputs, which includes checking to make sure they have the
         same input type, step reference, and method reference for each input.
         """
-        if len(self.inputs) != len(primitive.inputs):
-            return False
-
-        for i, my_input in enumerate(self.inputs):
-            their_input = primitive.inputs[i]
-            if not my_input.equals(their_input):
-                return False
-
-        return True
+        return Entity.are_lists_tantamount(self.inputs, primitive.inputs)
 
     def has_same_outputs(self, primitive: "Primitive") -> bool:
         # We can just use the `==` operator since `Primitive.output_ids`

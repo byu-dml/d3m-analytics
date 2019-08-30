@@ -42,11 +42,7 @@ class Problem(EntityWithId):
             if our_metric != their_metric:
                 return False
 
-        if len(self.inputs) != len(problem.inputs):
+        if not Entity.are_lists_tantamount(self.inputs, problem.inputs):
             return False
-
-        for our_input, their_input in zip(self.inputs, problem.inputs):
-            if not our_input.is_tantamount_to(their_input):
-                return False
 
         return self.type == problem.type and self.subtype == problem.subtype
