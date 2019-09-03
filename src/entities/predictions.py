@@ -6,13 +6,14 @@ import numpy as np
 
 class Predictions:
     def __init__(self, indices: list, values: list):
-        try:
-            # Convert to a number when possible, since they're
-            # more comparable e.g. 1 == 1.0, etc.
-            values_series = pd.Series(values, dtype=np.float)
-        except ValueError:
-            # Fall back to a string
-            values_series = pd.Series(values, dtype=np.str)
+        values_series = pd.Series(values)
+        # Convert to a number when possible, since they're
+        # more comparable e.g. 1 == 1.0, etc. Empty values
+        # will parse to NaN. Fall back to strings if the
+        # parsing can't take place (which should be the case
+        # for classification tasks with string values for
+        # targets like "cat", "dog", etc.)
+        values_series = pd.to_numeric(values_series, errors="ignore")
 
         self.data = pd.DataFrame(
             # Indices should always be parseable to a float
