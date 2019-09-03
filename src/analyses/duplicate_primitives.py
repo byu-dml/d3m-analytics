@@ -3,6 +3,7 @@ import functools
 from collections import namedtuple, deque, defaultdict
 from typing import Dict, Tuple, List, Set, Union, Any
 from math import factorial as fac
+from typing import NamedTuple
 
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -12,11 +13,21 @@ from src.entities.pipeline import Pipeline
 from src.entities.primitive import Primitive
 from src.entities.pipeline_run import PipelineRun
 from src.misc.utils import with_cache
+from src.misc.metrics import MetricProblemType
+from src.misc.settings import PredsLoadStatus
 
 
-PipelineRunPairDiffEntry = namedtuple(
-    "PipelineRunPairDiffEntry", ["run_a", "run_b", "metric", "abs_score_diff"]
-)
+class ScoreDiff(NamedTuple):
+    metric: str
+    abs_score_diff: float
+
+
+class PipelineRunPairDiffEntry(NamedTuple):
+    run_a: PipelineRun
+    run_b: PipelineRun
+    output_difference: float
+    output_difference_metric: MetricProblemType
+    score_diffs: List[ScoreDiff] = []
 
 
 def num_combinations(iterable, r):
@@ -53,11 +64,16 @@ def build_ppcm(pipeline_runs: Dict[str, PipelineRun]):
     primitive_ids : List[str]
         A sorted list of the unique primitive ids found in `pipeline_runs`. 
     """
-    # Get the ids and python paths of all primitives used in the pipeline runs
+
+    # Get the ids and their corresponding python paths of all
+    # primitives used in the pipeline runs
+
     prim_id_to_paths: Dict[str, Set[str]] = defaultdict(set)
     for run in pipeline_runs.values():
         for prim_step in run.pipeline.flattened_steps:
             prim_id_to_paths[prim_step.id].add(prim_step.python_path)
+
+    # Initialize the empty PPCM
 
     primitive_ids = list(prim_id_to_paths.keys())
     primitive_ids.sort()
@@ -67,36 +83,66 @@ def build_ppcm(pipeline_runs: Dict[str, PipelineRun]):
         for primitive_pair in itertools.combinations(primitive_ids, 2)
     }
 
+    # Filter out pipeline runs invalid for this analysis
+    valid_runs = [
+        run
+        for run in pipeline_runs.values()
+        # If the run wasn't successful there may not be any
+        # predictions for it; the run didn't complete.
+        if run.was_successful()
+        # We don't support calculating output differences for all
+        # problem types yet.
+        and run.problem.type in MetricProblemType.supported_types()
+        # We only calculate output differences on test set
+        # pipeline runs, since that measures the similarity
+        # of their generalization capacity.
+        and run.was_run_on_test_set()
+        and run.predictions_status != PredsLoadStatus.NOT_USEABLE
+    ]
+
     # Fill the PPCM with values
 
     for run_a, run_b in tqdm(
-        itertools.combinations(pipeline_runs.values(), 2),
-        total=num_combinations(pipeline_runs.values(), 2),
+        itertools.combinations(valid_runs, 2), total=num_combinations(valid_runs, 2)
     ):
         if run_a.is_same_problem_and_context_as(run_b) and run_a.is_one_step_off_from(
             run_b
         ):
-            # These two runs are one step off from each other. Get the primitive pair
-            # they are off by:
-            pair = run_a.pipeline.get_steps_off_from(run_b.pipeline)[0]
-            prims_are_not_none = all(prim is not None for prim in pair)
-            prim_a, prim_b = pair
+            # These two runs are one step off from each other and have
+            # all other attributes needed for this analysis.
 
-            if prims_are_not_none and prim_a.is_same_position_different_kind(prim_b):
+            run_a.load_predictions()
+            run_b.load_predictions()
+
+            # Get the primitive pair they are off by:
+            prim_pair = run_a.pipeline.get_steps_off_from(run_b.pipeline)[0]
+            prims_are_not_none = all(prim is not None for prim in prim_pair)
+            prim_a, prim_b = prim_pair
+
+            if (
+                prims_are_not_none
+                and prim_a.is_same_position_different_kind(prim_b)
+                and run_a.predictions.same_dtype_as(run_b.predictions)
+            ):
                 # The two pipelines are tantamount (including each primitive's inputs
                 # and outputs), but with a single pair of primitives being different.
-                pair = tuple(sorted(prim.id for prim in pair))
+                prim_pair = tuple(sorted(prim.id for prim in prim_pair))
+                output_difference, output_difference_metric = run_a.get_output_difference_from(
+                    run_b
+                )
+                run_diff = PipelineRunPairDiffEntry(
+                    run_a, run_b, output_difference, output_difference_metric
+                )
                 # Next get the differences between their scores
                 for metric, scores in run_a.get_scores_of_common_metrics(run_b).items():
                     run_a_score, run_b_score = scores
-                    ppcm[pair].append(
-                        PipelineRunPairDiffEntry(
-                            run_a,
-                            run_b,
-                            metric,
-                            abs(run_a_score.value - run_b_score.value),
-                        )
+                    score_diff = ScoreDiff(
+                        metric, abs(run_a_score.value - run_b_score.value)
                     )
+                    run_diff.score_diffs.append(score_diff)
+                # Add the run diff to the ppcm, mapped to the primitive pair
+                # its off by.
+                ppcm[prim_pair].append(run_diff)
     return ppcm, prim_id_to_paths, primitive_ids
 
 
@@ -125,14 +171,21 @@ class DuplicatePrimitivesAnalysis(Analysis):
         num_ppcm_entries = sum(ppcm_distribution)
 
         # Aggregate information about the primitive pairs, so we can see
-        # how many diffs each pair has, what the average score difference
+        # how many diffs each pair has, what the average score difference is, etc.
         ppcl_aggregate = []
         for (prim_id_a, prim_id_b), diff_list in ppcl[:num_top_pairs_to_show]:
             num_diffs = len(diff_list)
 
             score_diffs_by_metric: Dict[str, List[float]] = defaultdict(list)
+            output_diffs_by_metric: Dict[str, List[float]] = defaultdict(list)
             for diff in diff_list:
-                score_diffs_by_metric[diff.metric].append(diff.abs_score_diff)
+                output_diffs_by_metric[diff.output_difference_metric.name].append(
+                    diff.output_difference
+                )
+                for score_diff in diff.score_diffs:
+                    score_diffs_by_metric[score_diff.metric].append(
+                        score_diff.abs_score_diff
+                    )
 
             avg_score_diffs_by_metric: Dict[str, Dict[str, float]] = {}
             for metric, score_diffs in score_diffs_by_metric.items():
@@ -142,7 +195,26 @@ class DuplicatePrimitivesAnalysis(Analysis):
                     "count": num_score_diffs,
                 }
 
-            avg_metric_diff = sum(diff.abs_score_diff for diff in diff_list) / num_diffs
+            avg_output_diffs_by_metric: Dict[str, Dict[str, float]] = {}
+            for metric_name, output_diffs in output_diffs_by_metric.items():
+                num_output_diffs = len(output_diffs)
+                avg_output_diffs_by_metric[metric_name] = {
+                    "avg": sum(output_diffs) / num_output_diffs,
+                    "count": num_output_diffs,
+                }
+
+            avg_metric_diff = (
+                sum(
+                    score_diff.abs_score_diff
+                    for diff in diff_list
+                    for score_diff in diff.score_diffs
+                )
+                / num_diffs
+            )
+
+            avg_output_diff = (
+                sum(diff.output_difference for diff in diff_list) / num_diffs
+            )
 
             ppcl_aggregate.append(
                 {
@@ -151,6 +223,8 @@ class DuplicatePrimitivesAnalysis(Analysis):
                     "num_diffs": num_diffs,
                     "avg_metric_diff": avg_metric_diff,
                     "avg_score_diffs_by_metric": avg_score_diffs_by_metric,
+                    "avg_output_diff": avg_output_diff,
+                    "avg_ouptut_diffs_by_metric": avg_output_diffs_by_metric,
                 }
             )
 
