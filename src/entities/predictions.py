@@ -14,6 +14,9 @@ class Predictions:
         # for classification tasks with string values for
         # targets like "cat", "dog", etc.)
         values_series = pd.to_numeric(values_series, errors="ignore")
+        # We want all numeric values series to be of type float
+        if np.issubdtype(values_series, np.number):
+            values_series = values_series.astype("float")
 
         self.data = pd.DataFrame(
             # Indices should always be parseable to a float
