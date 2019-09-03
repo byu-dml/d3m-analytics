@@ -82,15 +82,9 @@ class PipelineRun(EntityWithId):
         for col_name in pipeline_run_dict["run"]["results"]["predictions"]["header"]:
             self.prediction_headers.append(col_name)
 
-        if len(self.prediction_headers) != 2:
-            # We only support the most common case where the predictions
-            # field has two columns: one for the index and one for the values.
-            self.predictions_status = PredsLoadStatus.NOT_USEABLE
-            return
-
         if "d3mIndex" not in self.prediction_headers:
             # Without the `d3mIndex` column we won't know which
-            # prediction goes with which instanct of a dataset.
+            # prediction goes with which instance of a dataset.
             self.predictions_status = PredsLoadStatus.NOT_USEABLE
 
     def post_init(self, entity_maps) -> None:
@@ -100,18 +94,27 @@ class PipelineRun(EntityWithId):
         for i, dataset_reference in enumerate(self.datasets):
             self.datasets[i] = entity_maps["datasets"][dataset_reference.digest]
 
+        # Now that we have our problem dereferenced and available, get even
+        # more info that we need to know if we can load this run's predictions
+        # properly.
+        num_targets_predicting: int = sum(
+            len(problem_input.targets) for problem_input in self.problem.inputs
+        )
+        if num_targets_predicting > 1:
+            # We currently only support the case where a pipeline run is
+            # predicting a single target.
+            self.predictions_status = PredsLoadStatus.NOT_USEABLE
+            return
+
     def load_predictions(self) -> None:
         """
         Loads the predictions for this pipeline run identified by
         its id. Loads them from the DB dump.
         """
-        # First, pass all the checks required to determine if this run
+        # First, pass all final checks required to determine if this run
         # has predictions we can use. There is some irregularity in the
-        # predictions reported in the pipeline runs. We check here for
-        # the most popular formatting, and just use predictions for runs
-        # that follow that formating scheme i.e. two columns, with one
-        # of them being called "d3mIndex", holding the row numbers of the
-        # dataset instances predicted on.
+        # predictions reported in the pipeline runs. We only work with
+        # the case where a pipeline run is trying to predict a single target.
 
         if self.predictions_status != PredsLoadStatus.NOT_TRIED:
             # Either the predictions have already been loaded, or
@@ -132,17 +135,16 @@ class PipelineRun(EntityWithId):
             self.predictions_status = PredsLoadStatus.NOT_USEABLE
             return
 
-        if len(predictions_dict["values"]) != 2:
-            self.predictions_status = PredsLoadStatus.NOT_USEABLE
-            return
-
         # All checks passed. This run has predictions we can use.
+        # Grab the predictions and their dataset row indices using
+        # their column names.
+
+        predictions_column_name = self.problem.inputs[0].targets[0].column_name
 
         i_of_prediction_indices = self.prediction_headers.index("d3mIndex")
         prediction_indices = predictions_dict["values"][i_of_prediction_indices]
 
-        # The prediction values are just in the column that the prediction indices aren't,
-        i_of_predictions = 0 if i_of_prediction_indices == 1 else 1
+        i_of_predictions = self.prediction_headers.index(predictions_column_name)
         prediction_values = predictions_dict["values"][i_of_predictions]
 
         try:
