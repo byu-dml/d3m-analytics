@@ -12,17 +12,6 @@ class MetricData(NamedTuple):
     computer: Callable[[pd.Series, pd.Series], float]
 
 
-def are_elements_equal(s: pd.Series) -> bool:
-    """
-    Evaluates if all values in a series are equal
-    to each other. Here, `NaN == NaN`.
-    """
-    if s.isnull().all():
-        # All values in `s` are NaN.
-        return True
-    return s.nunique(dropna=False) == 1
-
-
 def calculate_cod(preds_a: pd.Series, preds_b: pd.Series) -> float:
     """
     COD is the Classifier Output Difference. It is the ratio of
@@ -32,9 +21,10 @@ def calculate_cod(preds_a: pd.Series, preds_b: pd.Series) -> float:
     if preds_a.dtype != preds_b.dtype:
         raise ValueError("preds_a and preds_b must have the same data type")
 
-    preds = pd.DataFrame({"preds_a": preds_a, "preds_b": preds_b})
-
-    differences = preds.apply(lambda row: not are_elements_equal(row), axis=1)
+    are_null = preds_a.isnull() & preds_b.isnull()
+    are_equal = preds_a == preds_b
+    are_equal_including_null = are_equal | are_null
+    differences = ~are_equal_including_null
     return differences.sum() / differences.size
 
 
