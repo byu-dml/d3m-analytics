@@ -35,7 +35,7 @@ class Problem(EntityWithId):
         Checks to make sure the problems have the same name, metrics,
         type, subtype, and inputs. Doesn't worry about the digest.
         """
-        # metrics here are just strings so we can use == directly.
+        # metrics here are just strings so we can use != directly.
         if self.metrics != problem.metrics:
             return False
 
