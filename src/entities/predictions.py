@@ -38,3 +38,6 @@ class Predictions:
             preds_a.data, preds_b.data, on="indices", suffixes=("_a", "_b")
         )
         return common.values_a, common.values_b
+
+    def same_dtype_as(self, preds: "Predictions") -> bool:
+        return self.data["values"].dtype == preds.data["values"].dtype
