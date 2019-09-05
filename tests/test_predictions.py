@@ -1,9 +1,11 @@
 import unittest
+import math
 
 import numpy as np
 
 from src.misc.metrics import calculate_output_difference, calculate_cod, calculate_rod
 from src.entities.predictions import Predictions
+from src.misc.settings import ProblemType
 
 
 class TestPredictions(unittest.TestCase):
@@ -18,6 +20,7 @@ class TestPredictions(unittest.TestCase):
 
     def setUp(self):
         self.regular_indices = [0, 1, 2, 3, 4, 5]
+        self.permuted_indices = [3, 0, 4, 2, 1, 5]
         # Numeric data
         self.num_str_w_empty = Predictions(
             self.regular_indices, ["1.0", "1.1", "1", "", "", "3.98"]
@@ -29,12 +32,21 @@ class TestPredictions(unittest.TestCase):
             self.regular_indices, ["1", "1.1", "1.0", "4", "4.3", "3.98"]
         )
         self.num = Predictions(self.regular_indices, [1, 1.1, 1.0, 4, 4.3, 3.98])
+        self.num_different = Predictions(
+            self.regular_indices, [1, 1.0, 1.0, 4.5, 4.3, 3.98]
+        )
+        self.permuted_num = Predictions(
+            self.permuted_indices, [4, 1, 4.3, 1.0, 1.1, 3.98]
+        )
         # String data
         self.str_w_empty = Predictions(
             self.regular_indices, ["dog", "cat", "cat", "", "", "horse"]
         )
         self.str = Predictions(
             self.regular_indices, ["dog", "cat", "cat", "horse", "cat", "horse"]
+        )
+        self.permuted_str = Predictions(
+            self.permuted_indices, ["horse", "dog", "cat", "cat", "cat", "horse"]
         )
 
     def test_parse_nums(self):
@@ -93,3 +105,32 @@ class TestPredictions(unittest.TestCase):
             self.num_str_w_empty.data["values"], self.num_str.data["values"]
         )
         self.assertEqual(num_cod_w_diff_precision, 2 / 6)
+
+        # COD should calculate correctly, even if the rows are not all in the same order
+        num_cod_w_permuted, _ = calculate_output_difference(
+            ProblemType.CLASSIFICATION,
+            *Predictions.find_common(self.num, self.permuted_num)
+        )
+        self.assertEqual(num_cod_w_permuted, 0)
+
+    def test_rod(self):
+
+        # ROD should calculate properly on non-permuted data
+
+        rod = calculate_rod(self.num_str.data["values"], self.num.data["values"])
+        self.assertEqual(rod, 0)
+
+        rod_different = calculate_rod(
+            self.num.data["values"], self.num_different.data["values"]
+        )
+        self.assertEqual(rod_different, math.sqrt(0.1 ** 2 + 0.5 ** 2))
+
+        # ROD should calculate properly on data whose rows are
+        # not all in the same order.
+
+        rod_w_permuted, _ = calculate_output_difference(
+            ProblemType.REGRESSION,
+            *Predictions.find_common(self.num, self.permuted_num)
+        )
+        self.assertEqual(rod_w_permuted, 0)
+
