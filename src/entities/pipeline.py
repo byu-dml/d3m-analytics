@@ -227,4 +227,4 @@ class Pipeline(EntityWithId):
         constructed `Pipeline` objects.
         """
         pipelines: Iterator = process_json_glob(glob_pattern, cls)
-        return seq_to_map(pipelines, "digest")
+        return seq_to_map(pipelines, lambda pipeline: pipeline.get_id())

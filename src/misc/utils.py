@@ -128,10 +128,11 @@ def process_json_glob(
         yield process_json(path, processor, *args, **kwargs)
 
 
-def seq_to_map(sequence: Iterable, attr_name) -> Dict[Any, Any]:
+def seq_to_map(sequence: Iterable, key_getter: Callable) -> Dict[Any, Any]:
     """
     Reduces a sequence into a map of keys to sequence items,
-    where each item is indexed by the value of its attribute
-    identified by `attr_name`.
+    where each item is indexed by the value retrieved for it
+    using `key_getter`. I.e. each entry in the resulting map
+    will look like `key_getter(entry): entry`.
     """
-    return {getattr(item, attr_name): item for item in sequence}
+    return {key_getter(item): item for item in sequence}
