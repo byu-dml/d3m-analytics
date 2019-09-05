@@ -53,12 +53,12 @@ if __name__ == "__main__":
     if args.entity_id:
         print(
             "****\n"
-            f"Searching for document in '{DataDir.INDEXES_DUMP.value}' with id='{args.entity_id}'...\n"
+            f"Searching for document in '{index_path}' with id='{args.entity_id}'...\n"
             "****"
         )
         subprocess.run(["grep", args.entity_id, index_path])
     else:
-        print("****\n" f"First document of '{DataDir.INDEXES_DUMP.value}':\n" "****")
+        print("****\n" f"First document of '{index_path}':\n" "****")
         subprocess.run(["head", "-1", index_path])
 
     if args.predictions:
