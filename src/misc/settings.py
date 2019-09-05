@@ -97,7 +97,17 @@ _pipeline_run_es_fields = [
 # The fields to dump for each collection
 # from the elasticsearch instance.
 elasticsearch_fields: Dict[str, List[str]] = {
-    Index.PIPELINES.value: ["name", "digest", "source", "inputs", "outputs", "steps"],
+    Index.PIPELINES.value: [
+        "name",
+        "id",
+        "schema",
+        "created",
+        "digest",
+        "source",
+        "inputs",
+        "outputs",
+        "steps",
+    ],
     Index.BAD_PIPELINE_RUNS.value: _pipeline_run_es_fields,
     Index.PIPELINE_RUNS.value: _pipeline_run_es_fields,
     Index.PROBLEMS.value: [
