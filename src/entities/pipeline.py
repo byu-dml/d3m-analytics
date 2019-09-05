@@ -23,12 +23,12 @@ class Pipeline(EntityWithId):
     """
 
     def __init__(self, pipeline_dict: dict):
-        self.name = pipeline_dict.get("name")
+        self.name: str = pipeline_dict.get("name")
 
         enforce_field(pipeline_dict, "digest")
-        self.digest = pipeline_dict["digest"]
-        self.id = pipeline_dict.get("id")
-        self.source_name = None
+        self.digest: str = pipeline_dict["digest"]
+        self.id: str = pipeline_dict.get("id")
+        self.source_name: Optional[str] = None
         if has_path(pipeline_dict, ["source", "name"]):
             self.source_name = pipeline_dict["source"]["name"]
 
