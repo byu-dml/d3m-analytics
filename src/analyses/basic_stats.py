@@ -19,7 +19,7 @@ class BasicStatsAnalysis(Analysis):
         pipeline_runs = entity_maps["pipeline_runs"]
 
         # config
-        num_top_primitives = 20
+        num_top_primitives = 40
 
         # How many runs are there?
         num_runs = len(pipeline_runs.keys())
@@ -61,7 +61,7 @@ class BasicStatsAnalysis(Analysis):
 
             for step in run.pipeline.steps:
                 if isinstance(step, Primitive):
-                    primitives_cnt[step.short_python_path] += 1
+                    primitives_cnt[step.python_path] += 1
                 elif isinstance(step, Pipeline):
                     num_subpipelines += 1
 
@@ -141,7 +141,7 @@ class BasicStatsAnalysis(Analysis):
         print(f"\nThe distribution of metric types is: {metric_types_cnt}")
         print(f"\nThe distribution of score counts per run is: {score_cnt}")
         print(
-            f"\nThe distributino of problem inputs across runs is: {problem_input_cnt}"
+            f"\nThe distribution of problem inputs across runs is: {problem_input_cnt}"
         )
         print(f"\nThe distribution of target counts across runs is: {targets_cnt}")
 
