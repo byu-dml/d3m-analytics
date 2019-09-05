@@ -90,8 +90,6 @@ class Pipeline(EntityWithId):
         Returns `True` if `self` has same steps as `pipeline`, which includes
         the same primitive/sub-pipeline and inputs at each step.
         """
-        if len(self.outputs) != len(pipeline.outputs):
-            return False
 
         if not Entity.are_lists_tantamount(self.outputs, pipeline.outputs):
             return False
@@ -104,6 +102,7 @@ class Pipeline(EntityWithId):
 
             if type(my_step) != type(their_step):
                 return False
+
             if isinstance(my_step, Primitive) or isinstance(my_step, Pipeline):
                 if not my_step.is_tantamount_to(their_step):
                     return False
