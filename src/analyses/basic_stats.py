@@ -2,6 +2,7 @@ from typing import Dict, Any
 from collections import defaultdict
 
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 from src.analyses.analysis import Analysis
 from src.misc.utils import has_path
@@ -56,6 +57,10 @@ class BasicStatsAnalysis(Analysis):
         problem_input_cnt: dict = defaultdict(int)
         # What is the distribution of number of targets each run is predicting?
         targets_cnt: dict = defaultdict(int)
+        # When were pipeline runs run?
+        end_times: list = []
+        # What is the distribution across run submitters?
+        submitter_cnt: dict = defaultdict(int)
 
         for run in pipeline_runs.values():
 
@@ -105,6 +110,9 @@ class BasicStatsAnalysis(Analysis):
                 sum(len(problem_input.targets) for problem_input in run.problem.inputs)
             ] += 1
 
+            end_times.append(mdates.date2num(run.end))
+
+            submitter_cnt[run.submitter] += 1
         # Sort the primitive counts to get the most common
         primitives_cnt_tuples: Any = primitives_cnt.items()
 
@@ -134,6 +142,20 @@ class BasicStatsAnalysis(Analysis):
                 )
                 plt.show()
 
+        if verbose:
+            # Give the distribution of pipeline end times
+            # Source: https://stackoverflow.com/questions/29672375/histogram-in-matplotlib-time-on-x-axis
+
+            fig, ax = plt.subplots(1, 1)
+            ax.hist(end_times, bins=50, color="cornflowerblue")
+            ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+            ax.xaxis.set_major_formatter(mdates.DateFormatter("%m/%d/%y"))
+            plt.setp(ax.xaxis.get_majorticklabels(), rotation=30)
+            plt.xlabel("pipeline run end time")
+            plt.ylabel("count")
+            plt.title("Distribution of Pipeline Run End Times")
+            plt.show()
+
         print(f"\nThe number of pipeline runs with unique ids is: {num_runs}")
         print(f"\nThe distribution of run phases is: {phase_cnts}")
         print(f"\nThe distribution of problem types is: {problem_type_cnts}")
@@ -151,6 +173,7 @@ class BasicStatsAnalysis(Analysis):
         print(
             f"\nThe number of distinct dataset found among runs is: {len(dataset_digests_cnt)}"
         )
+        print(f"\nThe distribution of submitters among runs is {submitter_cnt}")
 
         if verbose:
             plt.hist(dataset_digests_cnt.values())
