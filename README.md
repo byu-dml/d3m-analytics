@@ -1,7 +1,7 @@
 [![Build Status](https://api.travis-ci.org/byu-dml/d3m-mtl-db-reader.png)](https://travis-ci.org/byu-dml/d3m-mtl-db-reader)
 [![codecov](https://codecov.io/gh/byu-dml/d3m-mtl-db-reader/branch/master/graph/badge.svg)](https://codecov.io/gh/byu-dml/d3m-mtl-db-reader)
 
-# Programmatically Interact With The D3M MtL Database 
+# Programmatically Interact With The D3M MtL Database
 
 You can use this package to programmatically interact with the D3M meta-learning database. All that's required is credentials for accessing it. This package uses the `elasticsearch-dsl` python package to query.
 
@@ -34,10 +34,10 @@ Using the `elasticsearch-dsl` python package, the database can be queried progra
 1.  Import the `Index` enum from the local `settings` module.
 1.  Import the `Search` class from the `elasticsearch_dsl` package.
 1.  Use the [`elasticsearch-dsl` documentation](https://elasticsearch-dsl.readthedocs.io/en/latest/search_dsl.html) to begin querying the elasticsearch indexes. Example:
-    
+
     ```python
     from elasticsearch_dsl import Search
-    
+
     from src.client import client
     from src.misc.settings import Index
 
@@ -76,7 +76,23 @@ python -m src.dump [--batch-size <num_docs_in_batch>] [--indexes <index_names_to
 
 `--indexes` can be used to specify the list of index names wanting to be dumped. If left out, all indexes will be dumped.
 
-If the `--predictions` flag is present, prediction scores for all pipeline runs will be dumped. Note: This is a considerable amount of data. 
+If the `--predictions` flag is present, prediction scores for all pipeline runs will be dumped. Note: This is a considerable amount of data.
+
+### Inspect a Dump
+
+Once a dump of the database is available, the `inspect` CLI is a useful tool for piping the contents of a DB index to stdout. Usage:
+
+```shell
+python -m src.inspect [--index index_to_pipe] [--predictions-id pipeline_run_id]
+```
+
+If `--predictions-id` is supplied, the predictions document identified by `pipeline_run_id` will be piped to stdout. Otherwise, the index identified by `index_to_pipe` will be piped. The default for `index_to_pipe` is the pipeline run documents.
+
+For example, to search through the pipeline documents for all pipelines that contain the string `random_forest`, run:
+
+```shell
+python -m src.inpsect --index pipelines | grep random_forest
+```
 
 ### Extract a dump
 
