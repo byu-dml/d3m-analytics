@@ -66,7 +66,7 @@ This is useful for finding out how big the database is.
 To make a full JSON dump of the D3M MtL database, run this. Note: It copies all the indexes in the D3M elasticsearch instance and will take some time, depending on the number of documents that exist.
 
 ```shell
-python -m src.dump [--batch-size <num_docs_in_batch>] [--indexes <index_names_to_dump>] [--predictions]
+python -m src.dump [--batch-size num_docs_in_batch] [--indexes index_names_to_dump] [--predictions]
 ```
 
 `--batch-size` is an optional optimization helper that allows one to specify how many documents should be requested in each network request made to the D3M elasticsearch instance.
@@ -96,7 +96,7 @@ python -m src.inpsect --index pipelines | grep random_forest
 To extract a denormalized map of all the DB documents into a form ready for analysis, run:
 
 ```shell
-python -m src.extract [--index-name <pipeline_runs_index_name>]
+python -m src.extract [--index-name pipeline_runs_index_name]
 ```
 
 The extraction made is a dictionary of index names to indexes. Each index is a dictionary of denormalized documents to their ids.
@@ -108,7 +108,7 @@ The extraction made is a dictionary of index names to indexes. Each index is a d
 To analyze a denormalized extraction of pipeline runs, run this:
 
 ```shell
-python -m src.analyze [--analysis <name_of_analysis_to_run>] [--verbose] [--refresh]
+python -m src.analyze [--analysis name_of_analysis_to_run] [--verbose] [--refresh]
 ```
 
 If the `--verbose` flag is present, the results of the analysis will be reported more verbosely, if the analysis has verbose per-pipeline results to report that is.
