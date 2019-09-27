@@ -9,13 +9,12 @@ load_dotenv()
 
 # Pull environment variables from environment
 # for use in the code
-CLIENT = os.getenv("CLIENT")
-SECRET = os.getenv("SECRET")
-API = os.getenv("API")
 DATA_ROOT = os.getenv("DATA_ROOT", ".")
-
 DATA_ROOT = os.path.abspath(DATA_ROOT)
 print(f"using '{DATA_ROOT}' as DATA_ROOT")
+
+# The URL of the elastic search API for querying the DB.
+API = "https://metalearning.datadrivendiscovery.org/es/"
 
 
 @unique

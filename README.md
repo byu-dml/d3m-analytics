@@ -3,7 +3,7 @@
 
 # Programmatically Interact With The D3M MtL Database
 
-You can use this package to programmatically interact with the D3M meta-learning database. All that's required is credentials for accessing it. This package uses the `elasticsearch-dsl` python package to query.
+You can use this package to programmatically interact with the D3M meta-learning database. This package uses the `elasticsearch-dsl` python package to query.
 
 ## Installation:
 
@@ -16,9 +16,6 @@ You can use this package to programmatically interact with the D3M meta-learning
 1.  Add an `.env` file to root, and include these values:
 
     ```env
-    CLIENT=<db_access_username>
-    SECRET=<db_access_password>
-    API=<db_access_url>
     DATA_ROOT=<base_dir_for_package_files>
     ```
 
