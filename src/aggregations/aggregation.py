@@ -53,8 +53,8 @@ class Aggregation(ABC):
             key = fields[0]
 
         if key not in fields:
-            for i in data:
-                data[key] = str(uuid.uuid4())
+            for record in data:
+                record[key] = str(uuid.uuid4())
 
         csv_dir = os.path.join(DataDir.AGGREGATION.value, self.__class__.__name__, 'csv')
         if not os.path.isdir(csv_dir):
