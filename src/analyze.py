@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from typing import Type, Mapping, Dict
+from typing import Type, Mapping, Dict, List, Any
 import pickle
 import os
 
@@ -56,11 +56,28 @@ def load_entity_maps_pkl() -> Dict[str, dict]:
         return pickle.load(f)
 
 
+def load_aggregations(req_aggs: List[str]) -> Dict[str, Any]:
+    aggs = {}
+    if len(req_aggs) == 0:
+        return aggs
+
+    for agg_class in req_aggs:
+        agg_name = agg_class.__name__
+        agg = agg_class()
+        print(f'Running aggregation {agg_name}...')
+        aggs[agg_name] = agg.run(entity_maps=entity_maps, save_table=False)
+
+    return aggs
+
+
 if __name__ == "__main__":
     parser = get_parser()
     args = parser.parse_args()
     entity_maps = load_entity_maps_pkl()
+    aggregations = load_aggregations(analysis.required_aggregations)
+
     analysis_class: Type[Analysis] = analysis_map[args.analysis]
     analysis = analysis_class()
+
     print(f"Now running {args.analysis} analysis...")
-    analysis.run(entity_maps, args.verbose, args.refresh)
+    analysis.run(entity_maps=entity_maps, aggregations=aggregations, verbose=args.verbose, refresh=args.refresh)
