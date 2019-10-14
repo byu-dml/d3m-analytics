@@ -24,6 +24,9 @@ class Aggregation(ABC):
             progress and intermediate results during computation, if applicable
         refresh
             If true, disable caching while running the aggregation
+        save_table
+            If true, the aggregation will save its results in a CSV file upon
+            completion
         """
         pass
 
