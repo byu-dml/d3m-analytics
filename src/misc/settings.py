@@ -22,6 +22,7 @@ class DataDir(Enum):
     INDEXES_DUMP = os.path.join(DATA_ROOT, "dump/indexes")
     PREDICTIONS_DUMP = os.path.join(DATA_ROOT, "dump/predictions")
     EXTRACTION = os.path.join(DATA_ROOT, "extractions")
+    AGGREGATION = os.path.join(DATA_ROOT, "aggregations")
     CACHE = os.path.join(DATA_ROOT, "cached-function-calls")
 
 
