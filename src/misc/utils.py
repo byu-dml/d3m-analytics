@@ -4,7 +4,7 @@ import os
 import json
 import glob
 
-from src.misc.settings import DataDir
+from src.misc.settings import DataDir, DefaultFile
 
 
 def has_path(dictionary: dict, keys: list) -> bool:
@@ -103,6 +103,13 @@ def with_cache(f: Callable, refresh=False) -> Callable:
             return result
 
     return f_with_cache
+
+
+def load_entity_maps_pkl() -> Dict[str, dict]:
+    read_path = os.path.join(DataDir.EXTRACTION.value, DefaultFile.EXTRACTION_PKL.value)
+    print(f"Now loading pickled entity maps from '{read_path}'...")
+    with open(read_path, "rb") as f:
+        return pickle.load(f)
 
 
 def process_json(path: str, processor: Callable, *args, **kwargs) -> Any:

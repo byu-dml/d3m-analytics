@@ -1,9 +1,7 @@
 from argparse import ArgumentParser
 from typing import Type, Mapping, Dict
-import pickle
-import os
 
-from src.misc.settings import DataDir, DefaultFile
+from src.misc.utils import load_entity_maps_pkl
 from src.aggregations.aggregation import Aggregation
 from src.aggregations.primitive_pairs import PrimitivePairComparisonAggregation
 
@@ -40,13 +38,6 @@ def get_parser() -> ArgumentParser:
         help=("If present, any caches that the aggregation uses will be refreshed."),
     )
     return parser
-
-
-def load_entity_maps_pkl() -> Dict[str, dict]:
-    read_path = os.path.join(DataDir.EXTRACTION.value, DefaultFile.EXTRACTION_PKL.value)
-    print(f"Now loading pickled entity maps from '{read_path}'...")
-    with open(read_path, "rb") as f:
-        return pickle.load(f)
 
 
 if __name__ == "__main__":
