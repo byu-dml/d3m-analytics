@@ -103,6 +103,22 @@ The extraction made is a dictionary of index names to indexes. Each index is a d
 
 `--index-name` is an optional argument specifying the name of the pipeline runs index to use, since there are two of them. The default choice should be sufficient for most uses.
 
+### Make Aggregations from an Extraction
+
+You can run aggregations on an extraction with this command:
+
+```shell
+python -m src.aggregate [name_of_aggregation_to_run] [--verbose | -v] [--refresh | -r]
+```
+
+There are a number of aggregations available to be run on the extracted data. The implemented aggregations can be seen listed under `positional arguments` after running the command `python -m src.aggregate --help`.
+
+When the above command is run, the results of the aggregation are saved in a CSV table(s) for exporting. There are also some analyses that depend on the results of certain aggregations. When these analyses are run, the aggregation(s) will be run fresh—regardless of whether it has been completed before—and new tables _will not_ be saved.
+
+If the `--verbose` flag is present, the results of the aggregation will be reported more verbosely, if the aggregation has verbose per-pipeline results to report.
+
+If the `--refresh` flag is present, any cached function calls an aggregation computes and uses will be refreshed.
+
 ### Analyze an Extraction
 
 To analyze a denormalized extraction of pipeline runs, run this:
