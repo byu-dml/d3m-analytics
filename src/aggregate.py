@@ -3,11 +3,13 @@ from typing import Type, Mapping, Dict
 
 from src.misc.utils import load_entity_maps_pkl
 from src.aggregations.aggregation import Aggregation
+from src.aggregations.pipeline_runs import PipelineRunsAggregation
 from src.aggregations.primitive_pairs import PrimitivePairComparisonAggregation
 
 
 aggregation_map: Mapping[str, Type[Aggregation]] = {
-    "primitive_pairs": PrimitivePairComparisonAggregation
+    "primitive_pairs": PrimitivePairComparisonAggregation,
+    "pipeline_runs": PipelineRunsAggregation
 }
 
 def get_parser() -> ArgumentParser:
