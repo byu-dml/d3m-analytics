@@ -12,8 +12,14 @@ from src.aggregations.aggregation import Aggregation
 
 
 class ScoreDiff(NamedTuple):
+    """
+    `metric_score_diff` is calculated as the the score of `run_a` (in the
+    containing PipelineRunPairDiffEntry) minus the score of `run_b`. I.e.,
+    a positive value indicates that `run_a` had a higher score, while a
+    negative value means `run_b` had a higher score.
+    """
     metric: str
-    abs_score_diff: float
+    metric_score_diff: float
 
 
 class PipelineRunPairDiffEntry(NamedTuple):
@@ -66,7 +72,9 @@ class PrimitivePairComparisonAggregation(Aggregation):
         unordered primitive pair to a list. Each pair's list contains all
         the pipeline run pairs that are almost identical, save the two primitives
         of the pair are swapped in a single position on the pipeline
-        runs. As an example, in simplified syntax, the value at key
+        runs. In every pair of pipelines, the first pipeline is the pipeline
+        containing the first primitive in the associated primitive pair key.
+        As an example, in simplified syntax, the value at key
         PPCM[("randomforest", "gradientboosting")] might have a list that contains the
         pipeline pair: [dataset_to_dataframe, imputer, randomforest,
         construct_predictions], [dataset_to_dataframe, imputer, gradientboosting,
@@ -149,18 +157,28 @@ class PrimitivePairComparisonAggregation(Aggregation):
                 ):
                     # The two pipelines are tantamount (including each primitive's inputs
                     # and outputs), but with a single pair of primitives being different.
+
                     prim_pair = tuple(sorted(prim.id for prim in prim_pair))
+                    if prim_a.id != prim_pair[0]:
+                        # The PPCM is indexed by prim_pair. For consistency, in each entry
+                        # of the PPCM we want run_a to be the run containing the primitive
+                        # that appears first in prim_pair. If the order of the primitives
+                        # was switched when the tuple was sorted above, we need to swap
+                        # run_a and run_b.
+                        run_a, run_b = run_b, run_a
+
                     output_difference, output_difference_metric = run_a.get_output_difference_from(
                         run_b
                     )
                     run_diff = PipelineRunPairDiffEntry(
                         run_a, run_b, output_difference, output_difference_metric, []
                     )
+
                     # Next get the differences between their scores
                     for metric, scores in run_a.get_scores_of_common_metrics(run_b).items():
                         run_a_score, run_b_score = scores
                         score_diff = ScoreDiff(
-                            metric, abs(run_a_score.value - run_b_score.value)
+                            metric, run_b_score.value - run_a_score.value
                         )
                         run_diff.score_diffs.append(score_diff)
                     # Add the run diff to the ppcm, mapped to the primitive pair
@@ -183,7 +201,7 @@ class PrimitivePairComparisonAggregation(Aggregation):
                     None
                 ),
                 'score_diffs': (
-                    ['score_diff_id', 'metric', 'abs_score_diff', 'diff_id'],
+                    ['score_diff_id', 'metric', 'metric_score_diff', 'diff_id'],
                     [],
                     None
                 )
@@ -223,7 +241,7 @@ class PrimitivePairComparisonAggregation(Aggregation):
                         tables['score_diffs'][1].append({
                             'score_diff_id': score_diff_uuid,
                             'metric': score_diff.metric,
-                            'abs_score_diff': score_diff.abs_score_diff,
+                            'metric_score_diff': score_diff.metric_score_diff,
                             'diff_id': diff_uuid
                         })
 
