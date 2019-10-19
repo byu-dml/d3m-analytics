@@ -14,7 +14,13 @@ class DuplicatePipelinesAnalysis(Analysis):
     or across all datasets?"
     """
 
-    def run(self, entity_maps: Dict[str, dict], verbose: bool, refresh: bool):
+    def run(
+        self,
+        entity_maps: Dict[str, dict],
+        verbose: bool,
+        refresh: bool,
+        aggregations: Dict[str, Any]=None
+    ):
         pipeline_runs = entity_maps["pipeline_runs"]
 
         # config
