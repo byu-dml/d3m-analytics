@@ -3,7 +3,7 @@ from src.entities.entity import Entity, EntityWithId
 
 
 class Dataset(EntityWithId):
-    def __init__(self, dataset_dict: dict):
+    def __init__(self, dataset_dict: dict, **kwargs):
         enforce_field(dataset_dict, "digest")
         self.digest = dataset_dict["digest"]
         self.id = dataset_dict["id"]
