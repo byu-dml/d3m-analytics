@@ -1,0 +1,43 @@
+{
+  "pipeline": {
+    "digest": "similar_pipeline_b",
+    "id": "similar_pipeline_b"
+  },
+  "_submitter": "dmc",
+  "problem": {
+    "digest": "problem_a",
+    "id": "problem_a"
+  },
+  "start": "2019-06-20T16:47:08.750229Z",
+  "run": {
+    "phase": "PRODUCE",
+    "results": {
+      "scores": [
+        {
+          "metric": {
+            "metric": "ACCURACY"
+          },
+          "normalized": 0.13153961136023917,
+          "value": 0.13153961136023917
+        }
+      ],
+      "predictions": {
+        "header": [
+          "d3mIndex",
+          "label"
+        ]
+      }
+    }
+  },
+  "end": "2019-06-20T16:47:17.718557Z",
+  "datasets": [
+    {
+      "digest": "dataset_a",
+      "id": "dataset_a"
+    }
+  ],
+  "id": "similar_pipeline_run_b",
+  "status": {
+    "state": "SUCCESS"
+  }
+}

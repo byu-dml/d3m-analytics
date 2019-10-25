@@ -1,0 +1,26 @@
+{
+  "problem": {
+    "performance_metrics": [
+      {
+        "metric": "ACCURACY"
+      }
+    ],
+    "task_type": "COLLABORATIVE_FILTERING",
+    "task_subtype": "MULTICLASS"
+  },
+  "inputs": [
+    {
+      "dataset_id": "dataset_b",
+      "targets": [
+        {
+          "target_index": 0,
+          "column_name": "class",
+          "resource_id": "learningData",
+          "column_index": 91
+        }
+      ]
+    }
+  ],
+  "name": "invalid_problem_b",
+  "digest": "invalid_problem_b"
+}
