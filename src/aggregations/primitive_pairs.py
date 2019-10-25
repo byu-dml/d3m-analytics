@@ -182,7 +182,7 @@ class PrimitivePairComparisonAggregation(Aggregation):
                         )
                         run_diff.score_diffs.append(score_diff)
                     # Add the run diff to the ppcm, mapped to the primitive pair
-                    # its off by.
+                    # it's off by.
                     ppcm[prim_pair].append(run_diff)
 
         if save_table:
