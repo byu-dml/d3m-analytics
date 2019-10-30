@@ -13,10 +13,10 @@ from src.aggregations.aggregation import Aggregation
 
 class ScoreDiff(NamedTuple):
     """
-    `metric_score_diff` is calculated as the the score of `run_a` (in the
-    containing PipelineRunPairDiffEntry) minus the score of `run_b`. I.e.,
-    a positive value indicates that `run_a` had a higher score, while a
-    negative value means `run_b` had a higher score.
+    `metric_score_diff` is calculated as the score of `run_b` (in the
+    containing PipelineRunPairDiffEntry) minus the score of `run_a`. I.e.,
+    a positive value indicates that `run_b` had a higher score, while a
+    negative value means `run_a` had a higher score.
     """
     metric: str
     metric_score_diff: float
