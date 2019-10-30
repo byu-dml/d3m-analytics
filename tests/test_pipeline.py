@@ -1,7 +1,7 @@
 import unittest
 
 from src.entities.pipeline import Pipeline
-from tests.utils import load_test_pipelines
+from tests.utils import load_test_entities, post_init
 
 
 class TestPipeline(unittest.TestCase):
@@ -14,12 +14,17 @@ class TestPipeline(unittest.TestCase):
     produce a report.
     """
 
-    def setUp(self):
-        test_pipes = load_test_pipelines()
-        self.pipe_a = test_pipes["simple_pipeline_a"]
-        self.pipe_b = test_pipes["simple_pipeline_b"]
-        self.pipe_one_off_b = test_pipes["simple_pipeline_b_one_off"]
-        self.pipe_with_subpipelines = test_pipes["pipeline_with_subpipelines"]
+    @classmethod
+    def setUpClass(self):
+        super(TestPipeline, self).setUpClass()
+
+        test_entity_maps = load_test_entities()
+        post_init(test_entity_maps)
+
+        self.pipe_a = test_entity_maps['pipelines']['simple_pipeline_a']
+        self.pipe_b = test_entity_maps['pipelines']['simple_pipeline_b']
+        self.pipe_one_off_b = test_entity_maps['pipelines']['simple_pipeline_b_one_off']
+        self.pipe_with_subpipelines = test_entity_maps['pipelines']['pipeline_with_subpipelines']
 
     def test_has_subpipelines(self):
         self.assertTrue(self.pipe_with_subpipelines.has_subpipeline)
@@ -128,4 +133,3 @@ class TestPipeline(unittest.TestCase):
         # Assert offset == 0 for identical pipelines
         num_a_from_a = self.pipe_a.get_steps_off_from(self.pipe_a)
         self.assertEqual(len(num_a_from_a), 0)
-

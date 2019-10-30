@@ -34,7 +34,7 @@ class PipelineRunPhase(Enum):
 
 
 class PipelineRun(EntityWithId):
-    def __init__(self, pipeline_run_dict: dict):
+    def __init__(self, pipeline_run_dict: dict, *, run_predictions_path=None, **kwargs):
         enforce_field(pipeline_run_dict, "id")
         self.id = pipeline_run_dict["id"]
         self.status: PipelineRunStatus = PipelineRunStatus(
@@ -50,22 +50,28 @@ class PipelineRun(EntityWithId):
             for score_dict in pipeline_run_dict["run"]["results"]["scores"]:
                 self.scores.append(Score(score_dict))
 
-        self.init_predictions(pipeline_run_dict)
+        if run_predictions_path:
+            self.init_predictions(pipeline_run_dict, run_predictions_path)
+        else:
+            self.init_predictions(pipeline_run_dict)
 
         # These references will be dereferenced later by the loader
         # once the pipelines, problems, and datasets are available.
         self.datasets: List[Union[DocumentReference, Dataset]] = []
         for dataset_dict in pipeline_run_dict["datasets"]:
             self.datasets.append(DocumentReference(dataset_dict))
-        self.pipeline: Union[DocumentReference, Problem] = DocumentReference(
+        self.pipeline: Union[DocumentReference, Pipeline] = DocumentReference(
             pipeline_run_dict["pipeline"]
         )
         self.problem: Union[DocumentReference, Problem] = DocumentReference(
             pipeline_run_dict["problem"]
         )
 
-    def init_predictions(self, pipeline_run_dict) -> None:
+    def init_predictions(
+        self, pipeline_run_dict, predictions_path=DataDir.PREDICTIONS_DUMP.value
+    ) -> None:
         self.predictions_status: PredsLoadStatus = PredsLoadStatus.NOT_TRIED
+        self._path_to_preds = os.path.join(predictions_path, f"{self.id}.json")
 
         # This attribute can be added later by self.load_predictions
         # if requested
@@ -121,8 +127,7 @@ class PipelineRun(EntityWithId):
             # they've been determined not useable.
             return
 
-        path_to_preds = os.path.join(DataDir.PREDICTIONS_DUMP.value, f"{self.id}.json")
-        with open(path_to_preds, "r") as f:
+        with open(self._path_to_preds, "r") as f:
             pipeline_run_preds_dict = json.load(f)
 
         if not has_path(pipeline_run_preds_dict, ["run", "results", "predictions"]):

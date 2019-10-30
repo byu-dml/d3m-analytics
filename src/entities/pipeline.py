@@ -22,7 +22,7 @@ class Pipeline(EntityWithId):
     we care about for analysis.
     """
 
-    def __init__(self, pipeline_dict: dict):
+    def __init__(self, pipeline_dict: dict, **kwargs):
         self.name: str = pipeline_dict.get("name")
 
         enforce_field(pipeline_dict, "digest")

@@ -1,32 +1,97 @@
 import json
-from typing import List, Dict
+from typing import List, Dict, Union, Type
 
+from src.entities.entity import Entity
+from src.entities.dataset import Dataset
 from src.entities.pipeline import Pipeline
+from src.entities.pipeline_run import PipelineRun
+from src.entities.problem.problem import Problem
 
-test_pipeline_names: List[str] = [
-    "simple_pipeline_a",
-    "simple_pipeline_b",
-    "pipeline_with_subpipelines",
-    "simple_pipeline_b_one_off",
-]
+_test_entity_names: Dict[str, Dict[str, Union[Type[Entity], List[str]]]] = {
+    'pipelines': {
+        'type': Pipeline,
+        'names': [
+            'simple_pipeline_a',
+            'simple_pipeline_b',
+            'pipeline_with_subpipelines',
+            'simple_pipeline_b_one_off',
+            'similar_pipeline_a', # A and B are off by only one primitive
+            'similar_pipeline_b',
+            'similar_pipeline_c', # C and D are off by only one primitive, and
+            'similar_pipeline_d', # the primitives they differ by are named such
+                                  # that the order of the two runs should be
+                                  # swapped when creating a diff entry
+        ]
+    },
+    'pipeline_runs': {
+        'type': PipelineRun,
+        'names': [
+            'similar_pipeline_run_a',
+            'similar_pipeline_run_b',
+            'similar_pipeline_run_c',
+            'similar_pipeline_run_d',
+            'invalid_pipeline_run_a', # Has a state of FAILURE
+            'invalid_pipeline_run_b', # Has no predictions
+            'invalid_pipeline_run_c', # Phase is FIT, not PRODUCE
+            'invalid_pipeline_run_d', # Problem task type is unsupported
+        ]
+    },
+    'problems': {
+        'type': Problem,
+        'names': [
+            'problem_a',
+            'problem_b',
+            'invalid_problem_b' # Problem task type is unsupported
+        ]
+    },
+    'datasets': {
+        'type': Dataset,
+        'names': [
+            'dataset_a',
+            'dataset_b'
+        ]
+    }
+}
 
-_test_pipelines_path: str = "./tests/data"
-_test_pipelines_ext: str = ".json"
+_test_data_path: str = "./tests/data"
+_test_data_ext: str = ".json"
 
 
-def load_test_pipelines() -> Dict[str, Pipeline]:
+def load_test_entities() -> Dict[str, Dict[str, Entity]]:
     """
-    Returns mapping of each pipeline's digest to the pipeline.
+    Loads the test data entities from their JSON representations.
+
+    Returns
+    -------
+    A dictionary mapping the names of entity types to dictionaries
+    containing the entities.
     """
-    pipelines: Dict[str, Pipeline] = {}
+    entities: Dict[str, Dict[str, Entity]] = {}
 
-    for name in test_pipeline_names:
-        with open(f"{_test_pipelines_path}/{name}{_test_pipelines_ext}", "r") as f:
-            pipeline_dict: dict = json.load(f)
-            pipeline = Pipeline(pipeline_dict)
-            pipelines[pipeline.digest] = pipeline
+    for entity_type, entity_names in _test_entity_names.items():
+        entities[entity_type] = {}
 
-    for pipeline in pipelines.values():
-        pipeline.dereference_subpipelines(pipelines)
+        for name in entity_names['names']:
+            with open(f"{_test_data_path}/{name}{_test_data_ext}", "r") as f:
+                entity_dict: dict = json.load(f)
+                entity = entity_names['type'](
+                    entity_dict, run_predictions_path=_test_data_path+'/predictions'
+                )
 
-    return pipelines
+                if entity_names['type'] == PipelineRun:
+                    entities[entity_type][entity.id] = entity
+                else:
+                    entities[entity_type][entity.digest] = entity
+
+    return entities
+
+def post_init(maps: Dict[str, Dict[str, Entity]]) -> None:
+    """
+    Calls post_init() on every Entity in maps. Because many entities
+    reference other entities, some of their construction can't be
+    performed until all entities have been loaded. This function
+    allows them to perform any remaining operations.
+    """
+    for type, entities in maps.items():
+        for id, entity in entities.items():
+            entity.post_init(maps)

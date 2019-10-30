@@ -61,7 +61,7 @@ class DuplicatePrimitivesAnalysis(Analysis):
                 )
                 for score_diff in diff.score_diffs:
                     score_diffs_by_metric[score_diff.metric].append(
-                        score_diff.abs_score_diff
+                        score_diff.metric_score_diff
                     )
 
             avg_score_diffs_by_metric: Dict[str, Dict[str, float]] = {}

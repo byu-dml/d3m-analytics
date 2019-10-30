@@ -7,7 +7,7 @@ from src.misc.settings import ProblemType
 
 
 class Problem(EntityWithId):
-    def __init__(self, problem_dict: dict):
+    def __init__(self, problem_dict: dict, **kwargs):
         enforce_field(problem_dict, "digest")
         self.digest: str = problem_dict["digest"]
         self.name: str = problem_dict["name"]

@@ -1,0 +1,26 @@
+{
+  "problem": {
+    "performance_metrics": [
+      {
+        "metric": "ACCURACY"
+      }
+    ],
+    "task_type": "CLASSIFICATION",
+    "task_subtype": "MULTICLASS"
+  },
+  "inputs": [
+    {
+      "dataset_id": "dataset_b",
+      "targets": [
+        {
+          "target_index": 0,
+          "column_name": "class",
+          "resource_id": "learningData",
+          "column_index": 91
+        }
+      ]
+    }
+  ],
+  "name": "problem_b",
+  "digest": "problem_b"
+}
