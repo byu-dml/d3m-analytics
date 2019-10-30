@@ -34,7 +34,7 @@ class PipelineRunPhase(Enum):
 
 
 class PipelineRun(EntityWithId):
-    def __init__(self, pipeline_run_dict: dict, **kwargs):
+    def __init__(self, pipeline_run_dict: dict, *, run_predictions_path=None, **kwargs):
         enforce_field(pipeline_run_dict, "id")
         self.id = pipeline_run_dict["id"]
         self.status: PipelineRunStatus = PipelineRunStatus(
@@ -50,7 +50,10 @@ class PipelineRun(EntityWithId):
             for score_dict in pipeline_run_dict["run"]["results"]["scores"]:
                 self.scores.append(Score(score_dict))
 
-        self.init_predictions(pipeline_run_dict, **kwargs)
+        if run_predictions_path:
+            self.init_predictions(pipeline_run_dict, run_predictions_path)
+        else:
+            self.init_predictions(pipeline_run_dict)
 
         # These references will be dereferenced later by the loader
         # once the pipelines, problems, and datasets are available.
@@ -64,12 +67,11 @@ class PipelineRun(EntityWithId):
             pipeline_run_dict["problem"]
         )
 
-    def init_predictions(self, pipeline_run_dict, **kwargs) -> None:
+    def init_predictions(
+        self, pipeline_run_dict, predictions_path=DataDir.PREDICTIONS_DUMP.value
+    ) -> None:
         self.predictions_status: PredsLoadStatus = PredsLoadStatus.NOT_TRIED
-        self._path_to_preds = os.path.join(
-            kwargs.get('run_predictions_path', DataDir.PREDICTIONS_DUMP.value),
-            f"{self.id}.json"
-        )
+        self._path_to_preds = os.path.join(predictions_path, f"{self.id}.json")
 
         # This attribute can be added later by self.load_predictions
         # if requested
