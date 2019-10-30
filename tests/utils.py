@@ -15,10 +15,12 @@ _test_entity_names: Dict[str, Dict[str, Union[Type[Entity], List[str]]]] = {
             'simple_pipeline_b',
             'pipeline_with_subpipelines',
             'simple_pipeline_b_one_off',
-            'similar_pipeline_a',
+            'similar_pipeline_a', # A and B are off by only one primitive
             'similar_pipeline_b',
-            'similar_pipeline_c',
-            'similar_pipeline_d',
+            'similar_pipeline_c', # C and D are off by only one primitive, and
+            'similar_pipeline_d', # the primitives they differ by are named such
+                                  # that the order of the two runs should be
+                                  # swapped when creating a diff entry
         ]
     },
     'pipeline_runs': {
@@ -39,7 +41,7 @@ _test_entity_names: Dict[str, Dict[str, Union[Type[Entity], List[str]]]] = {
         'names': [
             'problem_a',
             'problem_b',
-            'invalid_problem_b'
+            'invalid_problem_b' # Problem task type is unsupported
         ]
     },
     'datasets': {
