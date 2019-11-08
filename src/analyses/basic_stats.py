@@ -21,7 +21,7 @@ class BasicStatsAnalysis(Analysis):
         entity_maps: Dict[str, dict],
         verbose: bool,
         refresh: bool,
-        aggregations: Dict[str, Any]=None
+        aggregations: Dict[str, Any] = None,
     ):
         pipeline_runs = entity_maps["pipeline_runs"]
 
@@ -200,5 +200,7 @@ class BasicStatsAnalysis(Analysis):
         )
         print(f"\nThe number of sub-pipelines found among runs is: {num_subpipelines}")
         print(f"\nThe {num_top_primitives} most commonly used primitives are:")
-        for prim_cnt in primitives_cnt_tuples[:num_top_primitives]:
+        for prim_cnt in primitives_cnt_tuples[
+            : min(num_top_primitives, len(primitives_cnt_tuples))
+        ]:
             print(f"\t{prim_cnt[0]}\t{prim_cnt[1]}")
