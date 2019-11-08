@@ -1,10 +1,8 @@
-from typing import Mapping, Dict, Any
+from typing import Dict, Any
 import itertools
 from collections import defaultdict
 
 from src.analyses.analysis import Analysis
-from src.entities.pipeline import Pipeline
-from src.entities.primitive import Primitive
 
 
 class DuplicatePipelinesAnalysis(Analysis):

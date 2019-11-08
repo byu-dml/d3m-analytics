@@ -133,4 +133,3 @@ class TestPredictions(unittest.TestCase):
             *Predictions.find_common(self.num, self.permuted_num)
         )
         self.assertEqual(rod_w_permuted, 0)
-

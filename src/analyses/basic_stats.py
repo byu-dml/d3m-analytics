@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 from src.analyses.analysis import Analysis
-from src.misc.utils import has_path
 from src.entities.pipeline import Pipeline
 from src.entities.primitive import Primitive
 
@@ -150,7 +149,8 @@ class BasicStatsAnalysis(Analysis):
 
         if verbose:
             # Give the distribution of pipeline end times
-            # Source: https://stackoverflow.com/questions/29672375/histogram-in-matplotlib-time-on-x-axis
+            # Source:
+            # https://stackoverflow.com/questions/29672375/histogram-in-matplotlib-time-on-x-axis
 
             fig, ax = plt.subplots(1, 1)
             ax.hist(end_times, bins=50, color="cornflowerblue")
@@ -196,7 +196,8 @@ class BasicStatsAnalysis(Analysis):
             f"\nThe distribution of prediction column header names is: {pred_header_names_cnt}"
         )
         print(
-            f"\nThe number of normalized metric values found among pipelines is: {num_normalized_metric_values}"
+            f"\nThe number of normalized metric values found among "
+            f"pipelines is: {num_normalized_metric_values}"
         )
         print(f"\nThe number of sub-pipelines found among runs is: {num_subpipelines}")
         print(f"\nThe {num_top_primitives} most commonly used primitives are:")

@@ -55,7 +55,7 @@ def load_aggregations(req_aggs: List[str]) -> Dict[str, Any]:
     for agg_class in req_aggs:
         agg_name = agg_class.__name__
         agg = agg_class()
-        print(f'Running aggregation {agg_name}...')
+        print(f"Running aggregation {agg_name}...")
         aggs[agg_name] = agg.run(entity_maps=entity_maps, save_table=False)
 
     return aggs
@@ -70,4 +70,9 @@ if __name__ == "__main__":
     aggregations = load_aggregations(analysis.required_aggregations)
 
     print(f"Now running {args.analysis} analysis...")
-    analysis.run(entity_maps=entity_maps, aggregations=aggregations, verbose=args.verbose, refresh=args.refresh)
+    analysis.run(
+        entity_maps=entity_maps,
+        aggregations=aggregations,
+        verbose=args.verbose,
+        refresh=args.refresh,
+    )

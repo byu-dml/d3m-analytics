@@ -1,7 +1,5 @@
-from typing import Tuple, List, Dict, Callable, Type, Optional, Union, Iterator
+from typing import Tuple, List, Dict, Optional, Union, Iterator
 import itertools
-import glob
-import json
 
 from src.entities.entity import Entity, EntityWithId
 from src.entities.primitive import Primitive
@@ -223,7 +221,7 @@ class Pipeline(EntityWithId):
         """
         Goes to all files matching `glob_pattern` and
         tries to treat them like a json pipeline definition
-        and load them into a map of pipeline digests to 
+        and load them into a map of pipeline digests to
         constructed `Pipeline` objects.
         """
         pipelines: Iterator = process_json_glob(glob_pattern, cls)

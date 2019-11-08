@@ -5,9 +5,7 @@ pipelines that are, for all intents and purposes,
 equivalent, even though they have different ids.
 """
 
-import glob
 from typing import Dict
-import json
 import itertools
 
 from src.entities.pipeline import Pipeline

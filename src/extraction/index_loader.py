@@ -63,5 +63,4 @@ def load_entity_map(index: Index, entity_sub_class: Type[EntityWithId]):
     Convenience loader for loading objects inheriting
     from `EntityWithId`.
     """
-    key_getter = lambda entity: entity.get_id()
-    return load_index_map(index, entity_sub_class, key_getter)
+    return load_index_map(index, entity_sub_class, lambda entity: entity.get_id())

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, Callable, List, NamedTuple, Set, Tuple
+from typing import Callable, List, NamedTuple, Set, Tuple
 
 import pandas as pd
 import numpy as np
@@ -80,4 +80,3 @@ def calculate_output_difference(
         if problem_type in metric.value.supported_problem_types:
             return metric.value.computer(preds_a, preds_b), metric
     raise ValueError(f"unsupported problem type '{problem_type}'")
-

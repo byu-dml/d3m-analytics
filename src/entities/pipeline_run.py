@@ -1,11 +1,9 @@
 from typing import Union, Tuple, Dict, List, Optional
-import itertools
 import json
 import os
 from enum import Enum, unique
 
 import iso8601
-import pandas as pd
 
 from src.entities.entity import Entity, EntityWithId
 from src.entities.references.document import DocumentReference
@@ -250,4 +248,3 @@ class PipelineRun(EntityWithId):
                 f"preds_b data:\n{preds_b.head()}"
             )
             raise e
-
