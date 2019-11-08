@@ -1,8 +1,9 @@
 import csv, uuid, os
 from abc import ABC, abstractmethod
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Iterable
 
 from src.misc.settings import DataDir
+
 
 class Aggregation(ABC):
     """
@@ -11,7 +12,13 @@ class Aggregation(ABC):
     """
 
     @abstractmethod
-    def run(self, entity_maps: Dict[str, dict], verbose: bool, refresh: bool, save_table: bool):
+    def run(
+        self,
+        entity_maps: Dict[str, dict],
+        verbose: bool,
+        refresh: bool,
+        save_table: bool,
+    ):
         """
         Parameters
         ----------
@@ -30,8 +37,13 @@ class Aggregation(ABC):
         """
         pass
 
-    def save_table(self, table_name: str, fields: List[str],
-        data: List[Dict[str, Union[str, int, float]]], key: str=None):
+    def save_table(
+        self,
+        table_name: str,
+        fields: List[str],
+        data: Iterable[Dict[str, Union[str, int, float]]],
+        key: str = None,
+    ):
         """
         Saves calculated aggregate data as a table where it can be exported to
         e.g. Tableau for manual exploration.
@@ -59,12 +71,14 @@ class Aggregation(ABC):
             for record in data:
                 record[key] = str(uuid.uuid4())
 
-        csv_dir = os.path.join(DataDir.AGGREGATION.value, self.__class__.__name__, 'csv')
+        csv_dir = os.path.join(
+            DataDir.AGGREGATION.value, self.__class__.__name__, "csv"
+        )
         if not os.path.isdir(csv_dir):
             os.makedirs(csv_dir)
 
-        csv_path = os.path.join(csv_dir, table_name+'.csv')
-        with open(csv_path, 'w+', newline='') as csv_file:
+        csv_path = os.path.join(csv_dir, table_name + ".csv")
+        with open(csv_path, "w+", newline="") as csv_file:
             csv_writer = csv.DictWriter(csv_file, fields)
             csv_writer.writeheader()
             csv_writer.writerows(data)

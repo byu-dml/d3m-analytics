@@ -14,7 +14,7 @@ import shutil
 import itertools
 import filecmp
 
-#### Helper functions
+# Helper functions
 ####################
 
 
@@ -66,12 +66,12 @@ def cmpfilelist(filepaths: List[str], shallow: bool = True):
                 match.append((path_a, path_b))
             else:
                 mismatch.append((path_a, path_b))
-        except:
+        except Exception:
             errors.append((path_a, path_b))
     return match, mismatch, errors
 
 
-#### Define script data
+# Define script data
 ####################
 
 data_dir = "script-data/exline_repos"  # dir to clone the git repos to.
@@ -83,7 +83,7 @@ python_paths_to_exclude_from_exlines: Set[str] = {
     "d3m.primitives.data_transformation.data_cleaning.OutputDataframe"
 }
 
-#### Define git repositories data
+# Define git repositories data
 ####################
 
 # repo with master list of Exline primitives
@@ -100,7 +100,7 @@ pipelines_repo: Dict[str, str] = {
     "target_dir": f"{data_dir}/pipelines/{current_d3m_version}/Distil",
 }
 
-#### Clone the git repos
+# Clone the git repos
 ####################
 
 for repo_meta in (exline_primitive_list_repo, pipelines_repo):
@@ -109,7 +109,7 @@ for repo_meta in (exline_primitive_list_repo, pipelines_repo):
         print(f"Cloning repo '{repo_meta['url']}'")
         subprocess.call(["git", "clone", repo_meta["url"], repo_meta["save_dir"]])
 
-#### Get the python paths of the Exline primitives from `exline_primitive_list_repo`
+# Get the python paths of the Exline primitives from `exline_primitive_list_repo`
 ####################
 
 primitive_python_paths: Set[str] = set()
@@ -128,8 +128,8 @@ primitive_python_paths = primitive_python_paths.difference(
 
 print(f"Found {len(primitive_python_paths)} Exline primitive_python_paths.")
 
-#### Now get the pipelines for those repos, along with the problem for each pipeline,
-#### saving them to `save_dir`.
+# Now get the pipelines for those repos, along with the problem for each pipeline,
+# saving them to `save_dir`.
 ####################
 
 pipeline_paths_by_pipeline_name: defaultdict = defaultdict(set)
@@ -149,8 +149,8 @@ for python_path in primitive_python_paths:
 
 print(f"Saved all exline pipeline and meta files to '{save_dir}'.")
 
-#### As a check, compare all the pipeline and meta files that have the same name,
-#### to see which ones are identical or not.
+# As a check, compare all the pipeline and meta files that have the same name,
+# to see which ones are identical or not.
 ####################
 
 for paths in pipeline_paths_by_pipeline_name.values():

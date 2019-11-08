@@ -1,19 +1,10 @@
-import itertools
-import functools
-from collections import namedtuple, deque, defaultdict
-from typing import Dict, Tuple, List, Set, Union, Any
-from math import factorial as fac
-from typing import NamedTuple
+from collections import defaultdict
+from typing import Dict, List, Any
 
-from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 from src.analyses.analysis import Analysis
-from src.aggregations.primitive_pairs import PrimitivePairComparisonAggregation, ScoreDiff, PipelineRunPairDiffEntry
-from src.entities.pipeline import Pipeline
-from src.entities.primitive import Primitive
-from src.entities.pipeline_run import PipelineRun
-from src.misc.utils import with_cache
+from src.aggregations.primitive_pairs import PrimitivePairComparisonAggregation
 
 
 class DuplicatePrimitivesAnalysis(Analysis):
@@ -25,21 +16,28 @@ class DuplicatePrimitivesAnalysis(Analysis):
 
     required_aggregations = [PrimitivePairComparisonAggregation]
 
-    def run(self, entity_maps: Dict[str, dict], verbose: bool, refresh: bool,
-            aggregations: Dict[str, Any]=None):
+    def run(
+        self,
+        entity_maps: Dict[str, dict],
+        verbose: bool,
+        refresh: bool,
+        aggregations: Dict[str, Any] = None,
+    ):
 
         # config
         num_top_pairs_to_show = 10
 
-        pipeline_runs = entity_maps["pipeline_runs"]
-        prim_id_to_paths = aggregations['PrimitivePairComparisonAggregation']['prim_id_to_paths']
-        primitive_ids = aggregations['PrimitivePairComparisonAggregation']['prim_ids']
+        prim_id_to_paths = aggregations["PrimitivePairComparisonAggregation"][
+            "prim_id_to_paths"
+        ]
+        primitive_ids = aggregations["PrimitivePairComparisonAggregation"]["prim_ids"]
 
         # A list version of the PPCM
         ppcl: Any = [
             (prim_pair, diff_list)
-            for prim_pair, diff_list
-            in aggregations['PrimitivePairComparisonAggregation']['ppcm'].items()
+            for prim_pair, diff_list in aggregations[
+                "PrimitivePairComparisonAggregation"
+            ]["ppcm"].items()
         ]
         ppcl.sort(key=lambda entry: len(entry[1]), reverse=True)
 
@@ -109,7 +107,8 @@ class DuplicatePrimitivesAnalysis(Analysis):
             f"\nThere are {num_ppcm_entries} pipeline run pairs that are just one primitive off"
         )
         print(
-            f"\nThe {num_top_pairs_to_show} primitve pairs causing the most one-offs on pipeline runs are:"
+            f"\nThe {num_top_pairs_to_show} primitve pairs causing "
+            "the most one-offs on pipeline runs are:"
         )
         self.pp(ppcl_aggregate[:num_top_pairs_to_show])
 

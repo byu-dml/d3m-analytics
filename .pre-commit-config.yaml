@@ -1,0 +1,15 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: https://github.com/psf/black
+    rev: 19.3b0
+    hooks:
+      - id: black # formats python files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.4.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: check-yaml # checks that yaml is parseable
+      - id: check-added-large-files
+      - id: check-json # checks that json is parseable
+      - id: flake8 # python linter

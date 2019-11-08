@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Sequence, Type
+from typing import Sequence
 
 
 class Entity(ABC):

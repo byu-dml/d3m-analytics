@@ -1,5 +1,5 @@
 from src.misc.utils import enforce_field
-from src.entities.entity import Entity, EntityWithId
+from src.entities.entity import EntityWithId
 
 
 class Dataset(EntityWithId):

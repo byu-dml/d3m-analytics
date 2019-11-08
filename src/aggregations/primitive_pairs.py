@@ -2,11 +2,10 @@ import itertools, uuid
 from tqdm import tqdm
 from collections import defaultdict
 from math import factorial
-from typing import Any, Dict, List, Tuple, Set, NamedTuple
+from typing import Dict, List, Tuple, Set, NamedTuple
 
 from src.misc.metrics import MetricProblemType
 from src.misc.settings import PredsLoadStatus
-from src.misc.utils import with_cache
 from src.entities.pipeline_run import PipelineRun
 from src.aggregations.aggregation import Aggregation
 
@@ -18,6 +17,7 @@ class ScoreDiff(NamedTuple):
     a positive value indicates that `run_b` had a higher score, while a
     negative value means `run_a` had a higher score.
     """
+
     metric: str
     metric_score_diff: float
 
@@ -30,7 +30,9 @@ class PipelineRunPairDiffEntry(NamedTuple):
     score_diffs: List[ScoreDiff]
 
 
-def primitive_ids_and_paths(pipeline_runs: Dict[str, PipelineRun]) -> Tuple[List[str], Dict[str, Set[str]]]:
+def primitive_ids_and_paths(
+    pipeline_runs: Dict[str, PipelineRun]
+) -> Tuple[List[str], Dict[str, Set[str]]]:
     """
     Given a dictionary of pipeline runs, this function finds all unique primitive
     IDs and maps them to every associated python path.
@@ -53,6 +55,7 @@ def primitive_ids_and_paths(pipeline_runs: Dict[str, PipelineRun]) -> Tuple[List
 
     return primitive_ids, prim_id_to_paths
 
+
 def num_combinations(iterable, r):
     """
     Returns the number of combinations `itertools.combinations(iterable, r)`
@@ -64,9 +67,13 @@ def num_combinations(iterable, r):
 
 
 class PrimitivePairComparisonAggregation(Aggregation):
-
-    def run(self, entity_maps: Dict[str, dict], verbose: bool=False,
-            refresh: bool=True, save_table: bool=True):
+    def run(
+        self,
+        entity_maps: Dict[str, dict],
+        verbose: bool = False,
+        refresh: bool = True,
+        save_table: bool = True,
+    ):
         """
         Builds the primitive pair comparison map (PPCM), a map of each possible
         unordered primitive pair to a list. Each pair's list contains all
@@ -106,12 +113,11 @@ class PrimitivePairComparisonAggregation(Aggregation):
             specific metric. References the `diffs` table (many-to-one).
         """
 
-        pipeline_runs = entity_maps['pipeline_runs']
+        pipeline_runs = entity_maps["pipeline_runs"]
         prim_ids, prim_id_to_paths = primitive_ids_and_paths(pipeline_runs)
 
         ppcm: Dict[Tuple[str, ...], List[PipelineRunPairDiffEntry]] = {
-            primitive_pair: []
-            for primitive_pair in itertools.combinations(prim_ids, 2)
+            primitive_pair: [] for primitive_pair in itertools.combinations(prim_ids, 2)
         }
 
         # Filter out pipeline runs invalid for this analysis
@@ -136,9 +142,9 @@ class PrimitivePairComparisonAggregation(Aggregation):
             itertools.combinations(valid_runs, 2), total=num_combinations(valid_runs, 2)
         ):
 
-            if run_a.is_same_problem_and_context_as(run_b) and run_a.is_one_step_off_from(
+            if run_a.is_same_problem_and_context_as(
                 run_b
-            ):
+            ) and run_a.is_one_step_off_from(run_b):
                 # These two runs are one step off from each other and have
                 # all other attributes needed for this analysis.
 
@@ -175,7 +181,9 @@ class PrimitivePairComparisonAggregation(Aggregation):
                     )
 
                     # Next get the differences between their scores
-                    for metric, scores in run_a.get_scores_of_common_metrics(run_b).items():
+                    for metric, scores in run_a.get_scores_of_common_metrics(
+                        run_b
+                    ).items():
                         run_a_score, run_b_score = scores
                         score_diff = ScoreDiff(
                             metric, run_b_score.value - run_a_score.value
@@ -186,25 +194,31 @@ class PrimitivePairComparisonAggregation(Aggregation):
                     ppcm[prim_pair].append(run_diff)
 
         if save_table:
-            print('Formatting data for writing to table...')
+            print("Formatting data for writing to table...")
 
             tables = {
-                'primitive_pairs': (
-                    ['pair_id', 'prim_a', 'python_path_a', 'prim_b', 'python_path_b'],
+                "primitive_pairs": (
+                    ["pair_id", "prim_a", "python_path_a", "prim_b", "python_path_b"],
                     [],
-                    None
+                    None,
                 ),
-                'diffs': (
-                    ['diff_id', 'run_a_id', 'run_b_id', 'output_diff',
-                        'output_diff_metric', 'pair_id'],
+                "diffs": (
+                    [
+                        "diff_id",
+                        "run_a_id",
+                        "run_b_id",
+                        "output_diff",
+                        "output_diff_metric",
+                        "pair_id",
+                    ],
                     [],
-                    None
+                    None,
                 ),
-                'score_diffs': (
-                    ['score_diff_id', 'metric', 'metric_score_diff', 'diff_id'],
+                "score_diffs": (
+                    ["score_diff_id", "metric", "metric_score_diff", "diff_id"],
                     [],
-                    None
-                )
+                    None,
+                ),
             }
 
             keys = list(ppcm.keys())
@@ -213,43 +227,53 @@ class PrimitivePairComparisonAggregation(Aggregation):
                 run_diff_list = ppcm.pop(prim_pair)
                 pair_uuid = str(uuid.uuid4())
 
-                tables['primitive_pairs'][1].append({
-                    'pair_id': pair_uuid,
-                    'prim_a': prim_pair[0],
-                    'python_path_a': prim_id_to_paths[prim_pair[0]],
-                    'prim_b': prim_pair[1],
-                    'python_path_b': prim_id_to_paths[prim_pair[1]]
-                })
+                tables["primitive_pairs"][1].append(
+                    {
+                        "pair_id": pair_uuid,
+                        "prim_a": prim_pair[0],
+                        "python_path_a": prim_id_to_paths[prim_pair[0]],
+                        "prim_b": prim_pair[1],
+                        "python_path_b": prim_id_to_paths[prim_pair[1]],
+                    }
+                )
 
                 while len(run_diff_list) > 0:
                     run_diff = run_diff_list.pop(0)
                     diff_uuid = str(uuid.uuid4())
 
-                    tables['diffs'][1].append({
-                        'diff_id': diff_uuid,
-                        'run_a_id': run_diff.run_a.get_id(),
-                        'run_b_id': run_diff.run_b.get_id(),
-                        'output_diff': run_diff.output_difference,
-                        'output_diff_metric': run_diff.output_difference_metric.name,
-                        'pair_id': pair_uuid
-                    })
+                    tables["diffs"][1].append(
+                        {
+                            "diff_id": diff_uuid,
+                            "run_a_id": run_diff.run_a.get_id(),
+                            "run_b_id": run_diff.run_b.get_id(),
+                            "output_diff": run_diff.output_difference,
+                            "output_diff_metric": run_diff.output_difference_metric.name,
+                            "pair_id": pair_uuid,
+                        }
+                    )
 
                     while len(run_diff.score_diffs) > 0:
                         score_diff = run_diff.score_diffs.pop(0)
                         score_diff_uuid = str(uuid.uuid4())
 
-                        tables['score_diffs'][1].append({
-                            'score_diff_id': score_diff_uuid,
-                            'metric': score_diff.metric,
-                            'metric_score_diff': score_diff.metric_score_diff,
-                            'diff_id': diff_uuid
-                        })
+                        tables["score_diffs"][1].append(
+                            {
+                                "score_diff_id": score_diff_uuid,
+                                "metric": score_diff.metric,
+                                "metric_score_diff": score_diff.metric_score_diff,
+                                "diff_id": diff_uuid,
+                            }
+                        )
 
-            print('Finished formatting data. Records in each table:')
+            print("Finished formatting data. Records in each table:")
             for table_name, params in tables.items():
-                print(f"{table_name}: "+str(len(params[1])))
+                print(f"{table_name}: " + str(len(params[1])))
 
             for table_name, params in tables.items():
                 self.save_table(table_name, *params)
 
-        return {'ppcm':ppcm,'prim_id_to_paths':prim_id_to_paths,'prim_ids':prim_ids}
+        return {
+            "ppcm": ppcm,
+            "prim_id_to_paths": prim_id_to_paths,
+            "prim_ids": prim_ids,
+        }

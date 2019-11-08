@@ -1,7 +1,10 @@
 import unittest
 from typing import List
 
-from src.aggregations.primitive_pairs import PrimitivePairComparisonAggregation, PipelineRunPairDiffEntry
+from src.aggregations.primitive_pairs import (
+    PrimitivePairComparisonAggregation,
+    PipelineRunPairDiffEntry,
+)
 from tests.utils import load_test_entities, post_init
 
 
@@ -31,15 +34,12 @@ class TestPrimitivePairAggregation(unittest.TestCase):
         data (all of them include the word 'invalid' in their ID).
         """
         for d in diff_list:
-            if (
-                'invalid' in d.run_a.id or
-                'invalid' in d.run_b.id
-            ):
+            if "invalid" in d.run_a.id or "invalid" in d.run_b.id:
                 return True
         return False
 
     def test_ppcm(self):
-        ppcm = self.agg_result['ppcm']
+        ppcm = self.agg_result["ppcm"]
 
         for prim_pair, diff_list in ppcm.items():
             if len(diff_list) == 0:
@@ -48,8 +48,8 @@ class TestPrimitivePairAggregation(unittest.TestCase):
             self.assertFalse(self._contains_invalid_run(diff_list))
 
     def test_primitive_ids(self):
-        self.assertTrue('SIMILAR_PRIMITIVE_A' in self.agg_result['prim_id_to_paths'])
-        self.assertTrue('SIMILAR_PRIMITIVE_A' in self.agg_result['prim_ids'])
+        self.assertTrue("SIMILAR_PRIMITIVE_A" in self.agg_result["prim_id_to_paths"])
+        self.assertTrue("SIMILAR_PRIMITIVE_A" in self.agg_result["prim_ids"])
 
     def test_ppcm_ordering(self):
         """
@@ -59,15 +59,19 @@ class TestPrimitivePairAggregation(unittest.TestCase):
         to the first listed primitive; diffs have a positive value if `run_a`
         had better performance; etc.
         """
-        ppcm = self.agg_result['ppcm']
+        ppcm = self.agg_result["ppcm"]
 
         for prim_pair, diff_list in ppcm.items():
 
             if not (
-                (prim_pair[0] == 'SIMILAR_PRIMITIVE_A' and
-                 prim_pair[1] == 'SIMILAR_PRIMITIVE_B') or
-                (prim_pair[0] == 'SIMILAR_PRIMITIVE_C' and
-                 prim_pair[1] == 'SIMILAR_PRIMITIVE_D')
+                (
+                    prim_pair[0] == "SIMILAR_PRIMITIVE_A"
+                    and prim_pair[1] == "SIMILAR_PRIMITIVE_B"
+                )
+                or (
+                    prim_pair[0] == "SIMILAR_PRIMITIVE_C"
+                    and prim_pair[1] == "SIMILAR_PRIMITIVE_D"
+                )
             ):
                 # Only the correct primitive pairs—in the correct order—
                 # should have any diffs
@@ -88,22 +92,26 @@ class TestPrimitivePairAggregation(unittest.TestCase):
                     # Assert that the runs in the diff entry were ordered
                     # correctly
                     self.assertTrue(
-                        (pipe_a.steps[i].id == 'SIMILAR_PRIMITIVE_A' and
-                         pipe_b.steps[i].id == 'SIMILAR_PRIMITIVE_B') or
-                        (pipe_a.steps[i].id == 'SIMILAR_PRIMITIVE_C' and
-                         pipe_b.steps[i].id == 'SIMILAR_PRIMITIVE_D')
+                        (
+                            pipe_a.steps[i].id == "SIMILAR_PRIMITIVE_A"
+                            and pipe_b.steps[i].id == "SIMILAR_PRIMITIVE_B"
+                        )
+                        or (
+                            pipe_a.steps[i].id == "SIMILAR_PRIMITIVE_C"
+                            and pipe_b.steps[i].id == "SIMILAR_PRIMITIVE_D"
+                        )
                     )
                     break
 
             # Our test data is such that the diff for (A,B) should be
             # negative, and the diff for (C,D) should be positive
             if (
-                prim_pair[0] == 'SIMILAR_PRIMITIVE_A' and
-                prim_pair[1] == 'SIMILAR_PRIMITIVE_B'
+                prim_pair[0] == "SIMILAR_PRIMITIVE_A"
+                and prim_pair[1] == "SIMILAR_PRIMITIVE_B"
             ):
                 self.assertTrue(diff.score_diffs[0].metric_score_diff < 0)
             if (
-                prim_pair[0] == 'SIMILAR_PRIMITIVE_C' and
-                prim_pair[1] == 'SIMILAR_PRIMITIVE_D'
+                prim_pair[0] == "SIMILAR_PRIMITIVE_C"
+                and prim_pair[1] == "SIMILAR_PRIMITIVE_D"
             ):
                 self.assertTrue(diff.score_diffs[0].metric_score_diff > 0)

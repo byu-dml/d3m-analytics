@@ -1,9 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Callable, Any
+from typing import Dict, Any
 
 import pprint
-
-from src.entities.entity import EntityWithId
 
 
 class Analysis(ABC):
@@ -25,8 +23,13 @@ class Analysis(ABC):
     required_aggregations = []
 
     @abstractmethod
-    def run(self, entity_maps: Dict[str, dict], verbose: bool, refresh: bool,
-            aggregations: Dict[str, Any]=None):
+    def run(
+        self,
+        entity_maps: Dict[str, dict],
+        verbose: bool,
+        refresh: bool,
+        aggregations: Dict[str, Any] = None,
+    ):
         """
         Parameters
         ----------

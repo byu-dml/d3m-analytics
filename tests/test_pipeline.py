@@ -1,6 +1,5 @@
 import unittest
 
-from src.entities.pipeline import Pipeline
 from tests.utils import load_test_entities, post_init
 
 
@@ -21,10 +20,12 @@ class TestPipeline(unittest.TestCase):
         test_entity_maps = load_test_entities()
         post_init(test_entity_maps)
 
-        self.pipe_a = test_entity_maps['pipelines']['simple_pipeline_a']
-        self.pipe_b = test_entity_maps['pipelines']['simple_pipeline_b']
-        self.pipe_one_off_b = test_entity_maps['pipelines']['simple_pipeline_b_one_off']
-        self.pipe_with_subpipelines = test_entity_maps['pipelines']['pipeline_with_subpipelines']
+        self.pipe_a = test_entity_maps["pipelines"]["simple_pipeline_a"]
+        self.pipe_b = test_entity_maps["pipelines"]["simple_pipeline_b"]
+        self.pipe_one_off_b = test_entity_maps["pipelines"]["simple_pipeline_b_one_off"]
+        self.pipe_with_subpipelines = test_entity_maps["pipelines"][
+            "pipeline_with_subpipelines"
+        ]
 
     def test_has_subpipelines(self):
         self.assertTrue(self.pipe_with_subpipelines.has_subpipeline)

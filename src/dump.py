@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-from src.misc.settings import DataDir, Index
+from src.misc.settings import Index
 from src.dumpers.indexes import dump_indexes
 from src.dumpers.predictions import dump_predictions
 
