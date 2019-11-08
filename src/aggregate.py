@@ -1,16 +1,19 @@
 from argparse import ArgumentParser
-from typing import Type, Mapping, Dict
+from typing import Type, Mapping
 
 from src.misc.utils import load_entity_maps_pkl
 from src.aggregations.aggregation import Aggregation
 from src.aggregations.pipeline_runs import PipelineRunsAggregation
 from src.aggregations.primitive_pairs import PrimitivePairComparisonAggregation
+from src.aggregations.pipeline_dags import PipelineDAGsAggregation
 
 
 aggregation_map: Mapping[str, Type[Aggregation]] = {
     "primitive_pairs": PrimitivePairComparisonAggregation,
-    "pipeline_runs": PipelineRunsAggregation
+    "pipeline_runs": PipelineRunsAggregation,
+    "pipeline_dags": PipelineDAGsAggregation,
 }
+
 
 def get_parser() -> ArgumentParser:
     """
@@ -22,7 +25,7 @@ def get_parser() -> ArgumentParser:
     parser.add_argument(
         "aggregation",
         choices=aggregation_map.keys(),
-        help="The name of the aggregation to conduct"
+        help="The name of the aggregation to conduct",
     )
     parser.add_argument(
         "--verbose",
