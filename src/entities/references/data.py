@@ -29,5 +29,16 @@ class DataReference(Entity):
     def is_tantamount_to(self, reference: "DataReference") -> bool:
         return self._members() == reference._members()
 
+    def is_input(self) -> bool:
+        return self.type == "inputs"
+
+    def is_step(self) -> bool:
+        return self.type == "steps"
+
     def __hash__(self):
         return hash(self._members())
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return False
+        return self._members() == other._members()

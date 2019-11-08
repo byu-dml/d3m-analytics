@@ -1,9 +1,8 @@
-from typing import List
+from typing import List, Set, Dict
 
-from src.entities.entity import Entity, Entity
+from src.entities.entity import Entity
 from src.entities.hyperparam import Hyperparam
 from src.entities.references.data import DataReference
-from src.misc.utils import has_path
 
 
 class Primitive(Entity):
@@ -25,15 +24,11 @@ class Primitive(Entity):
         last_two_of_path = self.python_path.split(".")[-2:]
         self.short_python_path = ".".join(last_two_of_path)
 
-        self.inputs: List[DataReference] = []
-        if has_path(pipeline_step, ["arguments", "inputs", "data"]):
-            data = pipeline_step["arguments"]["inputs"]["data"]
-            if isinstance(data, list):
-                for item in data:
-                    self.inputs.append(DataReference(item))
-            else:
-                # data must be a string
-                self.inputs.append(DataReference(data))
+        self.inputs: Set[DataReference] = set()
+        if "hyperparams" in pipeline_step:
+            self._add_inputs_from_args_dict(pipeline_step["hyperparams"])
+        if "arguments" in pipeline_step:
+            self._add_inputs_from_args_dict(pipeline_step["arguments"])
 
         self.output_ids: List[str] = []
         if "outputs" in pipeline_step:
@@ -76,7 +71,7 @@ class Primitive(Entity):
         same inputs, which includes checking to make sure they have the
         same input type, step reference, and method reference for each input.
         """
-        return Entity.are_lists_tantamount(self.inputs, primitive.inputs)
+        return self.inputs == primitive.inputs
 
     def has_same_outputs(self, primitive: "Primitive") -> bool:
         # We can just use the `==` operator since `Primitive.output_ids`
@@ -93,3 +88,19 @@ class Primitive(Entity):
             and self.has_same_inputs(primitive)
             and self.has_same_outputs(primitive)
         )
+
+    def _add_inputs_from_args_dict(self, args_dict: Dict[str, dict]) -> None:
+        """
+        Collect data references to previous steps used as inputs to
+        this primitive step.
+        """
+        for arg_dict in args_dict.values():
+            if arg_dict["type"] == "CONTAINER":
+                data = arg_dict["data"]
+                if isinstance(data, list):
+                    # data field has multiple references
+                    for item in data:
+                        self.inputs.add(DataReference(item))
+                else:
+                    # data field has a single reference
+                    self.inputs.add(DataReference(data))
