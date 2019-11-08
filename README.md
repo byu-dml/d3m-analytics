@@ -21,6 +21,8 @@ You can use this package to programmatically interact with the D3M meta-learning
 
     `DATA_ROOT` is the base directory where all the package's DB dumps, DB extracts, caches, and other files are/will be stored. Defaults to the current directory.
 
+Note: When contributing to this repo, there are additional steps to take. See the "Contributing" section below.
+
 ## Usage
 
 ### Query the Database
@@ -132,3 +134,11 @@ If the `--verbose` flag is present, the results of the analysis will be reported
 If the `--refresh` flag is present, any cached function calls an analysis computes and uses will be refreshed.
 
 To see which analyses are currently supported, run `python -m src.analyze --help` and look at the available options for the `--analysis` arg.
+
+## Contributing
+
+### pre-commit
+
+This repo uses the [pre-commit](https://pre-commit.com/#intro) package to include pre-commit git hooks for things like auto formatting and linting. Once this repo is cloned, run `pre-commit install` in the repo's root directory to initialize the pre-commit package for the repo.
+
+Every time a commit takes place, pre-commit will automatically run, and abort the commit if it finds errors. If you want are doing a partial commit on one or more files (committing part of the changes to a file but not all of them), you'll need to skip the pre-commit hook by using the `--no-verify` option when commiting e.g. `git commit --no-verify`. Then in the commit that includes all of the remaining changes to that file, be sure to run the pre-commit hook, which will take place using the normal `git commit` command.
