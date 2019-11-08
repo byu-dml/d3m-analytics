@@ -1,4 +1,4 @@
-from typing import Mapping, Dict
+from typing import Mapping, Dict, Any
 import itertools
 from collections import defaultdict
 
@@ -19,7 +19,7 @@ class DuplicatePipelinesAnalysis(Analysis):
         entity_maps: Dict[str, dict],
         verbose: bool,
         refresh: bool,
-        aggregations: Dict[str, Any]=None
+        aggregations: Dict[str, Any] = None,
     ):
         pipeline_runs = entity_maps["pipeline_runs"]
 
