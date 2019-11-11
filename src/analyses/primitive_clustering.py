@@ -1,5 +1,6 @@
 import os
-from typing import Dict, Any
+from typing import Dict, Tuple, List, Any
+from copy import deepcopy
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -12,17 +13,31 @@ from src.analyses.analysis import Analysis
 from src.aggregations.primitive_pairs import PrimitivePairComparisonAggregation
 
 
-def filter_distance_matrix(arr, labels_arr, cutoff):
+def filter_distance_matrix(
+    arr: np.ndarray, labels_arr: List[str], cutoff: float
+) -> Tuple[np.ndarray, List[str]]:
     """
-    Given a numpy array `arr`, this function returns a modified distance
+    Given a distance matrix, this function creates a modified distance
     matrix in which any rows and columns that have no values less than
     `cutoff` have been removed. The zeros on the diagonal are ignored.
 
-    `labels_arr` should be an array in which the n-th element labels the
-    node represented by the n-th row and column of the distance matrix.
-    This array will be modified in-place such that labels will correctly
-    name the rows and columns in the new, filtered distance matrix.
+    Parameters
+    ----------
+    arr
+        A square numpy array.
+    labels_arr
+        An array in which the n-th element labels the node represented by
+        the n-th row and column of the distance matrix.
+    cutoff
+        A value indicating the threshold for filtering.
+
+    Returns
+    -------
+    A tuple in which the first element is the new, filtered distance
+    matrix, and the second element is a new labels array that names
+    the rows and columns of this new matrix
     """
+    new_labels = deepcopy(labels_arr)
     i = 0
     while i < len(arr):
         j = 0
@@ -36,12 +51,12 @@ def filter_distance_matrix(arr, labels_arr, cutoff):
         if not accepted:
             arr = np.delete(arr, i, 0)
             arr = np.delete(arr, i, 1)
-            del labels_arr[i]
+            del new_labels[i]
             i -= 1
 
         i += 1
 
-    return arr
+    return arr, new_labels
 
 
 class PrimitiveClusteringAnalysis(Analysis):
@@ -168,7 +183,7 @@ class PrimitiveClusteringAnalysis(Analysis):
 
                 labels = list(prim_indexes.keys())
                 # Manually drop the rows/columns of any primitives that aren't close to any others
-                metric_vars[metric]['distance_matrix'] = filter_distance_matrix(
+                metric_vars[metric]['distance_matrix'], labels = filter_distance_matrix(
                     metric_vars[metric]['distance_matrix'],
                     labels,
                     self.CLIP_DISTANCE
