@@ -70,34 +70,45 @@ class PrimitiveClusteringAnalysis(Analysis):
     CLIP_DISTANCE = 0.05
 
     def save_dendrogram(self, linkage, labels, metric_label, *, y_cutoff):
-        print(f'Saving dendrogram for metric {metric_label}...')
+        print(f"Saving dendrogram for metric {metric_label}...")
 
         plt.figure(figsize=(25, 10))
-        plt.title('Hierarchical Clustering - '+metric_label)
-        plt.xlabel('Primitive Python Path')
-        plt.ylabel('Distance')
+        plt.title("Hierarchical Clustering - " + metric_label)
+        plt.xlabel("Primitive Python Path")
+        plt.ylabel("Distance")
 
         dendrogram(linkage, labels=labels, color_threshold=0, leaf_rotation=50.0)
 
         axes = plt.gca()
-        axes.set_ylim([0,y_cutoff])
+        axes.set_ylim([0, y_cutoff])
         plt.setp(axes.get_xticklabels(), ha="right")
 
         if not os.path.isdir(DataDir.ANALYSIS.value):
             os.makedirs(DataDir.ANALYSIS.value)
-        if not os.path.isdir(os.path.join(DataDir.ANALYSIS.value, self.__class__.__name__)):
+        if not os.path.isdir(
+            os.path.join(DataDir.ANALYSIS.value, self.__class__.__name__)
+        ):
             os.makedirs(os.path.join(DataDir.ANALYSIS.value, self.__class__.__name__))
 
         plt.savefig(
-            os.path.join(DataDir.ANALYSIS.value, self.__class__.__name__, metric_label+'.png'),
-            bbox_inches='tight'
+            os.path.join(
+                DataDir.ANALYSIS.value, self.__class__.__name__, metric_label + ".png"
+            ),
+            bbox_inches="tight",
         )
 
-    def run(self, entity_maps: Dict[str, dict], verbose: bool, refresh: bool,
-            aggregations: Dict[str, Any]=None):
+    def run(
+        self,
+        entity_maps: Dict[str, dict],
+        verbose: bool,
+        refresh: bool,
+        aggregations: Dict[str, Any] = None,
+    ):
 
-        ppcm = aggregations['PrimitivePairComparisonAggregation']['ppcm']
-        prim_id_to_paths = aggregations['PrimitivePairComparisonAggregation']['prim_id_to_paths']
+        ppcm = aggregations["PrimitivePairComparisonAggregation"]["ppcm"]
+        prim_id_to_paths = aggregations["PrimitivePairComparisonAggregation"][
+            "prim_id_to_paths"
+        ]
 
         # Here we construct prim_indexes to map each primitive ID
         # to what will be its index in the distance matrix.
@@ -123,15 +134,13 @@ class PrimitiveClusteringAnalysis(Analysis):
         prim_indexes[path2] = ind
         ind += 1
 
-        metric_vars: Dict[str, Dict[str, Any]] = {
-            m.name: {} for m in MetricProblemType
-        }
+        metric_vars: Dict[str, Dict[str, Any]] = {m.name: {} for m in MetricProblemType}
         for metric in metric_vars.keys():
-            metric_vars[metric]['distance_matrix'] = np.ones((ind, ind))
+            metric_vars[metric]["distance_matrix"] = np.ones((ind, ind))
             for i in range(ind):
-                metric_vars[metric]['distance_matrix'][i][i] = 0
+                metric_vars[metric]["distance_matrix"][i][i] = 0
 
-            metric_vars[metric]['found_any'] = False
+            metric_vars[metric]["found_any"] = False
 
         keys = list(ppcm.keys())
         while len(keys) > 0:
@@ -142,58 +151,50 @@ class PrimitiveClusteringAnalysis(Analysis):
                 continue
 
             for metric in metric_vars.keys():
-                metric_vars[metric]['found_iteration'] = False
-                metric_vars[metric]['total'] = 0
-                metric_vars[metric]['num_diffs'] = 0
+                metric_vars[metric]["found_iteration"] = False
+                metric_vars[metric]["total"] = 0
+                metric_vars[metric]["num_diffs"] = 0
 
             while len(run_diff_list) > 0:
                 run_diff = run_diff_list.pop(0)
 
                 metric = run_diff.output_difference_metric.name
-                metric_vars[metric]['found_any'] = True
-                metric_vars[metric]['found_iteration'] = True
-                metric_vars[metric]['total'] += run_diff.output_difference
-                metric_vars[metric]['num_diffs'] += 1
+                metric_vars[metric]["found_any"] = True
+                metric_vars[metric]["found_iteration"] = True
+                metric_vars[metric]["total"] += run_diff.output_difference
+                metric_vars[metric]["num_diffs"] += 1
 
             for metric in metric_vars.keys():
-                if metric_vars[metric]['found_iteration']:
-                    metric_vars[metric]['avg'] = (
-                        metric_vars[metric]['total'] /
-                        metric_vars[metric]['num_diffs']
+                if metric_vars[metric]["found_iteration"]:
+                    metric_vars[metric]["avg"] = (
+                        metric_vars[metric]["total"] / metric_vars[metric]["num_diffs"]
                     )
 
                     for path1 in prim_id_to_paths[prim_pair[0]]:
                         break
                     for path2 in prim_id_to_paths[prim_pair[1]]:
                         break
-                    metric_vars[metric]['distance_matrix'][
-                        prim_indexes[path1]
-                    ][
+                    metric_vars[metric]["distance_matrix"][prim_indexes[path1]][
                         prim_indexes[path2]
-                    ] = metric_vars[metric]['avg']
+                    ] = metric_vars[metric]["avg"]
 
         for metric in metric_vars.keys():
-            if metric_vars[metric]['found_any']:
+            if metric_vars[metric]["found_any"]:
 
                 # The distance matrix provided to squareform() must be symmetric
-                metric_vars[metric]['distance_matrix'] = np.minimum(
-                    metric_vars[metric]['distance_matrix'],
-                    metric_vars[metric]['distance_matrix'].T
+                metric_vars[metric]["distance_matrix"] = np.minimum(
+                    metric_vars[metric]["distance_matrix"],
+                    metric_vars[metric]["distance_matrix"].T,
                 )
 
                 labels = list(prim_indexes.keys())
                 # Manually drop the rows/columns of any primitives that aren't close to any others
-                metric_vars[metric]['distance_matrix'], labels = filter_distance_matrix(
-                    metric_vars[metric]['distance_matrix'],
-                    labels,
-                    self.CLIP_DISTANCE
+                metric_vars[metric]["distance_matrix"], labels = filter_distance_matrix(
+                    metric_vars[metric]["distance_matrix"], labels, self.CLIP_DISTANCE
                 )
 
-                Z = linkage(squareform(metric_vars[metric]['distance_matrix']), 'average')
-
-                self.save_dendrogram(
-                    Z,
-                    labels,
-                    metric,
-                    y_cutoff=self.CLIP_DISTANCE
+                Z = linkage(
+                    squareform(metric_vars[metric]["distance_matrix"]), "average"
                 )
+
+                self.save_dendrogram(Z, labels, metric, y_cutoff=self.CLIP_DISTANCE)
