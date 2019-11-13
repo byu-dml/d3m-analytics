@@ -23,6 +23,7 @@ class DataDir(Enum):
     PREDICTIONS_DUMP = os.path.join(DATA_ROOT, "dump/predictions")
     EXTRACTION = os.path.join(DATA_ROOT, "extractions")
     AGGREGATION = os.path.join(DATA_ROOT, "aggregations")
+    ANALYSIS = os.path.join(DATA_ROOT, "analyses")
     CACHE = os.path.join(DATA_ROOT, "cached-function-calls")
 
 

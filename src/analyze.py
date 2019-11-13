@@ -6,11 +6,13 @@ from src.analyses.analysis import Analysis
 from src.analyses.basic_stats import BasicStatsAnalysis
 from src.analyses.duplicate_pipelines import DuplicatePipelinesAnalysis
 from src.analyses.duplicate_primitives import DuplicatePrimitivesAnalysis
+from src.analyses.primitive_clustering import PrimitiveClusteringAnalysis
 
 analysis_map: Mapping[str, Type[Analysis]] = {
     "basic_stats": BasicStatsAnalysis,
     "duplicate_pipelines": DuplicatePipelinesAnalysis,
     "duplicate_primitives": DuplicatePrimitivesAnalysis,
+    "primitive_clustering": PrimitiveClusteringAnalysis,
 }
 
 
