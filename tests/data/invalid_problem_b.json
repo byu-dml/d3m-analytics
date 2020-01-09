@@ -5,8 +5,7 @@
         "metric": "ACCURACY"
       }
     ],
-    "task_type": "COLLABORATIVE_FILTERING",
-    "task_subtype": "MULTICLASS"
+    "task_type": "COLLABORATIVE_FILTERING"
   },
   "inputs": [
     {

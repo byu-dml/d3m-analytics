@@ -39,7 +39,6 @@ class PipelineRunsAggregation(Aggregation):
                         "problem_digest",
                         "problem_name",
                         "problem_type",
-                        "problem_subtype",
                     ],
                     [],
                     None,
@@ -67,8 +66,9 @@ class PipelineRunsAggregation(Aggregation):
                         "pipeline_digest": run.pipeline.digest,
                         "problem_digest": run.problem.digest,
                         "problem_name": run.problem.name,
-                        "problem_type": run.problem.type.value,
-                        "problem_subtype": run.problem.subtype,
+                        "problem_type": run.problem.type.value
+                        if run.problem.type is not None
+                        else None,
                     }
                 )
 

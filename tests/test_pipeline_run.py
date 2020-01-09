@@ -78,10 +78,7 @@ class TestPipelineRun(unittest.TestCase):
             {
                 "digest": "different_problem",
                 "name": None,
-                "problem": {
-                    "task_type": "COLLABORATIVE_FILTERING",
-                    "task_subtype": None,
-                },
+                "problem": {"task_type": "COLLABORATIVE_FILTERING"},
                 "performance_metrics": [],
                 "inputs": [],
             }

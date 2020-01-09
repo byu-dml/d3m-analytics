@@ -5,8 +5,7 @@
         "metric": "ACCURACY"
       }
     ],
-    "task_type": "CLASSIFICATION",
-    "task_subtype": "MULTICLASS"
+    "task_type": "CLASSIFICATION"
   },
   "inputs": [
     {

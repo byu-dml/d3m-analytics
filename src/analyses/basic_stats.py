@@ -35,8 +35,6 @@ class BasicStatsAnalysis(Analysis):
         phase_cnts: dict = defaultdict(int)
         # What is the distribution of problem types?
         problem_type_cnts: dict = defaultdict(int)
-        # What is the distribution of problem subtypes?
-        problem_subtype_cnts: dict = defaultdict(int)
         # What is the distribution of metric types?
         metric_types_cnt: dict = defaultdict(int)
         # What is the distribution of number of datasets per run?
@@ -101,8 +99,6 @@ class BasicStatsAnalysis(Analysis):
 
             problem_type_cnts[run.problem.type] += 1
 
-            problem_subtype_cnts[run.problem.subtype] += 1
-
             author_values[run.pipeline.source_name] += 1
 
             pred_header_cnt[len(run.prediction_headers)] += 1
@@ -165,7 +161,6 @@ class BasicStatsAnalysis(Analysis):
         print(f"\nThe number of pipeline runs with unique ids is: {num_runs}")
         print(f"\nThe distribution of run phases is: {phase_cnts}")
         print(f"\nThe distribution of problem types is: {problem_type_cnts}")
-        print(f"\nThe distribution of problem subtypes is: {problem_subtype_cnts}")
         print(f"\nThe distribution of metric types is: {metric_types_cnt}")
         print(f"\nThe distribution of score counts per run is: {score_cnt}")
         print(
