@@ -2,7 +2,6 @@ from enum import Enum
 from typing import Callable, List, NamedTuple, Set, Tuple
 
 import pandas as pd
-import numpy as np
 
 from src.misc.settings import ProblemType
 
@@ -30,15 +29,22 @@ def calculate_cod(preds_a: pd.Series, preds_b: pd.Series) -> float:
 
 def calculate_rod(preds_a: pd.Series, preds_b: pd.Series) -> float:
     """
-    Regressor Output Difference (ROD) is just the euclidian
-    distance between the two series of predictions.
+    Regressor Output Difference (ROD) is the average
+    Canberra distance between the two prediction vectors.
     """
     if preds_a.size != preds_b.size:
         raise ValueError("preds_a and preds_b must be of the same size")
     if preds_a.isnull().any() or preds_b.isnull().any():
         raise ValueError("preds_a and preds_b must not have any null values")
 
-    return np.linalg.norm(preds_a - preds_b)
+    y = pd.DataFrame({"preds_a": preds_a, "preds_b": preds_b})
+    n = len(y.index)
+    # drop rows with all 0's
+    yprime = y[(y.T != 0).any()]
+    summands = (yprime.preds_a - yprime.preds_b).abs() / (
+        yprime.preds_a.abs() + yprime.preds_b.abs()
+    )
+    return (1 / n) * summands.sum()
 
 
 class MetricProblemType(Enum):
