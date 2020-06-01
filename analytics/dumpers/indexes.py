@@ -5,7 +5,7 @@ from elasticsearch_dsl import Search
 from tqdm import tqdm
 
 from analytics.misc.settings import elasticsearch_fields, Index, DataDir
-from analytics.client import client
+from analytics.databases.d3m_client import d3m_client
 
 
 def dump_indexes(batch_size: int, requested_indexes: list):
@@ -22,7 +22,7 @@ def dump_indexes(batch_size: int, requested_indexes: list):
             index_name = index.value
             out_name = os.path.join(DataDir.INDEXES_DUMP.value, f"{index_name}.json")
 
-            s = Search(using=client, index=index_name)
+            s = Search(using=d3m_client, index=index_name)
             num_docs_in_index = s.count()
 
             if should_retrieve_subset:

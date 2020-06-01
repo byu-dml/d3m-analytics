@@ -17,6 +17,8 @@ You can use this package to programmatically interact with the D3M meta-learning
 
     ```env
     DATA_ROOT=<base_dir_for_package_files>
+    MONGO_HOST=<host_the_lab_db_is_on>
+    MONGO_PORT=<port_the_lab_db_is_on>
     ```
 
     `DATA_ROOT` is the base directory where all the package's DB dumps, DB extracts, caches, and other files are/will be stored. Defaults to the current directory.
@@ -29,7 +31,7 @@ Note: When contributing to this repo, there are additional steps to take. See th
 
 Using the `elasticsearch-dsl` python package, the database can be queried programmatically, with a fair amount of ease and flexibility.
 
-1.  Import the `client` object from the local `client` module.
+1.  Import the `d3m_client` object from the local `d3m_client` module.
 1.  Import the `Index` enum from the local `settings` module.
 1.  Import the `Search` class from the `elasticsearch_dsl` package.
 1.  Use the [`elasticsearch-dsl` documentation](https://elasticsearch-dsl.readthedocs.io/en/latest/search_dsl.html) to begin querying the elasticsearch indexes. Example:
@@ -37,11 +39,11 @@ Using the `elasticsearch-dsl` python package, the database can be queried progra
     ```python
     from elasticsearch_dsl import Search
 
-    from analytics.client import client
+    from analytics.databases.d3m_client import d3m_client
     from analytics.misc.settings import Index
 
     # Search all pipeline documents (defaults to only returning 10 at a time max)
-    s = Search(using=client, index=Index.PIPELINES.value)
+    s = Search(using=d3m_client, index=Index.PIPELINES.value)
 
     # Execute the search
     response = s.execute()

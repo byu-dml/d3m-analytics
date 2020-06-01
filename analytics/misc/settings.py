@@ -9,6 +9,8 @@ load_dotenv()
 
 # Pull environment variables from environment
 # for use in the code
+MONGO_HOST = os.environ["MONGO_HOST"]
+MONGO_PORT = os.environ["MONGO_PORT"]
 DATA_ROOT = os.getenv("DATA_ROOT", ".")
 DATA_ROOT = os.path.abspath(DATA_ROOT)
 print(f"using '{DATA_ROOT}' as DATA_ROOT")
