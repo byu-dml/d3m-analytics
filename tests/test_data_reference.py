@@ -1,6 +1,6 @@
 import unittest
 
-from src.entities.references.data import DataReference
+from analytics.entities.references.data import DataReference
 
 
 class TestDataReference(unittest.TestCase):

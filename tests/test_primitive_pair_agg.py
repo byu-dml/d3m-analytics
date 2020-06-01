@@ -1,7 +1,7 @@
 import unittest
 from typing import List
 
-from src.aggregations.primitive_pairs import (
+from analytics.aggregations.primitive_pairs import (
     PrimitivePairComparisonAggregation,
     PipelineRunPairDiffEntry,
 )

@@ -37,8 +37,8 @@ Using the `elasticsearch-dsl` python package, the database can be queried progra
     ```python
     from elasticsearch_dsl import Search
 
-    from src.client import client
-    from src.misc.settings import Index
+    from analytics.client import client
+    from analytics.misc.settings import Index
 
     # Search all pipeline documents (defaults to only returning 10 at a time max)
     s = Search(using=client, index=Index.PIPELINES.value)
@@ -58,7 +58,7 @@ Using the `elasticsearch-dsl` python package, the database can be queried progra
 To query the number of documents contained in each index of the DB, run:
 
 ```shell
-python -m src.count
+python -m analytics.count
 ```
 
 This is useful for finding out how big the database is.
@@ -68,7 +68,7 @@ This is useful for finding out how big the database is.
 To make a full JSON dump of the D3M MtL database, run this. Note: It copies all the indexes in the D3M elasticsearch instance and will take some time, depending on the number of documents that exist.
 
 ```shell
-python -m src.dump [--batch-size num_docs_in_batch] [--indexes index_names_to_dump] [--predictions]
+python -m analytics.dump [--batch-size num_docs_in_batch] [--indexes index_names_to_dump] [--predictions]
 ```
 
 `--batch-size` is an optional optimization helper that allows one to specify how many documents should be requested in each network request made to the D3M elasticsearch instance.
@@ -82,7 +82,7 @@ If the `--predictions` flag is present, prediction scores for all pipeline runs 
 Once a dump of the database is available, the `inspect` CLI is a useful tool for piping the contents of a DB index to stdout. Usage:
 
 ```shell
-python -m src.inspect [--index index_to_pipe] [--predictions-id pipeline_run_id]
+python -m analytics.inspect [--index index_to_pipe] [--predictions-id pipeline_run_id]
 ```
 
 If `--predictions-id` is supplied, the predictions document identified by `pipeline_run_id` will be piped to stdout. Otherwise, the index identified by `index_to_pipe` will be piped. The default for `index_to_pipe` is the pipeline run documents.
@@ -90,7 +90,7 @@ If `--predictions-id` is supplied, the predictions document identified by `pipel
 For example, to search through the pipeline documents for all pipelines that contain the string `random_forest`, run:
 
 ```shell
-python -m src.inpsect --index pipelines | grep random_forest
+python -m analytics.inpsect --index pipelines | grep random_forest
 ```
 
 ### Extract a dump
@@ -98,7 +98,7 @@ python -m src.inpsect --index pipelines | grep random_forest
 To extract a denormalized map of all the DB documents into a form ready for analysis, run:
 
 ```shell
-python -m src.extract [--index-name pipeline_runs_index_name]
+python -m analytics.extract [--index-name pipeline_runs_index_name]
 ```
 
 The extraction made is a dictionary of index names to indexes. Each index is a dictionary of denormalized documents to their ids.
@@ -110,10 +110,10 @@ The extraction made is a dictionary of index names to indexes. Each index is a d
 You can run aggregations on an extraction with this command:
 
 ```shell
-python -m src.aggregate [name_of_aggregation_to_run] [--verbose | -v] [--refresh | -r]
+python -m analytics.aggregate [name_of_aggregation_to_run] [--verbose | -v] [--refresh | -r]
 ```
 
-There are a number of aggregations available to be run on the extracted data. The implemented aggregations can be seen listed under `positional arguments` after running the command `python -m src.aggregate --help`.
+There are a number of aggregations available to be run on the extracted data. The implemented aggregations can be seen listed under `positional arguments` after running the command `python -m analytics.aggregate --help`.
 
 When the above command is run, the results of the aggregation are saved in a CSV table(s) for exporting. There are also some analyses that depend on the results of certain aggregations. When these analyses are run, the aggregation(s) will be run fresh—regardless of whether it has been completed before—and new tables _will not_ be saved.
 
@@ -126,14 +126,14 @@ If the `--refresh` flag is present, any cached function calls an aggregation com
 To analyze a denormalized extraction of pipeline runs, run this:
 
 ```shell
-python -m src.analyze [--analysis name_of_analysis_to_run] [--verbose] [--refresh]
+python -m analytics.analyze [--analysis name_of_analysis_to_run] [--verbose] [--refresh]
 ```
 
 If the `--verbose` flag is present, the results of the analysis will be reported more verbosely, if the analysis has verbose per-pipeline results to report that is.
 
 If the `--refresh` flag is present, any cached function calls an analysis computes and uses will be refreshed.
 
-To see which analyses are currently supported, run `python -m src.analyze --help` and look at the available options for the `--analysis` arg.
+To see which analyses are currently supported, run `python -m analytics.analyze --help` and look at the available options for the `--analysis` arg.
 
 ## Contributing
 

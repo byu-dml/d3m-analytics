@@ -1,11 +1,14 @@
 import unittest
-import math
 
 import numpy as np
 
-from src.misc.metrics import calculate_output_difference, calculate_cod, calculate_rod
-from src.entities.predictions import Predictions
-from src.misc.settings import ProblemType
+from analytics.misc.metrics import (
+    calculate_output_difference,
+    calculate_cod,
+    calculate_rod,
+)
+from analytics.entities.predictions import Predictions
+from analytics.misc.settings import ProblemType
 
 
 class TestPredictions(unittest.TestCase):
@@ -123,7 +126,7 @@ class TestPredictions(unittest.TestCase):
         rod_different = calculate_rod(
             self.num.data["values"], self.num_different.data["values"]
         )
-        self.assertEqual(rod_different, math.sqrt(0.1 ** 2 + 0.5 ** 2))
+        self.assertAlmostEqual(rod_different, (0.1 / 2.1 + 0.5 / 8.5) / 6)
 
         # ROD should calculate properly on data whose rows are
         # not all in the same order.

@@ -1,6 +1,6 @@
 import unittest
 
-from src.entities.pipeline_dag import PipelineDAG
+from analytics.entities.pipeline_dag import PipelineDAG
 from tests.utils import load_test_entities
 
 

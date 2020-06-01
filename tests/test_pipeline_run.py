@@ -1,13 +1,13 @@
 import unittest
 from copy import deepcopy
 
-from src.entities.problem import Problem
-from src.entities.dataset import Dataset
-from src.entities.primitive import Primitive
-from src.entities.predictions import Predictions
-from src.entities.pipeline_run import PipelineRunPhase, PipelineRunStatus
-from src.misc.metrics import MetricProblemType
-from src.misc.settings import PredsLoadStatus
+from analytics.entities.problem import Problem
+from analytics.entities.dataset import Dataset
+from analytics.entities.primitive import Primitive
+from analytics.entities.predictions import Predictions
+from analytics.entities.pipeline_run import PipelineRunPhase, PipelineRunStatus
+from analytics.misc.metrics import MetricProblemType
+from analytics.misc.settings import PredsLoadStatus
 from tests.utils import load_test_entities, post_init
 
 

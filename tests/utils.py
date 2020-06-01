@@ -1,11 +1,11 @@
 import json
 from typing import List, Dict, Union, Type
 
-from src.entities.entity import Entity, EntityWithId
-from src.entities.dataset import Dataset
-from src.entities.pipeline import Pipeline
-from src.entities.pipeline_run import PipelineRun
-from src.entities.problem.problem import Problem
+from analytics.entities.entity import Entity, EntityWithId
+from analytics.entities.dataset import Dataset
+from analytics.entities.pipeline import Pipeline
+from analytics.entities.pipeline_run import PipelineRun
+from analytics.entities.problem.problem import Problem
 
 _test_entity_names: Dict[str, Dict[str, Union[Type[Entity], List[str]]]] = {
     "pipelines": {
