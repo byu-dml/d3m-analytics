@@ -96,6 +96,7 @@ elasticsearch_fields: Dict[str, List[str]] = {
     ],
     Index.PROBLEMS: [
         "_id",
+        "id",
         "digest",
         "name",
         "problem",
