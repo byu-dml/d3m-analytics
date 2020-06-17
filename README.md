@@ -51,7 +51,7 @@ python -m analytics.sync [--batch-size num_docs_in_batch] [--indexes index_names
 
 ### Query The Lab's Database
 
-To perform queries on the lab's local mongodb database, connect to the database using your use `MONGO_HOST` and `MONGO_PORT` environment variables and use any query tool that mongodb supports. A `pymongo` client already connected to the database is exposed in `analytics.databases.aml_client`, e.g.:
+To perform queries on the lab's local mongodb database, connect to the database using your `MONGO_HOST` and `MONGO_PORT` environment variables and use any query tool that mongodb supports. For convenience, a `pymongo` client already connected to the database is exposed in `analytics.databases.aml_client`, e.g.:
 
 ```python
 from analytics.databases.aml_client import AMLDB
