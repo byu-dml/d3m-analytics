@@ -3,7 +3,7 @@ from analytics.misc.settings import Index
 
 
 def count():
-    """Count the number of documents in each index of the DB."""
+    """Count the number of documents in each index of the D3M DB."""
     counts = []
     db = D3MDB()
 
