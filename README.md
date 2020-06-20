@@ -21,7 +21,7 @@ You can use this package to programmatically interact with the D3M meta-learning
     MONGO_PORT=<port_the_lab_db_is_on>
     ```
 
-    `DATA_ROOT` is the base directory where all the package's DB extracts, caches, and other files are/will be stored. Defaults to the current directory.
+    `DATA_ROOT` is the base directory where all the package's DB caches, and other files are/will be stored. Defaults to the current directory.
 
 Note: When contributing to this repo, there are additional steps to take. See the "Contributing" section below.
 
