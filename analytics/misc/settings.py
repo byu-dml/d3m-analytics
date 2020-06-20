@@ -105,3 +105,12 @@ elasticsearch_fields: Dict[str, List[str]] = {
     ],
     Index.DATASETS: ["_id", "digest", "id", "name", "description"],
 }
+
+# Directories in the AML lab file server that house dataset
+# we use.
+dataset_directories = [
+    "/users/data/d3m/datasets/training_datasets/LL0",
+    "/users/data/d3m/datasets/training_datasets/LL1",
+    "/users/data/d3m/datasets/seed_datasets_current",
+    "/users/data/d3m/datasets/training_datasets/seed_datasets_archive",
+]

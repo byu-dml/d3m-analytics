@@ -37,18 +37,6 @@ python -m analytics.count
 
 This is useful for finding out how big the database is.
 
-### Sync D3M's Data to The Lab's Database
-
-To copy D3M's data down into our local database, run: 
-
-```
-python -m analytics.sync [--batch-size num_docs_in_batch] [--indexes index_names_to_sync]
-```
-
-`--batch-size` is an optional optimization helper that allows one to specify how many documents should be requested in each network request made to the D3M elasticsearch instance.
-
-`--indexes` can be used to specify the list of index names wanting to be synced. If left out, all indexes will be synced.
-
 ### Query The Lab's Database
 
 To perform queries on the lab's local mongodb database, connect to the database using your `MONGO_HOST` and `MONGO_PORT` environment variables and use any query tool that mongodb supports. For convenience, a `pymongo` client already connected to the database is exposed in `analytics.databases.aml_client`, e.g.:
@@ -62,6 +50,38 @@ pipeline_count = aml.db.pipelines.estimated_document_count()
 ```
 
 Here `aml.db.pipelines` is an instance of `pymongo.collection.Collection`. 
+
+### Sync D3M's Data to The Lab's Database
+
+To copy D3M's data down into our local database, run: 
+
+```
+python -m analytics.sync [--batch-size num_docs_in_batch] [--indexes index_names_to_sync]
+```
+
+`--batch-size` is an optional optimization helper that allows one to specify how many documents should be requested in each network request made to the D3M elasticsearch instance.
+
+`--indexes` can be used to specify the list of index names wanting to be synced. If left out, all indexes will be synced.
+
+### Computing And Adding Metafeatures to the Datasets Collection
+
+To compute metafeatures on all dataset living on the AML lab's file server, and add them to the dataset references living in the AML DB, run:
+
+```
+python -m analytics.metafeatures [problems_dirs] --max_rows <max_dataset_rows>
+```
+
+`problem_dirs` is an optional list of directory paths which house dataset/problem directories as their immediate subchildren. If not provided, metafeatures will be computed for all datasets/problems found under the directories listed in `analytics.misc.settings.dataset_directories`. `--max_rows` filters datasets. Datasets having more than `max_rows` will be skipped.
+
+### Denormalizing the Pipeline Runs Collection
+
+To denormalize the `pipeline_runs` collection and replace each pipeline run's references to any datasets, problems, and pipelines with actual copies of the dataset, problem, and pipeline documents, run:
+
+```
+python -m analytics.denormalize [--batch_size you_batch_size]
+```
+
+`--batch_size` is an optional argument which determines the number of documents to read and write in each batch call of queries made to the database.
 
 ## Contributing
 
