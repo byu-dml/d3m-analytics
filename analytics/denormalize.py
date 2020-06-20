@@ -59,30 +59,49 @@ def denormalize_pipeline_on_all_runs(pipeline: dict) -> UpdateMany:
     )
 
 
-def extract_denormalized(batch_size: int = 100) -> None:
+def extract_denormalized(*index_names, batch_size: int = 100) -> None:
     """
     Denormalizes all pipeline run documents in the lab's local
     database. Adds a copy of each run's problem, datasets, and
     pipeline(s) to the pipeline run document. Reads and updates
-    in batches of size `batch_size`.
+    in batches of size `batch_size`. If `index_names` are provided,
+    only documents in those indexes/collections will be denormalized
+    on the pipeline run documents.
     """
     aml = AMLDB()
 
-    print("denormalizing all pipeline run problem references...")
-    aml.bulk_read_write(
-        Index.PROBLEMS, Index.PIPELINE_RUNS, denormalize_problem_on_all_runs, batch_size
-    )
-    print("denormalizing all pipeline run dataset references...")
-    aml.bulk_read_write(
-        Index.DATASETS, Index.PIPELINE_RUNS, denormalize_dataset_on_all_runs, batch_size
-    )
-    print("denormalizing all pipeline run pipeline references...")
-    aml.bulk_read_write(
-        Index.PIPELINES,
-        Index.PIPELINE_RUNS,
-        denormalize_pipeline_on_all_runs,
-        batch_size,
-    )
+    if len(index_names) == 0:
+        # Denormalize all by default.
+        to_denormalize = {Index.PROBLEMS, Index.DATASETS, Index.PIPELINES}
+    else:
+        to_denormalize = {Index(name) for name in index_names}
+
+    if Index.PROBLEMS in to_denormalize:
+        print("denormalizing all pipeline run problem references...")
+        aml.bulk_read_write(
+            Index.PROBLEMS,
+            Index.PIPELINE_RUNS,
+            denormalize_problem_on_all_runs,
+            batch_size,
+        )
+
+    if Index.DATASETS in to_denormalize:
+        print("denormalizing all pipeline run dataset references...")
+        aml.bulk_read_write(
+            Index.DATASETS,
+            Index.PIPELINE_RUNS,
+            denormalize_dataset_on_all_runs,
+            batch_size,
+        )
+
+    if Index.PIPELINES in to_denormalize:
+        print("denormalizing all pipeline run pipeline references...")
+        aml.bulk_read_write(
+            Index.PIPELINES,
+            Index.PIPELINE_RUNS,
+            denormalize_pipeline_on_all_runs,
+            batch_size,
+        )
 
 
 if __name__ == "__main__":

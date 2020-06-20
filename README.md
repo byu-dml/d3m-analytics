@@ -78,8 +78,10 @@ python -m analytics.metafeatures [problems_dirs] --max_rows <max_dataset_rows>
 To denormalize the `pipeline_runs` collection and replace each pipeline run's references to any datasets, problems, and pipelines with actual copies of the dataset, problem, and pipeline documents, run:
 
 ```
-python -m analytics.denormalize [--batch_size you_batch_size]
+python -m analytics.denormalize [*index_names] [--batch_size you_batch_size]
 ```
+
+`*index_names` is an optional variable length number of positional arguments. If provided, only documents in those indexes/collections will be denormalized on the pipeline run documents.
 
 `--batch_size` is an optional argument which determines the number of documents to read and write in each batch call of queries made to the database.
 
