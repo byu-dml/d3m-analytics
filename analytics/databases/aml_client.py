@@ -16,6 +16,18 @@ class AMLDB:
         self.mongo_client = pymongo.MongoClient(MONGO_HOST, MONGO_PORT)
         self.db = self.mongo_client.analytics
 
+    def get_all_ids(self, collection: str, *, verbose: bool = True) -> set:
+        n_docs = self.db[collection].estimated_document_count()
+        return {
+            doc["_id"]
+            for doc in tqdm(
+                # Only retrieve the _id field of each document.
+                self.db[collection].find({}, {"_id": 1}),
+                total=n_docs,
+                disable=not verbose,
+            )
+        }
+
     def bulk_read_write(
         self, read: Index, write: Index, processor: t.Callable, batch_size: int
     ) -> None:

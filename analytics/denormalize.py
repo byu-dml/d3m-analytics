@@ -59,7 +59,7 @@ def denormalize_pipeline_on_all_runs(pipeline: dict) -> UpdateMany:
     )
 
 
-def extract_denormalized(*index_names, batch_size: int = 100) -> None:
+def extract_denormalized(*index_names, batch_size: int = 50) -> None:
     """
     Denormalizes all pipeline run documents in the lab's local
     database. Adds a copy of each run's problem, datasets, and

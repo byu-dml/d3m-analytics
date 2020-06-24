@@ -49,19 +49,31 @@ aml = AMLDB()
 pipeline_count = aml.db.pipelines.estimated_document_count()
 ```
 
-Here `aml.db.pipelines` is an instance of `pymongo.collection.Collection`. 
+Here `aml.db.pipelines` is an instance of `pymongo.collection.Collection`.
 
-### Sync D3M's Data to The Lab's Database
+### Doing a Full DB Sync
+
+This is the main top-level ETL command of this repo. To copy D3M's data into our local database, denormalize it, and pull in any problem metafeatures produced by the experimenter, run:
+
+```
+python -m analytics.sync [--batch-size num_docs_in_batch]
+```
+
+This puts the AML analytics DB in an up-to-date state, ready for analytics. Note: this takes some time to execute.
+
+`--batch-size` is an optional argument passed to `analytics.copy` and `analytics.denormalize`.
+
+### Copy D3M's Data to The Lab's Database
 
 To copy D3M's data down into our local database, run: 
 
 ```
-python -m analytics.sync [--batch-size num_docs_in_batch] [--indexes index_names_to_sync]
+python -m analytics.copy [--batch-size num_docs_in_batch] [--indexes index_names_to_sync]
 ```
 
 `--batch-size` is an optional optimization helper that allows one to specify how many documents should be requested in each network request made to the D3M elasticsearch instance.
 
-`--indexes` can be used to specify the list of index names wanting to be synced. If left out, all indexes will be synced.
+`--indexes` can be used to specify the list of index names wanting to be copied. If left out, all indexes will be copied.
 
 ### Computing And Adding Metafeatures to the Datasets Collection
 

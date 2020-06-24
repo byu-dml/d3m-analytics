@@ -4,6 +4,8 @@ import os
 import json
 import glob
 
+from pymongo.collection import Collection
+
 from analytics.misc.settings import DataDir, DefaultFile
 
 
@@ -34,7 +36,7 @@ def file_len(fname):
     https://stackoverflow.com/questions/845058/how-to-get-line-count-cheaply-in-python
     """
     with open(fname) as f:
-        for i, l in enumerate(f):
+        for i, _ in enumerate(f):
             pass
     return i + 1
 
@@ -143,3 +145,32 @@ def seq_to_map(sequence: Iterable, key_getter: Callable) -> Dict[Any, Any]:
     will look like `key_getter(entry): entry`.
     """
     return {key_getter(item): item for item in sequence}
+
+
+class MongoWriteBuffer:
+    """
+    Wraps the MongoDB `bulk_write` API to make writing
+    bulk operations to a collection in batches easier.
+    """
+
+    def __init__(self, collection: Collection, batch_size: int) -> None:
+        self.collection = collection
+        self.batch_size = batch_size
+        self.ops_buffer = []
+
+    def queue(self, operation) -> None:
+        """
+        Add an operation to the queue. Once we reach the
+        batch size, we automatically write and flush the buffer.
+        """
+        self.ops_buffer.append(operation)
+        if self.__len__() >= self.batch_size:
+            self.flush()
+
+    def __len__(self) -> int:
+        return len(self.ops_buffer)
+
+    def flush(self) -> None:
+        if self.__len__() > 0:
+            self.collection.bulk_write(self.ops_buffer, ordered=False)
+            self.ops_buffer.clear()
