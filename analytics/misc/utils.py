@@ -5,6 +5,7 @@ import json
 import glob
 
 from pymongo.collection import Collection
+from tqdm import tqdm
 
 from analytics.misc.settings import DataDir, DefaultFile
 
@@ -43,6 +44,15 @@ def file_len(fname):
 
 def get_file_size_mb(fname):
     return os.stat(fname).st_size / 1e6
+
+
+def chunk(sequence, n: int, *, show_progress: bool = False):
+    """
+    Yield successive `n`-sized chunks from `sequence`. Source:
+    https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
+    """
+    for i in tqdm(range(0, len(sequence), n), disable=not show_progress):
+        yield sequence[i : i + n]
 
 
 def with_cache(f: Callable, refresh=False) -> Callable:

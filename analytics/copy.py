@@ -1,9 +1,8 @@
-from tqdm import tqdm
 from fire import Fire
 from pymongo.operations import ReplaceOne
 
 from analytics.misc.settings import elasticsearch_fields, Index
-from analytics.misc.utils import MongoWriteBuffer
+from analytics.misc.utils import MongoWriteBuffer, chunk
 from analytics.databases.d3m_client import D3MDB
 from analytics.databases.aml_client import AMLDB
 
@@ -51,7 +50,7 @@ def copy_indexes(
         print(f"Determining which documents to copy from index '{index_name}'...")
         d3m_ids = d3m_db.get_all_ids(index_name)
         aml_ids = aml_db.get_all_ids(index_name)
-        ids_of_docs_to_copy = d3m_ids - aml_ids
+        ids_of_docs_to_copy = list(d3m_ids - aml_ids)
         num_docs_to_copy = len(ids_of_docs_to_copy)
 
         print(
@@ -61,26 +60,28 @@ def copy_indexes(
             )
         )
 
-        # Iterate over this index in batches, only querying the subset of fields we care about.
-        scanner = (
-            d3m_db.search(index=index_name)
-            .query("ids", values=list(ids_of_docs_to_copy))
-            .source(elasticsearch_fields[index])
-            .params(size=batch_size, request_timeout=request_timeout)
-            .scan()
-        )
-        # Write the data to the lab's db in batches as well.
+        # We'll write the data to the lab db in batches.
         write_buffer = MongoWriteBuffer(aml_collection, batch_size)
 
-        for hit in tqdm(scanner, total=num_docs_to_copy):
-            doc = hit.to_dict()
-            # Mongodb will use the same primary key elastic search does.
-            doc["_id"] = hit.meta.id
-            write_buffer.queue(
-                # Insert the doc, or if another document already exists with the same _id,
-                # then replace it.
-                ReplaceOne(filter={"_id": doc["_id"]}, replacement=doc, upsert=True)
+        # Iterate over this index in batches, only querying the subset of fields we care about.
+        for id_chunk in chunk(ids_of_docs_to_copy, batch_size, show_progress=True):
+            hits = (
+                d3m_db.search(index=index_name)
+                .query("ids", values=list(id_chunk))
+                .source(elasticsearch_fields[index])
+                .params(size=batch_size, request_timeout=request_timeout)
+                .execute()
             )
+
+            for hit in hits:
+                doc = hit.to_dict()
+                # Mongodb will use the same primary key elastic search does.
+                doc["_id"] = hit.meta.id
+                write_buffer.queue(
+                    # Insert the doc, or if another document already exists with the same _id,
+                    # then replace it.
+                    ReplaceOne(filter={"_id": doc["_id"]}, replacement=doc, upsert=True)
+                )
 
         # Write and flush any leftovers.
         write_buffer.flush()
