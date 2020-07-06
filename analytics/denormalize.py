@@ -16,6 +16,9 @@ def denormalize_problem_on_all_runs(problem: dict) -> UpdateMany:
             "$and": [
                 {"problem.id": problem["id"]},
                 {"problem.digest": problem["digest"]},
+                # We check for existence of this field to identify pipeline
+                # runs whose problem hasn't been copied over yet.
+                {"problem.name": {"$exists": False}},
             ]
         },
         update={"$set": {"problem": problem}},
@@ -33,6 +36,9 @@ def denormalize_dataset_on_all_runs(dataset: dict) -> UpdateMany:
             "$and": [
                 {"datasets.id": dataset["id"]},
                 {"datasets.digest": dataset["digest"]},
+                # We check for existence of this field to identify pipeline
+                # runs whose datasets haven't been copied over yet.
+                {"datasets.name": {"$exists": False}},
             ]
         },
         update={"$set": {"datasets.$[matcher]": dataset}},
@@ -53,6 +59,9 @@ def denormalize_pipeline_on_all_runs(pipeline: dict) -> UpdateMany:
             "$and": [
                 {"pipeline.id": pipeline["id"]},
                 {"pipeline.digest": pipeline["digest"]},
+                # We check for existence of this field to identify pipeline
+                # runs whose pipeline hasn't been copied over yet.
+                {"pipeline.schema": {"$exists": False}},
             ]
         },
         update={"$set": {"pipeline": pipeline}},
