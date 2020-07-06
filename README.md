@@ -1,6 +1,6 @@
-# Programmatically Interact With The D3M MtL Database
+# Make a Local Data Warehouse of The D3M MtL Database
 
-You can use this package to programmatically interact with the D3M meta-learning database, and to create a local denormalized copy of it, storing the data in a MongoDB instance. This package uses the `elasticsearch-dsl` python package to query.
+You can use this package to create a local denormalized copy of it, storing the data in a MongoDB instance. This package uses the `elasticsearch-dsl` python package to query.
 
 ## Installation:
 
