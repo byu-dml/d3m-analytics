@@ -16,25 +16,9 @@ load_dotenv()
 # for use in the code
 MONGO_HOST = os.environ["MONGO_HOST"]
 MONGO_PORT = int(os.environ["MONGO_PORT"])
-DATA_ROOT = os.getenv("DATA_ROOT", ".")
-DATA_ROOT = os.path.abspath(DATA_ROOT)
-print(f"using '{DATA_ROOT}' as DATA_ROOT")
 
 # The URL of the elastic search API for querying the DB.
 API = "https://metalearning.datadrivendiscovery.org/es/"
-
-
-@unique
-class DataDir(Enum):
-    EXTRACTION = os.path.join(DATA_ROOT, "extractions")
-    AGGREGATION = os.path.join(DATA_ROOT, "aggregations")
-    ANALYSIS = os.path.join(DATA_ROOT, "analyses")
-    CACHE = os.path.join(DATA_ROOT, "cached-function-calls")
-
-
-@unique
-class DefaultFile(Enum):
-    EXTRACTION_PKL = "denormalized_entity_maps.pkl"
 
 
 @unique
@@ -45,21 +29,6 @@ class Index(Enum):
     PIPELINE_RUNS = "pipeline_runs"
     PROBLEMS = "problems"
     DATASETS = "datasets"
-
-
-@unique
-class ProblemType(Enum):
-    CLASSIFICATION = "CLASSIFICATION"
-    SEMISUPERVISED_CLASSIFICATION = "SEMISUPERVISED_CLASSIFICATION"
-    VERTEX_CLASSIFICATION = "VERTEX_CLASSIFICATION"
-    REGRESSION = "REGRESSION"
-    TIME_SERIES_FORECASTING = "TIME_SERIES_FORECASTING"
-    GRAPH_MATCHING = "GRAPH_MATCHING"
-    LINK_PREDICTION = "LINK_PREDICTION"
-    COMMUNITY_DETECTION = "COMMUNITY_DETECTION"
-    CLUSTERING = "CLUSTERING"
-    COLLABORATIVE_FILTERING = "COLLABORATIVE_FILTERING"
-    OBJECT_DETECTION = "OBJECT_DETECTION"
 
 
 # The fields to sync for each collection
@@ -105,12 +74,3 @@ elasticsearch_fields: Dict[str, List[str]] = {
     ],
     Index.DATASETS: ["_id", "digest", "id", "name", "description"],
 }
-
-# Directories in the AML lab file server that house dataset
-# we use.
-dataset_directories = [
-    "/users/data/d3m/datasets/training_datasets/LL0",
-    "/users/data/d3m/datasets/training_datasets/LL1",
-    "/users/data/d3m/datasets/seed_datasets_current",
-    "/users/data/d3m/datasets/training_datasets/seed_datasets_archive",
-]

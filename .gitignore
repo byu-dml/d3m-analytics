@@ -126,12 +126,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Local files
-dump/
-extractions/
-analytics/*/temp.*
-script-data/
-
 # Pickled files
 *.pickle
 *.pkl
