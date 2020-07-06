@@ -1,9 +1,6 @@
-[![Build Status](https://api.travis-ci.org/byu-dml/d3m-mtl-db-reader.png)](https://travis-ci.org/byu-dml/d3m-mtl-db-reader)
-[![codecov](https://codecov.io/gh/byu-dml/d3m-mtl-db-reader/branch/master/graph/badge.svg)](https://codecov.io/gh/byu-dml/d3m-mtl-db-reader)
-
 # Programmatically Interact With The D3M MtL Database
 
-You can use this package to programmatically interact with the D3M meta-learning database. This package uses the `elasticsearch-dsl` python package to query.
+You can use this package to programmatically interact with the D3M meta-learning database, and to create a local denormalized copy of it, storing the data in a MongoDB instance. This package uses the `elasticsearch-dsl` python package to query.
 
 ## Installation:
 
@@ -16,12 +13,9 @@ You can use this package to programmatically interact with the D3M meta-learning
 1.  Add an `.env` file to root, and include these values:
 
     ```env
-    DATA_ROOT=<base_dir_for_package_files>
     MONGO_HOST=<host_the_lab_db_is_on>
     MONGO_PORT=<port_the_lab_db_is_on>
     ```
-
-    `DATA_ROOT` is the base directory where all the package's DB caches, and other files are/will be stored. Defaults to the current directory.
 
 Note: When contributing to this repo, there are additional steps to take. See the "Contributing" section below.
 
@@ -53,7 +47,7 @@ Here `aml.db.pipelines` is an instance of `pymongo.collection.Collection`.
 
 ### Doing a Full DB Sync
 
-This is the main top-level ETL command of this repo. To copy D3M's data into our local database, denormalize it, and pull in any problem metafeatures produced by the experimenter, run:
+This is the main top-level ETL command of this repo. To copy D3M's data into our local database and denormalize it, run:
 
 ```
 python -m analytics.sync [--batch-size num_docs_in_batch]
@@ -68,22 +62,12 @@ This puts the AML analytics DB in an up-to-date state, ready for analytics. Note
 To copy D3M's data down into our local database, run: 
 
 ```
-python -m analytics.copy [--batch-size num_docs_in_batch] [--indexes index_names_to_sync]
+python -m analytics.copy [*index_names] [--batch-size num_docs_in_batch]
 ```
 
 `--batch-size` is an optional optimization helper that allows one to specify how many documents should be requested in each network request made to the D3M elasticsearch instance.
 
-`--indexes` can be used to specify the list of index names wanting to be copied. If left out, all indexes will be copied.
-
-### Computing And Adding Metafeatures to the Datasets Collection
-
-To compute metafeatures on all dataset living on the AML lab's file server, and add them to the dataset references living in the AML DB, run:
-
-```
-python -m analytics.metafeatures [problems_dirs] --max_rows <max_dataset_rows>
-```
-
-`problem_dirs` is an optional list of directory paths which house dataset/problem directories as their immediate subchildren. If not provided, metafeatures will be computed for all datasets/problems found under the directories listed in `analytics.misc.settings.dataset_directories`. `--max_rows` filters datasets. Datasets having more than `max_rows` will be skipped.
+`*index_names` is an optional variable length number of positional arguments. It can be used to specify the list of index names wanting to be copied. If left out, all indexes will be copied.
 
 ### Denormalizing the Pipeline Runs Collection
 
