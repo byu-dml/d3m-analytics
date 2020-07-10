@@ -129,3 +129,5 @@ dmypy.json
 # Pickled files
 *.pickle
 *.pkl
+
+*.csv
